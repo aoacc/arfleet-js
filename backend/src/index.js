@@ -1,4 +1,6 @@
 const { Command } = require('commander');
+const fs = require('fs');
+const utils = require('./utils');
 
 (async() => {
     const program = new Command();
@@ -22,9 +24,13 @@ const { Command } = require('commander');
 
     // Set datadir
     if (program.datadir) {
-        process.env.DATADIR = program.datadir;
+        process.env.DATADIR = utils.resolveHome(program.datadir);
     } else {
-        process.env.DATADIR = config.datadir;
+        process.env.DATADIR = utils.resolveHome(config[process.env.MODE].defaultDatadir);
+    }
+    // Create if doesn't exist
+    if (!fs.existsSync(process.env.DATADIR)) {
+        fs.mkdirSync(process.env.DATADIR, { recursive: true });
     }
 
     switch(process.env.MODE) {

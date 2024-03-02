@@ -1,12 +1,13 @@
 const defaultConfig = {
-    datadir: '~/.tempweave',
     client: {
+        defaultDatadir: '~/.tempweave-client',
         api_server: {
             host: '127.0.0.1',
             port: 8885
         }
     },
     provider: {
+        defaultDatadir: '~/.tempweave-provider',
         api_server: {
             host: '127.0.0.1',
             port: 8886
