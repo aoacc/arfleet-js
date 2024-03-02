@@ -3,27 +3,27 @@ const os = require('os');
 const config = require('../config');
 
 module.exports = {
-    setDataDir: (path) => {
+    setDataDir: function(path) {
         process.env.DATADIR = this.resolveHome(path);
     },
-    getDatadir: (path) => {
+    getDatadir: function(path) {
         const datadir = process.env.DATADIR;
         return path ? nodepath.join(datadir, path) : datadir;
     },
-    getMode: () => {
+    getMode: function() {
         return process.env.MODE;
     },
-    resolveHome: (filepath) => {
+    resolveHome: function(filepath) {
         if (filepath[0] === '~') {
             return nodepath.join(process.env.HOME || os.homedir(), filepath.slice(1));
         }
         return filepath;
     },
-    getModeConfig: () => {
+    getModeConfig: function() {
         const mode = this.getMode();
         return config[mode];
     },
-    hashFn: (buf) => {
+    hashFn: function(buf) {
         if (!Buffer.isBuffer(buf)) {
             throw new Error('Expected a buffer');
         }
@@ -31,9 +31,12 @@ module.exports = {
         const crypto = require('crypto');
         const hash = crypto.createHash('sha256');
         hash.update(buf);
-        return hash.digest('hex');
+        return hash.digest();
     },
-    merkleDerive: (values, digestFn, initial_iteration) => {
+    hashFnHex: function(buf) {
+        return this.hashFn(buf).toString('hex');
+    },
+    merkleDerive: function(values, digestFn, initial_iteration) {
         // This is a modified version of https://www.npmjs.com/package/merkle-lib
         // Modified to defend merkle trees from second preimage attack
         const length = values.length;
@@ -51,7 +54,7 @@ module.exports = {
     
         return results;
     },
-    merkle: (values, digestFn) => {
+    merkle: function(values, digestFn) {
         if (!Array.isArray(values)) throw TypeError('Expected values Array');
         if (typeof digestFn !== 'function') throw TypeError('Expected digest Function');
 
@@ -68,5 +71,11 @@ module.exports = {
         } while (level.length > 1);
 
         return [...levels].flat();
-    }
+    },
+    mkdirp: function(path) {
+        const fs = require('fs');
+        if (!fs.existsSync(path)) {
+            fs.mkdirSync(path, { recursive: true });
+        }
+    },
 }

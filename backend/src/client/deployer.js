@@ -24,15 +24,29 @@ const chunksToTotalLength = (chunks) =>
     (chunks.length - 1) * CHUNK_SIZE + chunks[chunks.length - 1].byteLength;
 
 const buffersToHashes = (bufs) =>
-    bufs.map(buf => hashFn(buf));
+    bufs.map(buf => utils.hashFn(buf));
 
-const processFile = async (path) => {
-    // {"type": "file", "path": filePath, "size": size}
-    const buf = fs.readFileSync(path, null);
+const processFile = async (buf) => {
     const chunks = chunkify(buf);
     const chunkHashes = buffersToHashes(chunks);
-    const merkleTree = merkle(chunkHashes, hashFn);
+    const chunkHashesHex = chunkHashes.map(hash => hash.toString('hex'));
+    const merkleTree = utils.merkle(chunkHashes, utils.hashFn);
     const filesize = chunksToTotalLength(chunks);
+
+    // Let's save chunks into our storage
+    for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        const chunkHash = chunkHashesHex[i];
+        const chunkPath = utils.getDatadir('chunks/' + chunkHash);
+        if (!fs.existsSync(chunkPath)) {
+            utils.mkdirp(nodepath.dirname(chunkPath));
+            fs.writeFileSync(chunkPath, chunk, null);
+        }
+    }
+
+    const merkleRoot = merkleTree[merkleTree.length - 1];
+
+    return {"type": "file", "hash": merkleRoot, "size": filesize, "chunks": chunkHashesHex};
 };
 
 const storePath = async (path) => {
@@ -40,7 +54,8 @@ const storePath = async (path) => {
 
     const stats = fs.statSync(path);
     if (stats.isFile()) {
-        return processFile(path);
+        const buf = fs.readFileSync
+        return await processFile(buf);
     } else {
         const files = fs.readdirSync(path);
         for (const file of files) {
@@ -50,7 +65,8 @@ const storePath = async (path) => {
                 container[file] = await storePath(filePath);
             } else if (subStats.isFile()) {
                 const size = subStats.size;
-                container[file] = processFile(filePath);
+                const buf = fs.readFileSync(filePath, null);
+                container[file] = await processFile(buf);
             } else {
                 throw new Error("Unknown file type: " + filePath);
             }
@@ -61,7 +77,19 @@ const storePath = async (path) => {
             size += container[key].size;
         }
 
-        return {"type": "directory", "size": size, "files": container};
+        const directoryFile = config.directory_prologue + JSON.stringify({
+            "type": "directory",
+            "size": size,
+            "files": container
+        });
+
+        const dir = processFile(Buffer.from(directoryFile, 'utf-8'));
+
+        return {
+            "type": "dirptr",
+            "hash": dir.hash,
+            "size": dir.size + directoryFile.length,
+        }
     }
 };
 

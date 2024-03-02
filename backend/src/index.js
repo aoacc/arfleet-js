@@ -40,9 +40,7 @@ const utils = require('./utils');
         process.env.DATADIR = utils.resolveHome(config[process.env.MODE].defaultDatadir);
     }
     // Create if doesn't exist
-    if (!fs.existsSync(process.env.DATADIR)) {
-        fs.mkdirSync(process.env.DATADIR, { recursive: true });
-    }
+    utils.mkdirp(process.env.DATADIR);
 
     if (process.env.MODE === 'client') {
         if (process.env.SUBMODE === 'store') {

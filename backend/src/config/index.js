@@ -29,7 +29,10 @@ const defaultConfig = {
         storage: 'tempweave.db',
         transactionType: 'DEFERRED',
     },
-    chunk_size: 4096,
+    chunk_size: 128,
+    _chunk_size: 2048,
+    chunkinfo_prologue: 'TEMPWEAVE\x05\x06\xf5\xf6*INFO',
+    directory_prologue: 'TEMPWEAVE\x05\x06\xf5\xf6*DIR',
 };
 
 module.exports = defaultConfig;

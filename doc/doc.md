@@ -28,3 +28,5 @@ ok let's see, what is going to be the plan?
 
 desired_redundancy = 3
 
+
+- [] better errors from api
