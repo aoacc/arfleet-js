@@ -17,6 +17,17 @@ const defaultConfig = {
             host: '0.0.0.0',
             port: 8890
         }
+    },
+    db: {
+        define: {
+            underscored: true,
+            timestamps: true,
+            createdAt: 'created_at',
+            updatedAt: 'updated_at'
+        },
+        dialect: 'sqlite',
+        storage: 'tempweave.db',
+        transactionType: 'DEFERRED',
     }
 };
 

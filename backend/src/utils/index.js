@@ -1,5 +1,6 @@
 const nodepath = require('path');
 const os = require('os');
+const config = require('../config');
 
 module.exports = {
     setDataDir: (path) => {
@@ -17,5 +18,9 @@ module.exports = {
             return nodepath.join(process.env.HOME || os.homedir(), filepath.slice(1));
         }
         return filepath;
+    },
+    getModeConfig: () => {
+        const mode = this.getMode();
+        return config[mode];
     }
 }
