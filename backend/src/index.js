@@ -33,18 +33,24 @@ const utils = require('./utils');
         fs.mkdirSync(process.env.DATADIR, { recursive: true });
     }
 
+    // Init wallet
+    const { initWallet } = require('./wallet');
+    const wallet = await initWallet();
+
+    // Start client/provider
     switch(process.env.MODE) {
         case 'client':
             const { startClient } = require('./client');
-            await startClient();
+            await startClient({ wallet });
             break;
 
         case 'provider':
             const { startProvider } = require('./provider');
-            await startProvider();
+            await startProvider({ wallet });
             break;
     }
 
+    // Start API
     const { startApi } = require('./api');
     await startApi();
 })();

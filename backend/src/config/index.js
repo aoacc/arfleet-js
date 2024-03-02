@@ -1,4 +1,5 @@
 const defaultConfig = {
+    walletPath: 'wallet.json',
     client: {
         defaultDatadir: '~/.tempweave-client',
         api_server: {
