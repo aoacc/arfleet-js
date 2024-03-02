@@ -22,5 +22,15 @@ module.exports = {
     getModeConfig: () => {
         const mode = this.getMode();
         return config[mode];
+    },
+    hashFn: (buf) => {
+        if (!Buffer.isBuffer(buf)) {
+            throw new Error('Expected a buffer');
+        }
+
+        const crypto = require('crypto');
+        const hash = crypto.createHash('sha256');
+        hash.update(buf);
+        return hash.digest('hex');
     }
 }
