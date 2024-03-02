@@ -28,7 +28,8 @@ const defaultConfig = {
         dialect: 'sqlite',
         storage: 'tempweave.db',
         transactionType: 'DEFERRED',
-    }
+    },
+    chunk_size: 4096,
 };
 
 module.exports = defaultConfig;
