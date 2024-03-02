@@ -5,9 +5,20 @@ const apiServerConfig = config[MODE].api_server;
 const startApi = async() => {
     const express = require('express');
     const app = express();
-    
+
+    // app.use(logger('dev'));
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    // app.use(cookieParser());
+    // app.use(express.static(path.join(__dirname, 'public')));
+
     const host = apiServerConfig.host;
     const port = apiServerConfig.port;
+
+    if (MODE === 'client') {
+        const { store } = require('./store');
+        app.post('/store', store);
+    }
 
     app.get('/', (req, res) => {
         res.send('Hello World!')

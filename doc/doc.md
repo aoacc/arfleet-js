@@ -2,7 +2,7 @@
 [x] establish datadir; use ~/.tempweave. bring homedir
 [x] create arweave wallet on the fly
 
-[] db
+[x] db
 [] files, chunks, storage_links
 [] add file: ./tempweave store . <--- path
     it gets copied to ~/.tempweave/jobs

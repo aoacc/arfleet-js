@@ -14,8 +14,19 @@ const utils = require('./utils');
     program.option('-d, --datadir <path>', 'path to the data directory');
     program.option('-v, --verbose', 'force the logger to show debug level messages', false);
 
-    program.command('client').description('start as a client').action(() => { process.env.MODE = 'client'; });
-    program.command('provider').description('start as a provider').action(() => { process.env.MODE = 'provider'; });
+    const clientCommand = program.command('client')
+    clientCommand
+        .description('start as a client')
+        .action(() => { process.env.MODE = 'client'; });
+
+    clientCommand.command('store <path>')
+        .description('store a file/folder')
+        .action((path) => { process.env.MODE = 'client'; process.env.SUBMODE = 'store'; process.env.STORE_PATH = path; });
+    
+    const providerCommand = program.command('provider');
+    providerCommand
+        .description('start as a provider')
+        .action(() => { process.env.MODE = 'provider'; });
 
     program.parse(process.argv);
 
@@ -31,6 +42,14 @@ const utils = require('./utils');
     // Create if doesn't exist
     if (!fs.existsSync(process.env.DATADIR)) {
         fs.mkdirSync(process.env.DATADIR, { recursive: true });
+    }
+
+    if (process.env.MODE === 'client') {
+        if (process.env.SUBMODE === 'store') {
+            const cmd = require('./cmd');
+            await cmd.client_store(process.env.STORE_PATH);
+            process.exit(0);
+        }
     }
 
     // Init wallet
