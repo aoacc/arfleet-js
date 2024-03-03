@@ -30,3 +30,15 @@ desired_redundancy = 3
 
 
 - [] better errors from api
+
+
+StorageContainer {
+    ... files here
+}
+
+what will we have to keep after the container is stored?
+
+1. providers (storage link counterparty)
+2. (key we don't have to store, derivable)
+3. encrypted tree root of the container - that's the container id
+4. the root directory index id. if it's in several chunks, it will give us many pointers into the same container tree

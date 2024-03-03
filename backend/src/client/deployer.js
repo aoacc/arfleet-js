@@ -26,7 +26,7 @@ const chunksToTotalLength = (chunks) =>
 const buffersToHashes = (bufs) =>
     bufs.map(buf => utils.hashFn(buf));
 
-const processFile = async (buf) => {
+const processFile = async (buf, chunkQueue) => {
     const chunks = chunkify(buf);
     const chunkHashes = buffersToHashes(chunks);
     const chunkHashesHex = chunkHashes.map(hash => hash.toString('hex'));
@@ -42,60 +42,99 @@ const processFile = async (buf) => {
             utils.mkdirp(nodepath.dirname(chunkPath));
             fs.writeFileSync(chunkPath, chunk, null);
         }
+
+        chunkQueue.push(chunkHash);
     }
 
-    const merkleRoot = merkleTree[merkleTree.length - 1];
+    let ret;
+    if (chunks.length > 1) {
+        const merkleRoot = merkleTree[merkleTree.length - 1];
 
-    return {"type": "file", "hash": merkleRoot, "size": filesize, "chunks": chunkHashesHex};
+        const fileIndex = config.chunkinfo_prologue + JSON.stringify({"type": "file", "hash": merkleRoot, "size": filesize, "chunks": chunkHashesHex});
+        const fileIndexRaw = Buffer.from(fileIndex, 'utf-8');
+        const fileIndexResult = await processFile(fileIndexRaw, chunkQueue);
+        // if fileIndexRaw is less than CHUNK_SIZE, we will just get its hash
+
+        chunkQueue.push(fileIndexResult.hash);
+
+        console.log({fileIndexResult, filesize, chunkHashesHex, merkleRoot, CHUNK_SIZE})
+
+        ret = {
+            "type": "fileptr",
+            "hash": fileIndexResult.hash,
+            "size": fileIndexRaw.length + filesize,
+        };
+    } else {
+        ret = {
+            "type": "file",
+            "hash": chunkHashesHex[0],
+            "size": filesize,
+        };
+    }
+
+    console.log({ret});
+
+    return ret;
 };
 
-const storePath = async (path) => {
+const processDirectory = async (path, chunkQueue) => {
     const container = {};
 
+    const files = fs.readdirSync(path);
+    for (const file of files) {
+        const filePath = nodepath.join(path, file);
+        const subStats = fs.statSync(filePath);
+        if (subStats.isDirectory()) {
+            container[file] = await storePath(filePath, chunkQueue);
+        } else if (subStats.isFile()) {
+            const buf = fs.readFileSync(filePath, null);
+            container[file] = await processFile(buf, chunkQueue);
+        } else {
+            throw new Error("Unknown file type: " + filePath);
+        }
+    }
+
+    let size = 0;
+    for (const key in container) {
+        size += container[key].size;
+    }
+
+    const directoryIndex = {
+        "type": "directory",
+        "size": size,
+        "files": container
+    };
+    const directoryIndexRaw = Buffer.from(config.directory_prologue + JSON.stringify(directoryIndex), 'utf-8');
+
+    const dir = await processFile(directoryIndexRaw, chunkQueue);
+    // if directoryIndexRaw is less than CHUNK_SIZE, we will just get its hash
+
+    const ret = {
+        "type": "dirptr",
+        "hash": dir.hash,
+        "size": dir.size + size,
+    }
+
+    console.log({ret});
+
+    return ret;
+};
+
+const storePath = async (path, chunkQueue) => {
     const stats = fs.statSync(path);
     if (stats.isFile()) {
         const buf = fs.readFileSync
-        return await processFile(buf);
+        return await processFile(buf, chunkQueue);
     } else {
-        const files = fs.readdirSync(path);
-        for (const file of files) {
-            const filePath = nodepath.join(path, file);
-            const subStats = fs.statSync(filePath);
-            if (subStats.isDirectory()) {
-                container[file] = await storePath(filePath);
-            } else if (subStats.isFile()) {
-                const size = subStats.size;
-                const buf = fs.readFileSync(filePath, null);
-                container[file] = await processFile(buf);
-            } else {
-                throw new Error("Unknown file type: " + filePath);
-            }
-        }
-
-        let size = 0;
-        for (const key in container) {
-            size += container[key].size;
-        }
-
-        const directoryFile = config.directory_prologue + JSON.stringify({
-            "type": "directory",
-            "size": size,
-            "files": container
-        });
-
-        const dir = processFile(Buffer.from(directoryFile, 'utf-8'));
-
-        return {
-            "type": "dirptr",
-            "hash": dir.hash,
-            "size": dir.size + directoryFile.length,
-        }
+        return await processDirectory(path, chunkQueue);
     }
 };
 
 const store = async (path) => {
-    const storeInfo = await storePath(path);
+    let chunkQueue = [];
+    const storeInfo = await storePath(path, chunkQueue);
     console.log(storeInfo);
+    console.log({chunkQueue});
     return storeInfo;
 };
 
