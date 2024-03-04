@@ -1,13 +1,18 @@
-console.log("hello from provider/index.js")
+const utils = require('../utils');
 
-const express = require('express')
-const app = express()
-const port = 3131
+let state = {};
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+const startProvider = async({ wallet }) => {
+    console.log("Starting provider...");
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+    console.log("Datadir: ", utils.getDatadir());
+    console.log("Wallet address: ", await wallet.getAddress());
+
+    const { startPublicServer } = require('./server');
+    await startPublicServer();
+
+    const { startProviderRepl } = require('./repl.js');
+    await startProviderRepl();
+}
+
+module.exports = { startProvider };

@@ -100,6 +100,10 @@ const utils = require('./utils');
     const { initWallet } = require('./wallet');
     const wallet = await initWallet();
 
+    // Start API
+    const { startApi } = require('./api');
+    await startApi();    
+
     // Start client/provider
     switch(process.env.MODE) {
         case 'client':
@@ -112,8 +116,4 @@ const utils = require('./utils');
             await startProvider({ wallet });
             break;
     }
-
-    // Start API
-    const { startApi } = require('./api');
-    await startApi();
 })();

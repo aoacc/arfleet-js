@@ -37,6 +37,7 @@ const defaultConfig = {
     _chunkSize: 2048,
     chunkinfoPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*INFO',
     directoryPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*DIR',
+    defaultToken: 'w_4ejp8gRKi2B2KEkVjwlj-W3CpDEfjtJ8qV_0mjNMI',
 };
 
 module.exports = defaultConfig;

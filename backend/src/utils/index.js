@@ -78,4 +78,10 @@ module.exports = {
             fs.mkdirSync(path, { recursive: true });
         }
     },
+    myExternalIP: async function() {
+        const service = 'https://ifconfig.me';
+        const axios = require('axios');
+        const response = await axios.get(service);
+        return response.data;
+    },
 }
