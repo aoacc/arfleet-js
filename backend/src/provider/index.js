@@ -1,18 +1,46 @@
 const utils = require('../utils');
+const config = require('../config');
+const { getAoInstance } = require('../arweave/ao');
 
-let state = {};
+class Provider {
+    constructor({ wallet }) {
+        this.wallet = wallet;
+        this.start();
+    }
 
-const startProvider = async({ wallet }) => {
-    console.log("Starting provider...");
+    async start() {
+        this.address = await this.wallet.getAddress();
 
-    console.log("Datadir: ", utils.getDatadir());
-    console.log("Wallet address: ", await wallet.getAddress());
+        console.log("Starting provider...");
+        console.log("Datadir: ", utils.getDatadir());
+        console.log("Wallet address: ", this.address);
 
-    const { startPublicServer } = require('./server');
-    await startPublicServer();
+        this.ao = getAoInstance({ wallet: this.wallet });
 
-    const { startProviderRepl } = require('./repl.js');
-    await startProviderRepl();
+        const { startPublicServer } = require('./server');
+        const result = await startPublicServer();
+        this.externalIP = result.externalIP;
+        this.connectionStrings = result.connectionStrings;
+
+        const { startProviderRepl } = require('./repl.js');
+        await startProviderRepl(this);
+    }
+
+    async getCapacity() {
+        // todo: return remaining
+        return config.provider.defaultStorageCapacity;
+    }
 }
 
-module.exports = { startProvider };
+let providerInstance;
+
+function getProviderInstance(initialState = null) {
+    if(!providerInstance) {
+        if (!initialState) throw new Error("Provider is not initialized with a state");
+        providerInstance = new Provider(initialState);
+    }
+    
+    return providerInstance;
+}
+
+module.exports = getProviderInstance;

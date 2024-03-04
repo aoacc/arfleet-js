@@ -24,12 +24,12 @@ const startPublicServer = async() => {
 
             app.listen(port, host, async() => {
                 state.externalIP = await utils.myExternalIP();
-                state.connectionString = `http://${state.externalIP}:${port}`;
+                state.connectionStrings = `http://${state.externalIP}:${port}`;
 
                 console.log(`Public server app listening on http://${host}:${port}`);
-                console.log(`Public URL is: ${state.connectionString}`);
+                console.log(`Public URLs are: ${state.connectionStrings}`);
 
-                resolve();
+                resolve(state);
             });
         } catch (error) {
             reject(error);

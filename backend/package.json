@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@permaweb/aoconnect": "^0.0.44",
     "arweave": "^1.14.4",
     "axios": "^1.6.7",
     "commander": "^12.0.0",

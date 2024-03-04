@@ -1,3 +1,9 @@
+const KB = 1024;
+const MB = 1024 * KB;
+const GB = 1024 * MB;
+const TB = 1024 * GB;
+const PB = 1024 * TB;
+
 const defaultConfig = {
     walletPath: 'wallet.json',
     client: {
@@ -17,7 +23,8 @@ const defaultConfig = {
         publicServer: {
             host: '0.0.0.0',
             port: 8890
-        }
+        },
+        defaultStorageCapacity: 1 * GB,
     },
     db: {
         define: {
@@ -37,7 +44,17 @@ const defaultConfig = {
     _chunkSize: 2048,
     chunkinfoPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*INFO',
     directoryPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*DIR',
+
     defaultToken: 'w_4ejp8gRKi2B2KEkVjwlj-W3CpDEfjtJ8qV_0mjNMI',
+    marketplace: '-jydy0Gqhtdf2ilVR0zbGrizkx4GJXfcvpJYXzQxwlU',
+    aoScheduler: '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA',
+
+    aoConfig: {
+        MU_URL: "https://ao-mu-1.onrender.com",
+        CU_URL: "https://ao-cu-1.onrender.com",
+        GATEWAY_URL: "https://arweave.net",
+        _ALT_GATEWAY_URL: "https://g8way.io",
+    }
 };
 
 module.exports = defaultConfig;

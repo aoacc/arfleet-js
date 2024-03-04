@@ -112,8 +112,8 @@ const utils = require('./utils');
             break;
 
         case 'provider':
-            const { startProvider } = require('./provider');
-            await startProvider({ wallet });
+            const getProviderInstance = require('./provider');
+            getProviderInstance({ wallet });
             break;
     }
 })();
