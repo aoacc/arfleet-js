@@ -48,12 +48,13 @@ const defaultConfig = {
     defaultToken: 'w_4ejp8gRKi2B2KEkVjwlj-W3CpDEfjtJ8qV_0mjNMI',
     marketplace: '-jydy0Gqhtdf2ilVR0zbGrizkx4GJXfcvpJYXzQxwlU',
     aoScheduler: '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA',
+    aosModule: '9afQ1PLf2mrshqCTZEzzJTR2gWaC9zNPnYgYEqg1Pt4',
 
     aoConfig: {
         MU_URL: "https://ao-mu-1.onrender.com",
         CU_URL: "https://ao-cu-1.onrender.com",
-        GATEWAY_URL: "https://arweave.net",
-        _ALT_GATEWAY_URL: "https://g8way.io",
+        // GATEWAY_URL: "https://arweave.net",
+        GATEWAY_URL: "https://g8way.io",
     },
 
     rsa_encryption: {

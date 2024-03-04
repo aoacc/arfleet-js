@@ -61,7 +61,8 @@ class AOClient {
                 const result = resdata["Messages"][0].Data;
                 return result;
             } else {
-                console.log({ resdata });
+                console.log("Returning null!!!");
+                console.log("resdata", resdata);
                 return null;
             }
 
@@ -124,33 +125,19 @@ class AOClient {
         return json;
     }
 
-    async spawn() {
+    async spawn(source_lua, tags=[]) {
         const res = await connection.spawn({
-            module: AOModule,
+            module: config.aosModule,
             scheduler: AOScheduler,
-            signer,
-            tags: [],
+            signer: this.signer,
+            tags,
         });
     
-        console.log(res);
-        PROCESS_ID = res;
-    
-        console.log('PROCESS_ID', PROCESS_ID);
-    
         // - source code
-    
-        const sourceLuaCodeResponse = await fetch(window.source_lua);
-        const sourceLuaCode = await sourceLuaCodeResponse.text();
-    
-        // const lines = sourceLuaCode.split("\n\n");
-        // console.log({sourceLuaCode});
-        // for (let line of lines) {
-        //     console.log({line});
-        //     const res = await sendAction("Eval", line);
-        //     console.log({res});
-        // }
-        await sendAction("Eval", sourceLuaCode);
-    }    
+        await this.sendAction(res, "Eval", source_lua);
+
+        return res;
+    }
 }
 
 let aoInstance;

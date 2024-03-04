@@ -4,6 +4,8 @@ const { PLACEMENT_STATUS } = require('../../db/models/Placement');
 const { Assignment, Placement, AssignmentChunk, PlacementChunk } = require('../../db/models');
 const { BackgroundQueue } = require('./backgroundQueue');
 const utils = require('../../utils');
+const deal = require('../../arweave/deal');
+const ao = () => { return require('../../arweave/ao').getAoInstance(); }
 
 class ProviderApi {
     constructor(connectionString) {
@@ -123,7 +125,12 @@ let placementQueue = new BackgroundQueue({
                 break;
             case PLACEMENT_STATUS.ENCRYPTED:
                 // create process
-                
+                const process_id = await deal.spawnDeal("State.Activated = true");
+                console.log('Process ID: ', process_id);
+
+                console.log(await ao().sendAction(process_id, "Eval", "State"));
+
+                process.exit(0);
 
             default:
                 // todo

@@ -1,6 +1,4 @@
-const ao = () => {
-    return require('./ao').getAoInstance();
-}
+const ao = () => { return require('./ao').getAoInstance(); }
 
 const config = require('../config');
 
