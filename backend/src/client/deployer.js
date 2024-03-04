@@ -3,7 +3,7 @@ const nodepath = require("path");
 const utils = require("../utils");
 const config = require("../config");
 const CHUNK_SIZE = config.chunkSize;
-const { Assignment, AssignmentChunkMap } = require("../db/models");
+const { Assignment, AssignmentChunk } = require("../db/models");
 const assignmentManager = require("./background/assignmentManager");
 
 const chunkify = (buf) => {
@@ -161,7 +161,7 @@ const store = async (path) => {
 
         pos++;
     }
-    await AssignmentChunkMap.bulkCreate(chunkEntries, {ignoreDuplicates: true});
+    await AssignmentChunk.bulkCreate(chunkEntries, {ignoreDuplicates: true});
 
     await Assignment.update({ is_active: true }, {
         where: { id: assignmentId }

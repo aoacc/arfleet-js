@@ -1,21 +1,18 @@
 const Model = require('./base');
 const Sequelize = require('sequelize');
 
-class PlacementChunkMap extends Model {
+class AssignmentChunk extends Model {
     constructor(...args) {
         super(...args);
     }
 }
 
-PlacementChunkMap.init(
+AssignmentChunk.init(
     {
         id: {type: Sequelize.DataTypes.STRING, unique: true, primaryKey: true},
-        placement_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
-        is_encrypted: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
-        is_sent: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
-        original_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
-        encrypted_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
+        assignment_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
         pos: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
+        chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
         // dl_status: {
         //     type: Sequelize.DataTypes.STRING,
         //     defaultValue: CHUNK_DOWNLOAD_STATUS.NOT_STARTED
@@ -31,12 +28,7 @@ PlacementChunkMap.init(
     },
     {
         indexes: [
-            {fields: ['placement_id']},
-            {fields: ['is_encrypted']},
-            {fields: ['is_sent']},
-            {fields: ['original_chunk_id']},
-            {fields: ['encrypted_chunk_id']},
-            {fields: ['placement_id', 'pos']},
+            { fields: ['assignment_id', 'pos'] },
             // {fields: ['ul_status']},
             // {fields: ['dl_status']}
         ]
@@ -60,4 +52,4 @@ PlacementChunkMap.init(
 // Chunk.addHook('afterSave', (m) => modificationHook(m));
 // Chunk.addHook('afterUpsert', (m) => modificationHook(m[0]));
 
-module.exports = { PlacementChunkMap };
+module.exports = { AssignmentChunk };

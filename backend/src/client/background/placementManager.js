@@ -1,7 +1,7 @@
 const axios = require('axios');
 const Sequelize = require('sequelize');
 const { PLACEMENT_STATUS } = require('../../db/models/Placement');
-const { Assignment, Placement, AssignmentChunkMap, PlacementChunkMap } = require('../../db/models');
+const { Assignment, Placement, AssignmentChunk, PlacementChunk } = require('../../db/models');
 
 let placementQueue = new BackgroundQueue({
     REBOOT_INTERVAL: 5 * 1000,
@@ -49,10 +49,10 @@ let placementQueue = new BackgroundQueue({
                             await placement.save();
 
                             // start the encryption
-                            const assignmentChunks = await AssignmentChunkMap.allBy('assignment_id', assignment.id);
+                            const assignmentChunks = await AssignmentChunk.allBy('assignment_id', assignment.id);
                             for (const assignmentChunk of assignmentChunks) {
                                 // mark as encrypting
-                                const placementChunk = await PlacementChunkMap.findByIdOrCreate(placement.id + '_' + assignmentChunk.pos, {
+                                const placementChunk = await PlacementChunk.findByIdOrCreate(placement.id + '_' + assignmentChunk.pos, {
                                     placement_id: placement.id,
                                     is_encrypted: false,
                                     is_sent: false,
@@ -71,7 +71,7 @@ let placementQueue = new BackgroundQueue({
                 break;
             case PLACEMENT_STATUS.APPROVED:
                 // check if all chunks are encrypted
-                const notEncryptedCount = await PlacementChunkMap.count({
+                const notEncryptedCount = await PlacementChunk.count({
                     where: {
                         placement_id,
                         is_encrypted: false

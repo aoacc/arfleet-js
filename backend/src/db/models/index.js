@@ -2,9 +2,9 @@
 // const Identity = require('./identity');
 const { Chunk } = require('./Chunk');
 const { Assignment } = require('./Assignment');
-const { AssignmentChunkMap } = require('./AssignmentChunkMap');
+const { AssignmentChunk } = require('./AssignmentChunk');
 const { Placement } = require('./Placement');
-const { PlacementChunkMap } = require('./PlacementChunkMap');
+const { PlacementChunk } = require('./PlacementChunk');
 // import FileMap from './file_map';
 // import DirMap from './dir_map';
 // import {Database} from '../index';
@@ -19,11 +19,11 @@ const sequelize = Database.client;
 // File.hasMany(FileMap);
 // Chunk.hasMany(FileMap);
 
-AssignmentChunkMap.belongsTo(Assignment);
-Assignment.hasMany(AssignmentChunkMap);
+AssignmentChunk.belongsTo(Assignment);
+Assignment.hasMany(AssignmentChunk);
 
-PlacementChunkMap.belongsTo(Placement);
-Placement.hasMany(PlacementChunkMap);
+PlacementChunk.belongsTo(Placement);
+Placement.hasMany(PlacementChunk);
 
 Assignment.hasMany(Placement);
 Placement.belongsTo(Assignment);
@@ -32,9 +32,9 @@ Placement.belongsTo(Assignment);
 module.exports = {
     Chunk,
     Assignment,
-    AssignmentChunkMap,
+    AssignmentChunk,
     Placement,
-    PlacementChunkMap,
+    PlacementChunk,
 
     Database,
     sequelize
