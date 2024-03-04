@@ -1,6 +1,6 @@
 const config = require('../config');
 const MODE = process.env.MODE;
-const apiServerConfig = config[MODE].api_server;
+const apiServerConfig = config[MODE].apiServer;
 
 const startApi = async() => {
     const express = require('express');

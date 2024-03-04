@@ -2,18 +2,18 @@ const defaultConfig = {
     walletPath: 'wallet.json',
     client: {
         defaultDatadir: '~/.tempweave-client',
-        api_server: {
+        apiServer: {
             host: '127.0.0.1',
             port: 8885
         }
     },
     provider: {
         defaultDatadir: '~/.tempweave-provider',
-        api_server: {
+        apiServer: {
             host: '127.0.0.1',
             port: 8886
         },
-        public_server: {
+        publicServer: {
             host: '0.0.0.0',
             port: 8890
         }
@@ -32,10 +32,10 @@ const defaultConfig = {
             max: 5
         }
     },
-    chunk_size: 1024,
-    _chunk_size: 2048,
-    chunkinfo_prologue: 'TEMPWEAVE\x05\x06\xf5\xf6*INFO',
-    directory_prologue: 'TEMPWEAVE\x05\x06\xf5\xf6*DIR',
+    chunkSize: 1024,
+    _chunkSize: 2048,
+    chunkinfoPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*INFO',
+    directoryPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*DIR',
 };
 
 module.exports = defaultConfig;

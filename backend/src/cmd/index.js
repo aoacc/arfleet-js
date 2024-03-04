@@ -5,7 +5,7 @@ const client_store = async (path) => {
     // Call API with the path
     const axios = require('axios');
     
-    const API_URL = "http://" + config.client.api_server.host + ":" + config.client.api_server.port;
+    const API_URL = "http://" + config.client.apiServer.host + ":" + config.client.apiServer.port;
 
     try {
         const fullpath = nodepath.resolve(path);

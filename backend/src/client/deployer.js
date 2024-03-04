@@ -2,7 +2,7 @@ const fs = require("fs");
 const nodepath = require("path");
 const utils = require("../utils");
 const config = require("../config");
-const CHUNK_SIZE = config.chunk_size;
+const CHUNK_SIZE = config.chunkSize;
 
 const chunkify = (buf) => {
     if (!Buffer.isBuffer(buf)) {
@@ -50,7 +50,7 @@ const processFile = async (buf, chunkQueue) => {
     if (chunks.length > 1) {
         const merkleRoot = merkleTree[merkleTree.length - 1];
 
-        const fileIndex = config.chunkinfo_prologue + JSON.stringify({"type": "file", "hash": merkleRoot, "size": filesize, "chunks": chunkHashesHex});
+        const fileIndex = config.chunkinfoPrologue + JSON.stringify({"type": "file", "hash": merkleRoot, "size": filesize, "chunks": chunkHashesHex});
         const fileIndexRaw = Buffer.from(fileIndex, 'utf-8');
         const fileIndexResult = await processFile(fileIndexRaw, chunkQueue);
         // if fileIndexRaw is less than CHUNK_SIZE, we will just get its hash
@@ -104,7 +104,7 @@ const processDirectory = async (path, chunkQueue) => {
         "size": size,
         "files": container
     };
-    const directoryIndexRaw = Buffer.from(config.directory_prologue + JSON.stringify(directoryIndex), 'utf-8');
+    const directoryIndexRaw = Buffer.from(config.directoryPrologue + JSON.stringify(directoryIndex), 'utf-8');
 
     const dir = await processFile(directoryIndexRaw, chunkQueue);
     // if directoryIndexRaw is less than CHUNK_SIZE, we will just get its hash
