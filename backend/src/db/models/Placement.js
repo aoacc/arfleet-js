@@ -18,8 +18,6 @@ Placement.init(
         id: {type: Sequelize.DataTypes.STRING, unique: true, primaryKey: true},
         provider_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
         provider_connection_strings: {type: Sequelize.DataTypes.JSON, allowNull: true},
-        desired_redundancy: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
-        achieved_redundancy: {type: Sequelize.DataTypes.INTEGER, allowNull: false, defaultValue: 0},
         merkle_root: {type: Sequelize.DataTypes.STRING, allowNull: true},
         merkle_tree: {type: Sequelize.DataTypes.JSON, allowNull: true},
         process_id: {type: Sequelize.DataTypes.STRING, allowNull: true},

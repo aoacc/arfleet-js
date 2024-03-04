@@ -107,8 +107,8 @@ const utils = require('./utils');
     // Start client/provider
     switch(process.env.MODE) {
         case 'client':
-            const { startClient } = require('./client');
-            await startClient({ wallet });
+            const getClientInstance = require('./client');
+            getClientInstance({ wallet });
             break;
 
         case 'provider':

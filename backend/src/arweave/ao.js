@@ -57,8 +57,8 @@ class AOClient {
     
             const resdata = await this.getResult(process_id, res);
 
-            if (resdata["Messages"] && resdata["Messages"].length > 0) {
-                const result = resdata["Messages"][0]
+            if (resdata["Messages"] && resdata["Messages"].length > 0 && resdata["Messages"][0].Data) {
+                const result = resdata["Messages"][0].Data;
                 return result;
             } else {
                 console.log({ resdata });
