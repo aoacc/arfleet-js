@@ -1,0 +1,6 @@
+rm -rf ~/.tempweave-client
+rm -rf ~/.tempweave-provider
+rm backend/src/migrations/*
+./tempweave client makemigration
+./tempweave client migrate
+./tempweave provider migrate

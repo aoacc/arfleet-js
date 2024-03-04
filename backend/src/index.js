@@ -88,6 +88,10 @@ const utils = require('./utils');
         process.exit(0);
     }
 
+    // Migrate every time anyway
+    const { migrate } = require('./db/migrate');
+    await migrate();
+
     if (process.env.MODE === 'client') {
         if (process.env.SUBMODE === 'store') {
             const cmd = require('./cmd');

@@ -276,11 +276,6 @@
                     "field": "encrypted_chunk_id",
                     "seqType": "Sequelize.STRING"
                 },
-                "assignment_chunk_id": {
-                    "allowNull": true,
-                    "field": "assignment_chunk_id",
-                    "seqType": "Sequelize.STRING"
-                },
                 "pos": {
                     "allowNull": true,
                     "field": "pos",

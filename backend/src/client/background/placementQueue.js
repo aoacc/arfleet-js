@@ -3,6 +3,7 @@ const Sequelize = require('sequelize');
 const { PLACEMENT_STATUS } = require('../../db/models/Placement');
 const { Assignment, Placement, AssignmentChunk, PlacementChunk } = require('../../db/models');
 const { BackgroundQueue } = require('./backgroundQueue');
+const utils = require('../../utils');
 
 class ProviderApi {
     constructor(connectionString) {
@@ -96,11 +97,34 @@ let placementQueue = new BackgroundQueue({
                     }
                 });
                 if (notEncryptedCount === 0) {
+                    // get all placement chunks, ordered by pos
+                    const placementChunks = await PlacementChunk.findAll({
+                        where: {
+                            placement_id
+                        },
+                        order: [
+                            ['pos', 'ASC']
+                        ]
+                    });
+
+                    // calculate merkle tree
+                    const chunkHashes = placementChunks.map(c => c.encrypted_chunk_id);
+                    const chunkHashesBin = chunkHashes.map(h => Buffer.from(h, 'hex'));
+                    const merkleTree = utils.merkle(chunkHashesBin, utils.hashFn);
+                    const merkleTreeHex = merkleTree.map(h => h.toString('hex'));
+                    const merkleRootHex = merkleTree[merkleTree.length - 1].toString('hex');
+                    placement.merkle_root = merkleRootHex;
+                    placement.merkle_tree = merkleTreeHex;
+
                     // mark as encrypted
                     placement.status = PLACEMENT_STATUS.ENCRYPTED;
                     await placement.save();
                 }
                 break;
+            case PLACEMENT_STATUS.ENCRYPTED:
+                // create process
+                
+
             default:
                 // todo
         } // end of switch(placement.status)

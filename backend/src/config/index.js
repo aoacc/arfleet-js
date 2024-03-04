@@ -40,7 +40,7 @@ const defaultConfig = {
             max: 5
         }
     },
-    chunkSize: 1024,
+    chunkSize: 4096,
     _chunkSize: 2048,
     chunkinfoPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*INFO',
     directoryPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*DIR',

@@ -25,7 +25,7 @@ class PlacementChunk extends Model {
 
         // hash the chunk
         const data = fs.readFileSync(placement_chunk_path, null);
-        const hash = utils.hashFn(data);
+        const hash = utils.hashFnHex(data);
 
         placementChunk.is_encrypted = true;
         placementChunk.encrypted_chunk_id = hash;

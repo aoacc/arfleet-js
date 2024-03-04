@@ -123,43 +123,35 @@ class AOClient {
         console.log({ json });
         return json;
     }
+
+    async spawn() {
+        const res = await connection.spawn({
+            module: AOModule,
+            scheduler: AOScheduler,
+            signer,
+            tags: [],
+        });
+    
+        console.log(res);
+        PROCESS_ID = res;
+    
+        console.log('PROCESS_ID', PROCESS_ID);
+    
+        // - source code
+    
+        const sourceLuaCodeResponse = await fetch(window.source_lua);
+        const sourceLuaCode = await sourceLuaCodeResponse.text();
+    
+        // const lines = sourceLuaCode.split("\n\n");
+        // console.log({sourceLuaCode});
+        // for (let line of lines) {
+        //     console.log({line});
+        //     const res = await sendAction("Eval", line);
+        //     console.log({res});
+        // }
+        await sendAction("Eval", sourceLuaCode);
+    }    
 }
-
-// async function doSpawn() {
-//     spawned = true;
-
-//     const signer = createDataItemSigner(window.arweaveWallet);
-
-//     PROCESS_ID = '4nun5UrnY1Jz_kdCZNxaINchEBWnKIZ_n1r9n2dNPYQ';
-//     return;
-
-//     const res = await connection.spawn({
-//         module: AOModule,
-//         scheduler: AOScheduler,
-//         signer,
-//         tags: [],
-//     });
-
-//     console.log(res);
-//     PROCESS_ID = res;
-
-//     console.log('PROCESS_ID', PROCESS_ID);
-
-//     // - source code
-
-//     const sourceLuaCodeResponse = await fetch(window.source_lua);
-//     const sourceLuaCode = await sourceLuaCodeResponse.text();
-
-//     // const lines = sourceLuaCode.split("\n\n");
-//     // console.log({sourceLuaCode});
-//     // for (let line of lines) {
-//     //     console.log({line});
-//     //     const res = await sendAction("Eval", line);
-//     //     console.log({res});
-//     // }
-//     await sendAction("Eval", sourceLuaCode);
-// }
-
 
 let aoInstance;
 

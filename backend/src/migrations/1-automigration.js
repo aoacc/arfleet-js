@@ -23,7 +23,7 @@ var Sequelize = require('sequelize');
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-03-04T22:21:05.451Z",
+    "created": "2024-03-04T23:13:51.326Z",
     "comment": ""
 };
 
@@ -302,11 +302,6 @@ var migrationCommands = function(transaction) {
                     "encrypted_chunk_id": {
                         "type": Sequelize.STRING,
                         "field": "encrypted_chunk_id",
-                        "allowNull": true
-                    },
-                    "assignment_chunk_id": {
-                        "type": Sequelize.STRING,
-                        "field": "assignment_chunk_id",
                         "allowNull": true
                     },
                     "pos": {
