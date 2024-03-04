@@ -28,6 +28,9 @@ const defaultConfig = {
         dialect: 'sqlite',
         storage: 'tempweave.db',
         transactionType: 'DEFERRED',
+        retry: {
+            max: 5
+        }
     },
     chunk_size: 1024,
     _chunk_size: 2048,

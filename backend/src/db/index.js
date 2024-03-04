@@ -2,7 +2,7 @@ const utils = require('../utils');
 const config = require('../config');
 const path = require('path');
 
-import {Sequelize, Transaction} from 'sequelize';
+const {Sequelize, Transaction} = require('sequelize');
 
 // const log = logger.child({module: 'Sequelize'});
 
@@ -34,4 +34,4 @@ class Database {
     }
 }
 
-module.exports = Database;
+module.exports = {Database};

@@ -5,9 +5,9 @@ const {Database} = require('..');
 const {ModelAttributes, InitOptions, Transaction, UpsertOptions} = sequelize_lib;
 
 class Model extends sequelize_lib.Model {
-    // constructor(...args) {
-    //     super(...args);
-    // }
+    constructor(...args) {
+        super(...args);
+    }
 
     static get connection() {
         if (!Model._connection) {

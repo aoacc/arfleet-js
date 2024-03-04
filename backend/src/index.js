@@ -21,14 +21,33 @@ const utils = require('./utils');
 
     clientCommand.command('store <path>')
         .description('store a file/folder')
-        .action((path) => { process.env.MODE = 'client'; process.env.SUBMODE = 'store'; process.env.STORE_PATH = path; });
-    
+        .action((path) => {
+            process.env.MODE = 'client';
+            process.env.SUBMODE = 'store';
+            process.env.STORE_PATH = path;
+        });
+    clientCommand.command('makemigration')
+        .description('[for developers] create a migration file from models')
+        .action(() => {
+            process.env.MODE = 'client';
+            process.env.SUBMODE = 'makemigration';
+        });
+
     const providerCommand = program.command('provider');
     providerCommand
         .description('start as a provider')
         .action(() => { process.env.MODE = 'provider'; });
+    providerCommand.command('makemigration')
+        .description('[for developers] create a migration file from models')
+        .action(() => {
+            process.env.MODE = 'provider';
+            process.env.SUBMODE = 'makemigration';
+        });
 
     program.parse(process.argv);
+
+    // Print version
+    console.log("TempWeave v" + app.version);
 
     // Load config
     const config = require('./config');
@@ -41,6 +60,13 @@ const utils = require('./utils');
     }
     // Create if doesn't exist
     utils.mkdirp(process.env.DATADIR);
+
+    // Make migration mode
+    if (process.env.SUBMODE && process.env.SUBMODE === 'makemigration') {
+        const { makeMigration } = require('./db/makemigration');
+        makeMigration();
+        process.exit(0);
+    }
 
     if (process.env.MODE === 'client') {
         if (process.env.SUBMODE === 'store') {
