@@ -2,76 +2,21 @@ const { Assignment, Placement } = require('../../db/models');
 const placementManager = require('./placementManager');
 const announcements = require('./providerAnnouncements');
 const Sequelize = require('sequelize');
+const BackgroundQueue = require('./backgroundQueue');
 
-class AssignmentManager {
-    constructor() {
-        this.assignments = [];
-        this.processing = false;
-        this.boot();
-    }
-
-    async boot() {
-        if (this.processing) return;
-
-        this.processing = true;
-
-        // find those with desired_redundancy > achieved_redundancy
-        const assignments = await Assignment.findAll({
+let assignmentQueue = new BackgroundQueue({
+    REBOOT_INTERVAL: 5 * 1000,
+    addCandidates: async () => {
+        return await Assignment.findAll({
             where: {
-                desired_redundancy: {
-                    [Sequelize.Op.gt]: Sequelize.col('achieved_redundancy')
+                is_active: true,
+                achieved_redundancy: {
+                    [Sequelize.Op.lt]: Sequelize.col('desired_redundancy')
                 }
             }
         });
-
-        for (const assignment of assignments) {
-            this.addAssignment(assignment.id);
-        }
-
-        this.processing = false;
-        this.processAssignments(); // no await
-        // check from time to time
-        setTimeout(() => {
-            this.boot();
-        }, 5 * 1000);
-    }
-
-    addAssignment(assignment_id) {
-        this.assignments.push(assignment_id);
-        this.processAssignments(); // no await
-    }
-
-    removeAssignment(assignment_id) {
-        this.assignments = this.assignments.filter(a => a !== assignment_id);
-    }
-
-    getAssignments() {
-        return this.assignments;
-    }
-
-    async processAssignments() {
-        if (this.processing) return;
-
-        // before we make .processing = true, check if there's any work. if not, don't even bother
-        if (this.assignments.length === 0) return;
-
-        this.processing = true;
-
-        console.log('Processing assignments');
-        for (const assignment_id of this.assignments) {
-            this.removeAssignment(assignment_id);
-            await this.processAssignment(assignment_id); // no await
-        }
-
-        this.processing = false;
-
-        // schedule next
-        setTimeout(() => {
-            this.processAssignments();
-        }, 100);
-    }
-
-    async processAssignment(assignment_id) {
+    },
+    processCandidate: async (assignment_id) => {
         console.log('Processing assignment: ', assignment_id);
 
         const assignment = await Assignment.findOrFail(assignment_id);
@@ -117,8 +62,6 @@ class AssignmentManager {
             }
         }
     }
-}
-
-let assignmentManager = new AssignmentManager();
+});
 
 module.exports = assignmentManager;
