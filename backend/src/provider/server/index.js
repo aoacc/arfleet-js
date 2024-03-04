@@ -26,6 +26,11 @@ const startPublicServer = async() => {
                 res.send('pong');
             });
 
+            app.get('/cmd/placement', (req, res) => {
+                // todo: validate here
+                res.send('OK');
+            });
+
             app.listen(port, host, async() => {
                 state.externalIP = await utils.myExternalIP();
                 state.connectionStrings = `http://${state.externalIP}:${port}`;

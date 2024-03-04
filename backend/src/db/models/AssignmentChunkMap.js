@@ -28,6 +28,7 @@ AssignmentChunkMap.init(
     },
     {
         indexes: [
+            { fields: ['assignment_id', 'pos'] },
             // {fields: ['ul_status']},
             // {fields: ['dl_status']}
         ]

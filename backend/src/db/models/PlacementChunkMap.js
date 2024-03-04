@@ -11,6 +11,7 @@ PlacementChunkMap.init(
     {
         id: {type: Sequelize.DataTypes.STRING, unique: true, primaryKey: true},
         placement_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
+        is_encrypted: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         is_sent: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         original_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
         encrypted_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
@@ -30,6 +31,12 @@ PlacementChunkMap.init(
     },
     {
         indexes: [
+            {fields: ['placement_id']},
+            {fields: ['is_encrypted']},
+            {fields: ['is_sent']},
+            {fields: ['original_chunk_id']},
+            {fields: ['encrypted_chunk_id']},
+            {fields: ['placement_id', 'pos']},
             // {fields: ['ul_status']},
             // {fields: ['dl_status']}
         ]

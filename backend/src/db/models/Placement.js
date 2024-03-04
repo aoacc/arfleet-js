@@ -11,6 +11,7 @@ PLACEMENT_STATUS = {
     CREATED: 'created',
     UNAVAILABLE: 'unavailable',
     APPROVED: 'approved',
+    ENCRYPTED: 'encrypted',
     PROCESS_CREATED: 'process_created',
     COMPLETED: 'completed',
 }
