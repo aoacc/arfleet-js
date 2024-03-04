@@ -1,13 +1,13 @@
 const { Assignment, Placement } = require('../../db/models');
-const placementManager = require('./placementManager');
+const { placementQueue } = require('./placementQueue');
 const announcements = require('./providerAnnouncements');
 const Sequelize = require('sequelize');
-const BackgroundQueue = require('./backgroundQueue');
+const { BackgroundQueue } = require('./backgroundQueue');
 
 let assignmentQueue = new BackgroundQueue({
     REBOOT_INTERVAL: 5 * 1000,
     addCandidates: async () => {
-        return await Assignment.findAll({
+        const candidates = await Assignment.findAll({
             where: {
                 is_active: true,
                 achieved_redundancy: {
@@ -15,6 +15,8 @@ let assignmentQueue = new BackgroundQueue({
                 }
             }
         });
+        const ids = candidates.map(c => c.id);
+        return ids;
     },
     processCandidate: async (assignment_id) => {
         console.log('Processing assignment: ', assignment_id);
@@ -40,6 +42,10 @@ let assignmentQueue = new BackgroundQueue({
                         id: assignment.id + '_' + provider.address
                     }
                 });
+
+                console.log(await Placement.allBy('id', assignment.id + '_' + provider.address));
+
+                console.log('Count: ', count);
                 if (count > 0) {
                     // update connection strings
                     const placement = await Placement.findOneByOrFail('id', assignment.id + '_' + provider.address);
@@ -58,10 +64,10 @@ let assignmentQueue = new BackgroundQueue({
                     provider_connection_strings: (provider.connectionStrings || '').split('|'),
                 });
 
-                placementManager.addPlacement(placement.id);
+                placementQueue.add(placement.id);
             }
         }
     }
 });
 
-module.exports = assignmentManager;
+module.exports = assignmentQueue;

@@ -19,6 +19,8 @@ class BackgroundQueue {
         }
 
         this.running = false;
+
+        this.run(); // no await
         
         // check from time to time
         setTimeout(() => {
@@ -53,4 +55,4 @@ class BackgroundQueue {
     }
 }
 
-module.exports = BackgroundQueue;
+module.exports = { BackgroundQueue };

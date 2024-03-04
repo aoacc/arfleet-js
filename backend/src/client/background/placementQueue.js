@@ -2,17 +2,33 @@ const axios = require('axios');
 const Sequelize = require('sequelize');
 const { PLACEMENT_STATUS } = require('../../db/models/Placement');
 const { Assignment, Placement, AssignmentChunk, PlacementChunk } = require('../../db/models');
+const { BackgroundQueue } = require('./backgroundQueue');
+
+class ProviderApi {
+    constructor(connectionString) {
+        this.connectionString = connectionString;
+    }
+
+    async cmd(command, data) {
+        const url = `${this.connectionString}/cmd/${command}`;
+        console.log('Sending request to: ', url);
+        const response = await axios.post(url, data);
+        return response.data;
+    }
+}
 
 let placementQueue = new BackgroundQueue({
     REBOOT_INTERVAL: 5 * 1000,
     addCandidates: async () => {
-        return await Placement.findAll({
+        const candidates = await Placement.findAll({
             where: {
                 status: {
                     [Sequelize.Op.notIn]: [PLACEMENT_STATUS.UNAVAILABLE, PLACEMENT_STATUS.COMPLETED]
                 }
             }
         });
+        const ids = candidates.map(c => c.id);
+        return ids;
     },
     processCandidate: async (placement_id) => {
         console.log('Processing placement: ', placement_id);
@@ -35,7 +51,7 @@ let placementQueue = new BackgroundQueue({
             
                     console.log({result});
 
-                    const assignment = await Assignment.findOrFail(placement.id);
+                    const assignment = await Assignment.findOrFail(placement.assignment_id);
 
                     if (result === 'pong') {
                         // available, contact about the placement
@@ -49,10 +65,12 @@ let placementQueue = new BackgroundQueue({
                             await placement.save();
 
                             // start the encryption
+                            await placement.startEncryption();
+
                             const assignmentChunks = await AssignmentChunk.allBy('assignment_id', assignment.id);
                             for (const assignmentChunk of assignmentChunks) {
                                 // mark as encrypting
-                                const placementChunk = await PlacementChunk.findByIdOrCreate(placement.id + '_' + assignmentChunk.pos, {
+                                PlacementChunk.findByIdOrCreate(placement.id + '_' + assignmentChunk.pos, {
                                     placement_id: placement.id,
                                     is_encrypted: false,
                                     is_sent: false,
@@ -60,11 +78,11 @@ let placementQueue = new BackgroundQueue({
                                     pos: assignmentChunk.pos
                                 });
                             }
-                            // -------MARKER---------
                         }
                     }
                 } catch(e) {
                     // mark as failed
+                    console.log('Placement Connection Error: ', e);
                     placement.status = PLACEMENT_STATUS.UNAVAILABLE;
                     await placement.save();
                 }

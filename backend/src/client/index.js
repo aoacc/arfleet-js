@@ -2,6 +2,7 @@ const config = require('../config');
 const utils = require('../utils');
 const providerAnnouncements = require('./background/providerAnnouncements');
 const { getAoInstance } = require('../arweave/ao');
+const { placementChunkQueue } = require('./background/placementChunkQueue');
 
 let state = {};
 
@@ -18,6 +19,8 @@ class Client {
         this.ao = getAoInstance({ wallet: this.wallet });
 
         providerAnnouncements.startChecking();
+
+        placementChunkQueue; // start the queue
     }
 }
 

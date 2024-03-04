@@ -4,7 +4,7 @@ const utils = require("../utils");
 const config = require("../config");
 const CHUNK_SIZE = config.chunkSize;
 const { Assignment, AssignmentChunk } = require("../db/models");
-const assignmentManager = require("./background/assignmentManager");
+const assignmentQueue = require("./background/assignmentQueue");
 
 const chunkify = (buf) => {
     if (!Buffer.isBuffer(buf)) {
@@ -39,7 +39,7 @@ const processFile = async (buf, chunkQueue) => {
     for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         const chunkHash = chunkHashesHex[i];
-        const chunkPath = utils.getDatadir('chunks/' + chunkHash);
+        const chunkPath = AssignmentChunk.getPath(chunkHash);
         if (!fs.existsSync(chunkPath)) {
             utils.mkdirp(nodepath.dirname(chunkPath));
             fs.writeFileSync(chunkPath, chunk, null);
@@ -168,7 +168,7 @@ const store = async (path) => {
     });
 
     // trigger assignment manager
-    assignmentManager.addAssignment(assignmentId);
+    assignmentQueue.add(assignmentId);
 
     console.log(storeInfo);
     console.log({chunkQueue});

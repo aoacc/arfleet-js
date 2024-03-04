@@ -1,9 +1,17 @@
 const Model = require('./base');
 const Sequelize = require('sequelize');
+const { generateKeyPair } = require('../../encryption/rsa_keypair');
 
 class Placement extends Model {
     constructor(...args) {
         super(...args);
+    }
+
+    async startEncryption() {
+        const keypair = await generateKeyPair();
+        this.private_key = keypair.private_key;
+        this.public_key = keypair.public_key;
+        await this.save();
     }
 }
 
@@ -19,12 +27,14 @@ PLACEMENT_STATUS = {
 Placement.init(
     {
         id: {type: Sequelize.DataTypes.STRING, unique: true, primaryKey: true},
+        assignment_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
         provider_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
         provider_connection_strings: {type: Sequelize.DataTypes.JSON, allowNull: true},
         merkle_root: {type: Sequelize.DataTypes.STRING, allowNull: true},
         merkle_tree: {type: Sequelize.DataTypes.JSON, allowNull: true},
         process_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
-        redundancy_key: {type: Sequelize.DataTypes.STRING, allowNull: true},
+        private_key: {type: Sequelize.DataTypes.STRING, allowNull: true},
+        public_key: {type: Sequelize.DataTypes.STRING, allowNull: true},
         expires: {type: Sequelize.DataTypes.BIGINT, allowNull: true},
         status: {
             type: Sequelize.DataTypes.STRING,

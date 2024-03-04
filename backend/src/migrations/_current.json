@@ -87,8 +87,8 @@
             },
             "indexes": []
         },
-        "assignment_chunk_maps": {
-            "tableName": "assignment_chunk_maps",
+        "assignment_chunks": {
+            "tableName": "assignment_chunks",
             "schema": {
                 "id": {
                     "allowNull": false,
@@ -134,7 +134,19 @@
                     "seqType": "Sequelize.STRING"
                 }
             },
-            "indexes": []
+            "indexes": {
+                "4e57b1cbfa222ca2b43151e26ca19e09e94cddf8": {
+                    "fields": [
+                        "assignment_id",
+                        "pos"
+                    ],
+                    "name": "assignment_chunks_assignment_id_pos",
+                    "options": {
+                        "indexName": "assignment_chunks_assignment_id_pos",
+                        "name": "assignment_chunks_assignment_id_pos"
+                    }
+                }
+            }
         },
         "placements": {
             "tableName": "placements",
@@ -146,6 +158,11 @@
                     "field": "id",
                     "seqType": "Sequelize.STRING"
                 },
+                "assignment_id": {
+                    "allowNull": false,
+                    "field": "assignment_id",
+                    "seqType": "Sequelize.STRING"
+                },
                 "provider_id": {
                     "allowNull": false,
                     "field": "provider_id",
@@ -155,19 +172,6 @@
                     "allowNull": true,
                     "field": "provider_connection_strings",
                     "seqType": "Sequelize.JSON"
-                },
-                "desired_redundancy": {
-                    "allowNull": true,
-                    "field": "desired_redundancy",
-                    "seqType": "Sequelize.INTEGER"
-                },
-                "achieved_redundancy": {
-                    "allowNull": false,
-                    "defaultValue": {
-                        "value": 0
-                    },
-                    "field": "achieved_redundancy",
-                    "seqType": "Sequelize.INTEGER"
                 },
                 "merkle_root": {
                     "allowNull": true,
@@ -184,9 +188,14 @@
                     "field": "process_id",
                     "seqType": "Sequelize.STRING"
                 },
-                "redundancy_key": {
+                "private_key": {
                     "allowNull": true,
-                    "field": "redundancy_key",
+                    "field": "private_key",
+                    "seqType": "Sequelize.STRING"
+                },
+                "public_key": {
+                    "allowNull": true,
+                    "field": "public_key",
                     "seqType": "Sequelize.STRING"
                 },
                 "expires": {
@@ -226,8 +235,8 @@
             },
             "indexes": []
         },
-        "placement_chunk_maps": {
-            "tableName": "placement_chunk_maps",
+        "placement_chunks": {
+            "tableName": "placement_chunks",
             "schema": {
                 "id": {
                     "allowNull": false,
@@ -240,6 +249,14 @@
                     "allowNull": false,
                     "field": "placement_id",
                     "seqType": "Sequelize.STRING"
+                },
+                "is_encrypted": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "is_encrypted",
+                    "seqType": "Sequelize.BOOLEAN"
                 },
                 "is_sent": {
                     "allowNull": false,
@@ -257,6 +274,11 @@
                 "encrypted_chunk_id": {
                     "allowNull": true,
                     "field": "encrypted_chunk_id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "assignment_chunk_id": {
+                    "allowNull": true,
+                    "field": "assignment_chunk_id",
                     "seqType": "Sequelize.STRING"
                 },
                 "pos": {
@@ -286,7 +308,69 @@
                     "seqType": "Sequelize.STRING"
                 }
             },
-            "indexes": []
+            "indexes": {
+                "7524e4218dfc8c9845933d029fc313ec8adf86a6": {
+                    "fields": [
+                        "placement_id"
+                    ],
+                    "name": "placement_chunks_placement_id",
+                    "options": {
+                        "indexName": "placement_chunks_placement_id",
+                        "name": "placement_chunks_placement_id"
+                    }
+                },
+                "bdefefacdbd285bbbe98298050c81d1eb80f8b3d": {
+                    "fields": [
+                        "is_encrypted"
+                    ],
+                    "name": "placement_chunks_is_encrypted",
+                    "options": {
+                        "indexName": "placement_chunks_is_encrypted",
+                        "name": "placement_chunks_is_encrypted"
+                    }
+                },
+                "991cd8cd88d91c9b7803be680f11132988d9eac3": {
+                    "fields": [
+                        "is_sent"
+                    ],
+                    "name": "placement_chunks_is_sent",
+                    "options": {
+                        "indexName": "placement_chunks_is_sent",
+                        "name": "placement_chunks_is_sent"
+                    }
+                },
+                "f14db837036cbe1bb15e2c2d912208a272df0f07": {
+                    "fields": [
+                        "original_chunk_id"
+                    ],
+                    "name": "placement_chunks_original_chunk_id",
+                    "options": {
+                        "indexName": "placement_chunks_original_chunk_id",
+                        "name": "placement_chunks_original_chunk_id"
+                    }
+                },
+                "6dcfb63d3da1bbebdeefcf137704bab085c594fb": {
+                    "fields": [
+                        "encrypted_chunk_id"
+                    ],
+                    "name": "placement_chunks_encrypted_chunk_id",
+                    "options": {
+                        "indexName": "placement_chunks_encrypted_chunk_id",
+                        "name": "placement_chunks_encrypted_chunk_id"
+                    }
+                },
+                "5d4fd286fc3574a9cd7a9e86124120ed1cc60c0c": {
+                    "fields": [
+                        "placement_id",
+                        "pos"
+                    ],
+                    "name": "placement_chunks_placement_id_pos",
+                    "options": {
+                        "indexName": "placement_chunks_placement_id_pos",
+                        "name": "placement_chunks_placement_id_pos"
+                    }
+                }
+            }
         }
     },
     "revision": 1

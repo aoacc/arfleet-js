@@ -54,6 +54,10 @@ const defaultConfig = {
         CU_URL: "https://ao-cu-1.onrender.com",
         GATEWAY_URL: "https://arweave.net",
         _ALT_GATEWAY_URL: "https://g8way.io",
+    },
+
+    rsa_encryption: {
+        bits: 1024,
     }
 };
 

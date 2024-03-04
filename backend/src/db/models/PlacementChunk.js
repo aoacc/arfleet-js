@@ -1,9 +1,40 @@
 const Model = require('./base');
 const Sequelize = require('sequelize');
+const fs = require('fs');
+const utils = require('../../utils');
+const { encryptFile } = require('../../encryption/rsa_encrypt');
+const nodepath = require('path');
 
 class PlacementChunk extends Model {
     constructor(...args) {
         super(...args);
+    }
+
+    async encrypt() {
+        const { Placement, AssignmentChunk } = require('.');
+        const placementChunk = this;
+        const placement = await Placement.findOrFail(placementChunk.placement_id);
+        const original_chunk_id = placementChunk.original_chunk_id;
+        const original_chunk_path = AssignmentChunk.getPath(original_chunk_id);
+        const placement_chunk_path = PlacementChunk.getPath(placementChunk.id);
+
+        // create directory if not exists
+        utils.mkdirp(nodepath.dirname(placement_chunk_path))
+
+        encryptFile(original_chunk_path, placement_chunk_path, placement.private_key);
+
+        // hash the chunk
+        const data = fs.readFileSync(placement_chunk_path, null);
+        const hash = utils.hashFn(data);
+
+        placementChunk.is_encrypted = true;
+        placementChunk.encrypted_chunk_id = hash;
+
+        await placementChunk.save();
+    }
+
+    static getPath(placement_chunk_id) {
+        return utils.getDatadir('/placement_chunks/' + placement_chunk_id);
     }
 }
 

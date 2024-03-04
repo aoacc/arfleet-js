@@ -84,4 +84,11 @@ module.exports = {
         const response = await axios.get(service);
         return response.data;
     },
+    xorBuffersInPlace: function(a, b) {
+        var length = Math.min(a.length, b.length);
+        for (var i = 0; i < length; ++i) {
+            a[i] = a[i] ^ b[i];
+        }
+        return a;
+    }
 }

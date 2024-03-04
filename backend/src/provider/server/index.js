@@ -22,11 +22,11 @@ const startPublicServer = async() => {
                 res.send('Hello World!')
             });
             
-            app.get('/cmd/ping', (req, res) => {
+            app.post('/cmd/ping', (req, res) => {
                 res.send('pong');
             });
 
-            app.get('/cmd/placement', (req, res) => {
+            app.post('/cmd/placement', (req, res) => {
                 // todo: validate here
                 res.send('OK');
             });

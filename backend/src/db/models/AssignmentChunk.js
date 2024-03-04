@@ -1,9 +1,14 @@
 const Model = require('./base');
 const Sequelize = require('sequelize');
+const utils = require('../../utils');
 
 class AssignmentChunk extends Model {
     constructor(...args) {
         super(...args);
+    }
+
+    static getPath(chunk_id) {
+        return utils.getDatadir('/assignment_chunks/' + chunk_id);
     }
 }
 
