@@ -32,6 +32,12 @@ const utils = require('./utils');
             process.env.MODE = 'client';
             process.env.SUBMODE = 'makemigration';
         });
+    clientCommand.command('migrate')
+        .description('[for developers] migrate the database')
+        .action(() => {
+            process.env.MODE = 'client';
+            process.env.SUBMODE = 'migrate';
+        });
 
     const providerCommand = program.command('provider');
     providerCommand
@@ -42,6 +48,12 @@ const utils = require('./utils');
         .action(() => {
             process.env.MODE = 'provider';
             process.env.SUBMODE = 'makemigration';
+        });
+    providerCommand.command('migrate')
+        .description('[for developers] migrate the database')
+        .action(() => {
+            process.env.MODE = 'provider';
+            process.env.SUBMODE = 'migrate';
         });
 
     program.parse(process.argv);
@@ -65,6 +77,14 @@ const utils = require('./utils');
     if (process.env.SUBMODE && process.env.SUBMODE === 'makemigration') {
         const { makeMigration } = require('./db/makemigration');
         makeMigration();
+        process.exit(0);
+    }
+
+    // Migrate mode
+    if (process.env.SUBMODE && process.env.SUBMODE === 'migrate') {
+        const { migrate } = require('./db/migrate');
+        await migrate();
+        console.log("Migration done.")
         process.exit(0);
     }
 

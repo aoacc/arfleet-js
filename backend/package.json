@@ -17,6 +17,7 @@
     "express": "^4.18.2",
     "sequelize": "^6.37.1",
     "sequelize-auto-migrations": "github:pointnetwork/sequelize-auto-migrations",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "umzug": "^3.7.0"
   }
 }
