@@ -16,6 +16,8 @@
 [] maintain peers addr book
 [] chunkify
 
+[] will fail on another `store` because assignment already exists, fix this.
+
 
 tables:
 files

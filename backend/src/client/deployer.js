@@ -3,6 +3,8 @@ const nodepath = require("path");
 const utils = require("../utils");
 const config = require("../config");
 const CHUNK_SIZE = config.chunkSize;
+const { Assignment, AssignmentChunkMap } = require("../db/models");
+const assignmentManager = require("./background/assignmentManager");
 
 const chunkify = (buf) => {
     if (!Buffer.isBuffer(buf)) {
@@ -133,6 +135,41 @@ const storePath = async (path, chunkQueue) => {
 const store = async (path) => {
     let chunkQueue = [];
     const storeInfo = await storePath(path, chunkQueue);
+
+    // At this point, we have chunkQueue, and storeInfo returned hash to us that is the root directory/file
+    // Let's create the assignment
+    const assignmentId = storeInfo.hash;
+    const assignment = await Assignment.findByIdOrCreate(assignmentId);
+    assignment.root_hash = storeInfo.hash;
+    assignment.size = storeInfo.size;
+    assignment.chunk_count = chunkQueue.length;
+    assignment.desired_redundancy = config.client.defaultDesiredRedundancy;
+    assignment.achieved_redudancy = 0;
+    assignment.is_active = false;
+    await assignment.save();
+
+    // Now add chunks
+    const chunkEntries = [];
+    let pos = 0;
+    for (const chunkId of Object.values(chunkQueue)) { // don't use .map, it will skip -1 index
+        chunkEntries.push({
+            id: assignmentId + '_' + pos,
+            assignment_id: assignmentId,
+            pos,
+            chunk_id: chunkId,
+        });
+
+        pos++;
+    }
+    await AssignmentChunkMap.bulkCreate(chunkEntries, {ignoreDuplicates: true});
+
+    await Assignment.update({ is_active: true }, {
+        where: { id: assignmentId }
+    });
+
+    // trigger assignment manager
+    assignmentManager.addAssignment(assignmentId);
+
     console.log(storeInfo);
     console.log({chunkQueue});
     return storeInfo;

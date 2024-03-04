@@ -13,7 +13,6 @@ AssignmentChunkMap.init(
         assignment_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
         pos: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
         chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
-        size: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
         // dl_status: {
         //     type: Sequelize.DataTypes.STRING,
         //     defaultValue: CHUNK_DOWNLOAD_STATUS.NOT_STARTED

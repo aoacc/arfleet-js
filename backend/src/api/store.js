@@ -11,7 +11,7 @@ const store = async(req, res) => {
 
         res.send("Queued for storage: " + path);
     } catch (error) {
-        console.error("Error storing path:", error.message);
+        console.error(error);
         res.status(500).send("Error storing path: " + error.message);
     }
 }

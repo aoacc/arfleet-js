@@ -12,8 +12,10 @@ Assignment.init(
         id: {type: Sequelize.DataTypes.STRING, unique: true, primaryKey: true},
         size: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
         chunk_count: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
+        root_hash: {type: Sequelize.DataTypes.STRING, allowNull: true},
         desired_redundancy: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
         achieved_redundancy: {type: Sequelize.DataTypes.INTEGER, allowNull: false, defaultValue: 0},
+        is_active: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         // dl_status: {
         //     type: Sequelize.DataTypes.STRING,
         //     defaultValue: CHUNK_DOWNLOAD_STATUS.NOT_STARTED

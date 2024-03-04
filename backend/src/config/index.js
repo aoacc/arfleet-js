@@ -5,7 +5,8 @@ const defaultConfig = {
         apiServer: {
             host: '127.0.0.1',
             port: 8885
-        }
+        },
+        defaultDesiredRedundancy: 3,
     },
     provider: {
         defaultDatadir: '~/.tempweave-provider',
