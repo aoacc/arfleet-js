@@ -51,4 +51,4 @@ AssignmentChunkMap.init(
 // Chunk.addHook('afterSave', (m) => modificationHook(m));
 // Chunk.addHook('afterUpsert', (m) => modificationHook(m[0]));
 
-module.exports = AssignmentChunkMap;
+module.exports = { AssignmentChunkMap };

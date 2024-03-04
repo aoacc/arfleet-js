@@ -53,4 +53,4 @@ PlacementChunkMap.init(
 // Chunk.addHook('afterSave', (m) => modificationHook(m));
 // Chunk.addHook('afterUpsert', (m) => modificationHook(m[0]));
 
-module.exports = PlacementChunkMap;
+module.exports = { PlacementChunkMap };

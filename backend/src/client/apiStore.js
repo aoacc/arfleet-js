@@ -2,7 +2,7 @@ const config = require('../config');
 const utils = require('../utils');
 const deployer = require('../client/deployer');
 
-const store = async(req, res) => {
+const apiStore = async(req, res) => {
     try {
         const path = req.body.path;
         console.log("Storing path:", path);
@@ -17,5 +17,5 @@ const store = async(req, res) => {
 }
 
 module.exports = {
-    store
+    apiStore
 };

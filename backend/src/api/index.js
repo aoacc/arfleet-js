@@ -16,8 +16,11 @@ const startApi = async() => {
     const port = apiServerConfig.port;
 
     if (MODE === 'client') {
-        const { store } = require('./store');
-        app.post('/store', store);
+        const { apiStore } = require('../client/apiStore');
+        app.post('/store', apiStore);
+    }
+
+    if (MODE === 'provider') {
     }
 
     app.get('/', (req, res) => {

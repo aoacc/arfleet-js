@@ -17,7 +17,8 @@ const startProviderRepl = async (provider) => {
             case 'announce':
                 console.log('Announcing...');
                 const { announce } = require('./announce');
-                await announce(provider, line.split(' ')[1]);
+                let connectionStrings = line.split(' ')[1]
+                await announce(provider, connectionStrings);
                 break;
             case 'exit':
             case 'quit':

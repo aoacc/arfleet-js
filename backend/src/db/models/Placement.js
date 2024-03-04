@@ -9,8 +9,10 @@ class Placement extends Model {
 
 PLACEMENT_STATUS = {
     CREATED: 'created',
+    UNAVAILABLE: 'unavailable',
     APPROVED: 'approved',
     PROCESS_CREATED: 'process_created',
+    COMPLETED: 'completed',
 }
 
 Placement.init(
@@ -65,4 +67,4 @@ Placement.init(
 // Chunk.addHook('afterSave', (m) => modificationHook(m));
 // Chunk.addHook('afterUpsert', (m) => modificationHook(m[0]));
 
-module.exports = Placement;
+module.exports = { Placement, PLACEMENT_STATUS };

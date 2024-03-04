@@ -19,4 +19,4 @@ Provider.init(
     }
 );
 
-module.exports = Provider;
+module.exports = { Provider };

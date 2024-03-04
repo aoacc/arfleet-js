@@ -21,6 +21,10 @@ const startPublicServer = async() => {
             app.get('/', (req, res) => {
                 res.send('Hello World!')
             });
+            
+            app.get('/cmd/ping', (req, res) => {
+                res.send('pong');
+            });
 
             app.listen(port, host, async() => {
                 state.externalIP = await utils.myExternalIP();

@@ -2,7 +2,7 @@ const CHECK_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
 const marketplace = require('../../arweave/marketplace');
 
-let announcements;
+let announcements = [];
 
 const checkAnnouncements = async() => {
     announcements = await marketplace.getAnnouncements();
@@ -14,6 +14,19 @@ const startChecking = async() => {
     setInterval(checkAnnouncements, CHECK_INTERVAL);
 }
 
+const getProvidersToConnect = () => {
+    let result = [];
+    for (const [provider, announcement] of Object.entries(announcements)) {
+        result.push({
+            address: provider,
+            connectionStrings: announcement["ConnectionStrings"]
+        })
+    }
+    return result;
+}
+
 module.exports = {
-    startChecking
+    startChecking,
+    announcements,
+    getProvidersToConnect,
 }

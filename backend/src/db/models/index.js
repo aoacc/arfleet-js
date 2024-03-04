@@ -1,10 +1,10 @@
 // import File from './file';
 // const Identity = require('./identity');
-const Chunk = require('./Chunk');
-const Assignment = require('./Assignment');
-const AssignmentChunkMap = require('./AssignmentChunkMap');
-const Placement = require('./Placement');
-const PlacementChunkMap = require('./PlacementChunkMap');
+const { Chunk } = require('./Chunk');
+const { Assignment } = require('./Assignment');
+const { AssignmentChunkMap } = require('./AssignmentChunkMap');
+const { Placement } = require('./Placement');
+const { PlacementChunkMap } = require('./PlacementChunkMap');
 // import FileMap from './file_map';
 // import DirMap from './dir_map';
 // import {Database} from '../index';
