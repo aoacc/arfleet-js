@@ -31,7 +31,7 @@ var Sequelize = require('sequelize');
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-03-05T15:59:01.942Z",
+    "created": "2024-03-05T17:00:22.948Z",
     "comment": ""
 };
 
@@ -324,6 +324,11 @@ var migrationCommands = function(transaction) {
                     "required_collateral": {
                         "type": Sequelize.BIGINT,
                         "field": "required_collateral",
+                        "allowNull": true
+                    },
+                    "error_was": {
+                        "type": Sequelize.STRING,
+                        "field": "error_was",
                         "allowNull": true
                     },
                     "status": {

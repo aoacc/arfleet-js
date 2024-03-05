@@ -221,6 +221,11 @@
                     "field": "required_collateral",
                     "seqType": "Sequelize.BIGINT"
                 },
+                "error_was": {
+                    "allowNull": true,
+                    "field": "error_was",
+                    "seqType": "Sequelize.STRING"
+                },
                 "status": {
                     "allowNull": false,
                     "defaultValue": {

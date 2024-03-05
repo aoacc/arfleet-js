@@ -2,26 +2,6 @@
 
 local json = require("json")
 
-function Log(msg)
-    print(msg)
-end
-
--- The Handle function must be defined before we use it
-function Handle(type, fn)
-    Handlers.add(
-        type,
-        Handlers.utils.hasMatchingTag("Action", type),
-        function(msg)
-            local Data = json.decode(msg.Data)
-            local Result = fn(msg, Data)
-            if Result == nil then
-                return
-            end
-            Handlers.utils.reply(Result)(msg)
-        end
-    )
-end
-
 StatusEnum = {Created = "Created", Activated = "Activated", Cancelled = "Cancelled"}
 
 State = {
@@ -48,6 +28,36 @@ State = {
     LastVerification = 0,
 }
 
+function Log(msg)
+    print(msg)
+end
+
+-- The Handle function must be defined before we use it
+function Handle(type, fn)
+    Handlers.add(
+        type,
+        Handlers.utils.hasMatchingTag("Action", type),
+        function(msg)
+            -- if starts with { or [, try to decode
+            local Data = nil
+            
+            local success, res = pcall(json.decode, msg.Data)
+            if success then
+                Data = res
+            else
+                -- error, leave it nil
+            end
+
+            local Result = fn(msg, Data)
+
+            if Result == nil then
+                return
+            end
+            Handlers.utils.reply(Result)(msg)
+        end
+    )
+end
+
 Handle("Activate", function(msg, Data)
     -- Verify that it's from the Provider
     if msg.From ~= State.Provider then
@@ -67,6 +77,26 @@ Handle("Activate", function(msg, Data)
     end
 
     State.Status = StatusEnum.Activated
+end)
+
+Handle("Credit-Notice", function(msg, Data)
+    -- Validate token
+    if msg.From ~= State.Token then
+        return
+    end
+
+    -- Ignore after it was already activated
+    if State.Status ~= StatusEnum.Created then
+        return
+    end
+
+    if msg.Sender == State.Client then
+        State.ReceivedReward = State.ReceivedReward + msg.Amount
+    elseif msg.Sender == State.Provider then
+        State.ReceivedCollateral = State.ReceivedCollateral + msg.Amount
+    else
+        return
+    end
 end)
 
 Handle("Cancel", function(msg, Data)

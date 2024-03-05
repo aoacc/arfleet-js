@@ -19,8 +19,8 @@ class PSPlacement extends Model {
     }
 
     async getCollateralLeftToSend() {
-        const ao = require('../../arweave/deal');
-        const state = await ao.getState(this.process_id)
+        const { getAoInstance } = require('../../arweave/ao');
+        const state = await getAoInstance().getState(this.process_id)
 
         return state["RequiredCollateral"] - state["ReceivedCollateral"];
     }

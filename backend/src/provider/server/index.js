@@ -126,6 +126,16 @@ const startPublicServer = async() => {
                         res.send('Error: Merkle root mismatch: ours[' + our_merkle_root + '] vs received[' + placement.merkle_root + ']');
                         return;
                     }
+
+                    // Get process state
+                    const { getAoInstance } = require('../../arweave/ao');
+                    const state = await getAoInstance().getState(placement.process_id);
+                    console.log('Process state: ', state);
+
+                    if (state["Client"] !== client_id) return res.send('Error: Client mismatch');
+                    // todo: if (state["Provider"] !== provider.address) return res.send('Error: Provider mismatch');
+                    if (state["Status"] !== "Created") return res.send('Error: Status mismatch');
+
                     placement.status = PS_PLACEMENT_STATUS.ACCEPTED;
                     await placement.save();
 
@@ -216,9 +226,9 @@ const startPublicServer = async() => {
                     // Then, send the collateral
                     const collateralRequired = await placement.getCollateralLeftToSend();
                     if (collateralRequired > 0) {
-                        const ao = require('../../arweave/ao');
+                        const { getAoInstance } = require('../../arweave/ao');
                         try {
-                            await ao().sendToken(config.defaultToken, placement.process_id, collateralRequired);
+                            await getAoInstance().sendToken(config.defaultToken, placement.process_id, collateralRequired);
                             // todo: placement.txid = txid;
                             await placement.save();
                         } catch(e) {
@@ -234,6 +244,8 @@ const startPublicServer = async() => {
 
                     placement.status = PS_PLACEMENT_STATUS.COMPLETED;
                     await placement.save();
+
+                    res.send('OK');
 
                 } catch(e) {
                     console.log('Error: ', e);

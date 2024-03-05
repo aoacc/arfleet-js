@@ -2,7 +2,7 @@
 - [x] process
     - [x] funded
     - [x] files sent
-    - [] collaterized, switch flipped (assume how much collateral is needed precisely)
+    - [x] collaterized, switch flipped (assume how much collateral is needed precisely)
 - [] verification game
 - [] retrieval
 - [] instead of 5 seconds, trigger changes immediately. and 5 seconds could now be extended
@@ -65,6 +65,7 @@ Moving parts
             - Negotiate
             - Encrypt with RSA
             - Merklize replica
+            - Spawn the deal process
             - Fund the deal
             - Transfer
             - Finalize

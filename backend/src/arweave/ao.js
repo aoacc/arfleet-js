@@ -118,6 +118,17 @@ class AOClient {
         const res = await this.sendAction(token, "Transfer", "", { Recipient: to, Quantity: amount.toString() });
         return res;
     }
+
+    async getState(process_id) {
+        const ret = await this.sendAction(process_id, "GetState", "");
+        try {
+            return JSON.parse(ret);
+        } catch(e) {
+            console.error("Error parsing state", e);
+            console.error("ret", ret);
+            throw e;
+        }
+    }
 }
 
 let aoInstance;

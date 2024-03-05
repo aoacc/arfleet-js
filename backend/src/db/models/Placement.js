@@ -47,6 +47,7 @@ Placement.init(
         is_funded: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         required_reward: {type: Sequelize.DataTypes.BIGINT, allowNull: true},
         required_collateral: {type: Sequelize.DataTypes.BIGINT, allowNull: true},
+        error_was: {type: Sequelize.DataTypes.STRING, allowNull: true},
         status: {
             type: Sequelize.DataTypes.STRING,
             defaultValue: PLACEMENT_STATUS.CREATED
