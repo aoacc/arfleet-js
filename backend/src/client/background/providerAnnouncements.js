@@ -1,4 +1,5 @@
-const CHECK_INTERVAL = 1000 * 60 * 5; // 5 minutes
+const MINUTE = 1000 * 60;
+const CHECK_INTERVAL = 1 * MINUTE;
 
 const marketplace = require('../../arweave/marketplace');
 

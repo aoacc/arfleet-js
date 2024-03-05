@@ -372,6 +372,17 @@
                         "indexName": "placement_chunks_placement_id_pos",
                         "name": "placement_chunks_placement_id_pos"
                     }
+                },
+                "425f7693fc88e6c3605d235e862f692529a2c0af": {
+                    "fields": [
+                        "placement_id",
+                        "is_sent"
+                    ],
+                    "name": "placement_chunks_placement_id_is_sent",
+                    "options": {
+                        "indexName": "placement_chunks_placement_id_is_sent",
+                        "name": "placement_chunks_placement_id_is_sent"
+                    }
                 }
             }
         }

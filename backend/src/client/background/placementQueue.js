@@ -8,6 +8,7 @@ const deal = require('../../arweave/deal');
 const ao = () => { return require('../../arweave/ao').getAoInstance(); }
 const client = require('../../client');
 const config = require('../../config');
+const fs = require('fs');
 
 class ProviderApi {
     constructor(connectionString) {
@@ -43,11 +44,12 @@ let placementQueue = new BackgroundQueue({
 
         switch(placement.status) {
             case PLACEMENT_STATUS.CREATED:
+            {
                 // Let's try to connect
                 console.log('Trying to connect to provider: ', placement.provider_id);
 
                 const connectionStrings = placement.provider_connection_strings;
-                const connectionString = connectionStrings[0]; // todo: go through all in the future/certain %
+                const connectionString = placement.getConnectionString();
 
                 const pApi = new ProviderApi(connectionString);
 
@@ -66,7 +68,7 @@ let placementQueue = new BackgroundQueue({
 
                         if (placementResult === 'OK') {
                             // mark as approved
-                            placement.status = PLACEMENT_STATUS.APPROVED;
+                            placement.status = PLACEMENT_STATUS.INITIALIZED;
                             await placement.save();
 
                             // start the encryption
@@ -83,6 +85,10 @@ let placementQueue = new BackgroundQueue({
                                     pos: assignmentChunk.pos
                                 });
                             }
+                        } else {
+                            // mark as failed
+                            placement.status = PLACEMENT_STATUS.UNAVAILABLE;
+                            await placement.save();
                         }
                     }
                 } catch(e) {
@@ -92,7 +98,10 @@ let placementQueue = new BackgroundQueue({
                     await placement.save();
                 }
                 break;
-            case PLACEMENT_STATUS.APPROVED:
+            }
+
+            case PLACEMENT_STATUS.INITIALIZED:
+            {
                 // check if all chunks are encrypted
                 const notEncryptedCount = await PlacementChunk.count({
                     where: {
@@ -125,7 +134,10 @@ let placementQueue = new BackgroundQueue({
                     await placement.save();
                 }
                 break;
+            }
+
             case PLACEMENT_STATUS.ENCRYPTED:
+            {
                 // create process
                 const createdAtTimestamp = placement.created_at.getTime();
                 const lua_lines = [
@@ -144,9 +156,14 @@ let placementQueue = new BackgroundQueue({
                 await placement.save();
 
                 break;
+            }
+
             case PLACEMENT_STATUS.PROCESS_CREATED:
+            {
                 // fund
                 // aos> Send({ Target = ao.id, Action = "Transfer", Recipient = Trinity, Quantity = "1000"})
+
+                console.log('Funding placement: ', placement.id);
 
                 // change the state before sending the action
                 placement.status = PLACEMENT_STATUS.FUNDED;
@@ -154,7 +171,7 @@ let placementQueue = new BackgroundQueue({
                 await placement.save();
                 
                 try {
-                    const tokenSend = await ao().sendActionExtra(config.defaultToken, "Transfer", "1000", { Recipient: placement.process_id });
+                    const tokenSend = await ao().sendAction(config.defaultToken, "Transfer", "", { Recipient: placement.process_id, Quantity: "1000" });
                     console.log('Token send: ', tokenSend);
                 } catch(e) {
                     console.log('Funding Error: ', e);
@@ -162,7 +179,87 @@ let placementQueue = new BackgroundQueue({
                     await placement.save();
                 }
                 break;
+            }
+
+            case PLACEMENT_STATUS.FUNDED:
+            {
+                // Make the provider accept it
+                const pApi = new ProviderApi(placement.getConnectionString());
+                const placementChunks = await PlacementChunk.findAll({
+                    where: {
+                        placement_id,
+                    },
+                    order: [
+                        ['pos', 'ASC']
+                    ]
+                });
+                const chunkHashes = placementChunks.map(c => c.encrypted_chunk_id);
                 
+                const acceptResult = await pApi.cmd('accept', {
+                    placement_id: placement.id,
+                    merkle_root: placement.merkle_root,
+                    chunks: chunkHashes,
+                    process_id: placement.process_id
+                });
+                console.log('Accept result: ', acceptResult);
+
+                if (acceptResult === 'OK') {
+                    placement.status = PLACEMENT_STATUS.ACCEPTED;
+                    await placement.save();
+                } else {
+                    placement.status = PLACEMENT_STATUS.FAILED;
+                    await placement.save();
+                }
+                break;
+            }
+
+            case PLACEMENT_STATUS.ACCEPTED:
+            {
+                const pApi = new ProviderApi(placement.getConnectionString());
+
+                // Transfer files
+                const placementChunks = await PlacementChunk.findAll({
+                    where: {
+                        placement_id,
+                        is_sent: false
+                    },
+                    order: [
+                        ['pos', 'ASC']
+                    ]
+                });
+
+                if (placementChunks.length === 0) {
+                    placement.status = PLACEMENT_STATUS.TRANSFERRED;
+                    await placement.save();
+                }
+
+                for (const placementChunk of placementChunks) {
+                    console.log('Transfering chunk: ', placementChunk);
+                    const placementChunkPath = PlacementChunk.getPath(placementChunk.id);
+                    const chunkData = fs.readFileSync(placementChunkPath);
+                    const chunkDataB64 = chunkData.toString('base64'); // todo: replace with proper streaming/binary
+
+                    const result = await pApi.cmd('transfer', {
+                        placement_id: placement.id,
+                        merkle_root: placement.merkle_root,
+                        pos: placementChunk.pos,
+                        chunk_data: chunkDataB64,
+                        hash: placementChunk.encrypted_chunk_id
+                    });
+                    console.log('Transfer result: ', result);
+
+                    if (result === 'OK') {
+                        placementChunk.is_sent = true;
+                        await placementChunk.save();
+                    } else {
+                        placement.status = PLACEMENT_STATUS.FAILED;
+                        await placement.save();
+                        break;
+                    }
+                }
+                break;
+            }
+
             default:
                 // todo
         } // end of switch(placement.status)

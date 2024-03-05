@@ -68,6 +68,7 @@ PlacementChunk.init(
             {fields: ['original_chunk_id']},
             {fields: ['encrypted_chunk_id']},
             {fields: ['placement_id', 'pos']},
+            {fields: ['placement_id', 'is_sent']},
             // {fields: ['ul_status']},
             // {fields: ['dl_status']}
         ]

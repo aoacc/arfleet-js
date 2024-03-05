@@ -13,15 +13,21 @@ class Placement extends Model {
         this.public_key = keypair.public_key;
         await this.save();
     }
+
+    getConnectionString() {
+        return this.provider_connection_strings[0]; // todo: go through all in the future/certain %
+    }
 }
 
 PLACEMENT_STATUS = {
     CREATED: 'created',
     UNAVAILABLE: 'unavailable',
-    APPROVED: 'approved',
+    INITIALIZED: 'initialized',
     ENCRYPTED: 'encrypted',
     PROCESS_CREATED: 'process_created',
     FUNDED: 'funded',
+    ACCEPTED: 'accepted',
+    TRANSFERRED: 'transferred',
     FAILED: 'failed',
     COMPLETED: 'completed',
 }
@@ -66,19 +72,16 @@ Placement.init(
 
 // NOTE: These hooks are not working when using .update(). Had to hook into ::update() method
 
-// const modificationHook = (m) => {
-//     // if (m.changed() && m.changed().includes('ul_status')) {
-//     //     markChunkUlStatusInCache(m.id, m.changed().ul_status);
-//     //     processQueue(EventTypes.CHUNK_UPLOAD_STATUS_CHANGED, m.id);
-//     // }
-//     // if (m.changed() && m.changed().includes('dl_status')) {
-//     //     processQueue(EventTypes.CHUNK_DOWNLOAD_STATUS_CHANGED, m.id);
-//     // }
-// };
+const modificationHook = (m) => {
+    if (m.changed() && m.changed().includes('status')) {
+        const { placementQueue } = require('../../client/background/placementQueue');
+        placementQueue.add(m.id);
+    }
+};
 
-// Chunk.addHook('afterDestroy', (m) => modificationHook(m));
-// Chunk.addHook('afterUpdate', (m) => modificationHook(m));
-// Chunk.addHook('afterSave', (m) => modificationHook(m));
-// Chunk.addHook('afterUpsert', (m) => modificationHook(m[0]));
+Placement.addHook('afterDestroy', (m) => modificationHook(m));
+Placement.addHook('afterUpdate', (m) => modificationHook(m));
+Placement.addHook('afterSave', (m) => modificationHook(m));
+Placement.addHook('afterUpsert', (m) => modificationHook(m[0]));
 
 module.exports = { Placement, PLACEMENT_STATUS };

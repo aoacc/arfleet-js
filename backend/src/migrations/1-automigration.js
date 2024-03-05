@@ -11,19 +11,20 @@ var Sequelize = require('sequelize');
  * createTable "placements", deps: [assignments]
  * createTable "placement_chunks", deps: [placements]
  * addIndex "assignment_chunks_assignment_id_pos" to table "assignment_chunks"
- * addIndex "placement_chunks_placement_id_pos" to table "placement_chunks"
- * addIndex "placement_chunks_encrypted_chunk_id" to table "placement_chunks"
- * addIndex "placement_chunks_original_chunk_id" to table "placement_chunks"
- * addIndex "placement_chunks_is_sent" to table "placement_chunks"
- * addIndex "placement_chunks_is_encrypted" to table "placement_chunks"
  * addIndex "placement_chunks_placement_id" to table "placement_chunks"
+ * addIndex "placement_chunks_is_encrypted" to table "placement_chunks"
+ * addIndex "placement_chunks_is_sent" to table "placement_chunks"
+ * addIndex "placement_chunks_original_chunk_id" to table "placement_chunks"
+ * addIndex "placement_chunks_encrypted_chunk_id" to table "placement_chunks"
+ * addIndex "placement_chunks_placement_id_pos" to table "placement_chunks"
+ * addIndex "placement_chunks_placement_id_is_sent" to table "placement_chunks"
  *
  **/
 
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-03-05T00:07:33.106Z",
+    "created": "2024-03-05T01:00:49.047Z",
     "comment": ""
 };
 
@@ -358,46 +359,10 @@ var migrationCommands = function(transaction) {
             fn: "addIndex",
             params: [
                 "placement_chunks",
-                ["placement_id", "pos"],
+                ["placement_id"],
                 {
-                    "indexName": "placement_chunks_placement_id_pos",
-                    "name": "placement_chunks_placement_id_pos",
-                    "transaction": transaction
-                }
-            ]
-        },
-        {
-            fn: "addIndex",
-            params: [
-                "placement_chunks",
-                ["encrypted_chunk_id"],
-                {
-                    "indexName": "placement_chunks_encrypted_chunk_id",
-                    "name": "placement_chunks_encrypted_chunk_id",
-                    "transaction": transaction
-                }
-            ]
-        },
-        {
-            fn: "addIndex",
-            params: [
-                "placement_chunks",
-                ["original_chunk_id"],
-                {
-                    "indexName": "placement_chunks_original_chunk_id",
-                    "name": "placement_chunks_original_chunk_id",
-                    "transaction": transaction
-                }
-            ]
-        },
-        {
-            fn: "addIndex",
-            params: [
-                "placement_chunks",
-                ["is_sent"],
-                {
-                    "indexName": "placement_chunks_is_sent",
-                    "name": "placement_chunks_is_sent",
+                    "indexName": "placement_chunks_placement_id",
+                    "name": "placement_chunks_placement_id",
                     "transaction": transaction
                 }
             ]
@@ -418,10 +383,58 @@ var migrationCommands = function(transaction) {
             fn: "addIndex",
             params: [
                 "placement_chunks",
-                ["placement_id"],
+                ["is_sent"],
                 {
-                    "indexName": "placement_chunks_placement_id",
-                    "name": "placement_chunks_placement_id",
+                    "indexName": "placement_chunks_is_sent",
+                    "name": "placement_chunks_is_sent",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "placement_chunks",
+                ["original_chunk_id"],
+                {
+                    "indexName": "placement_chunks_original_chunk_id",
+                    "name": "placement_chunks_original_chunk_id",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "placement_chunks",
+                ["encrypted_chunk_id"],
+                {
+                    "indexName": "placement_chunks_encrypted_chunk_id",
+                    "name": "placement_chunks_encrypted_chunk_id",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "placement_chunks",
+                ["placement_id", "pos"],
+                {
+                    "indexName": "placement_chunks_placement_id_pos",
+                    "name": "placement_chunks_placement_id_pos",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "placement_chunks",
+                ["placement_id", "is_sent"],
+                {
+                    "indexName": "placement_chunks_placement_id_is_sent",
+                    "name": "placement_chunks_placement_id_is_sent",
                     "transaction": transaction
                 }
             ]

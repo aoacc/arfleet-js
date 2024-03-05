@@ -9,6 +9,7 @@ let state = {};
 class Client {
     constructor({ wallet }) {
         this.wallet = wallet;
+        this.address = wallet.getAddress();
         this.start();
     }
 

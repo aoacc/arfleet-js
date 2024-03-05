@@ -53,8 +53,8 @@ const defaultConfig = {
     aoConfig: {
         MU_URL: "https://ao-mu-1.onrender.com",
         CU_URL: "https://ao-cu-1.onrender.com",
-        // GATEWAY_URL: "https://arweave.net",
-        GATEWAY_URL: "https://g8way.io",
+        GATEWAY_URL: "https://arweave.net",
+        // GATEWAY_URL: "https://g8way.io",
     },
 
     rsa_encryption: {
