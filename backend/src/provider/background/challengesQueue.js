@@ -40,8 +40,6 @@ let challengesQueue = new BackgroundQueue({
         const nextChallenge = state["NextVerification"];
         placement.next_challenge = new Date(nextChallenge * 1000);
         await placement.save();
-
-        process.exit(0);
     }
 });
 

@@ -25,6 +25,9 @@ class Provider {
         const challengesQueue = require('./background/challengesQueue.js');
         challengesQueue; // start the queue
 
+        const decryptChunksQueue = require('./background/decryptChunksQueue.js');
+        decryptChunksQueue; // start the queue
+
         const { startProviderRepl } = require('./repl.js');
         await startProviderRepl(this);
     }

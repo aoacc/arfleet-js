@@ -12,12 +12,16 @@ class PSPlacementChunk extends Model {
     static getPath(placement_chunk_id) {
         return utils.getDatadir('/ps_placement_chunks/' + placement_chunk_id);
     }
+
+    static getDecryptedPath(placement_chunk_id) {
+        return utils.getDatadir('/ps_placement_chunks_decrypted/' + placement_chunk_id);
+    }
 }
 
 PSPlacementChunk.init(
     {
         id: {type: Sequelize.DataTypes.STRING, unique: true, primaryKey: true},
-        placement_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
+        placement_id: {type: Sequelize.DataTypes.STRING, allowNull: false}, // shouldn't it be p_s_placement_id?
         original_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
         encrypted_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
         is_received: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
