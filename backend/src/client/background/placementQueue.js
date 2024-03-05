@@ -80,6 +80,7 @@ let placementQueue = new BackgroundQueue({
                                 chunks: assignment.chunk_count,
                                 required_reward: placement.required_reward,
                                 required_collateral: placement.required_collateral,
+                                provider_id: placement.provider_id
                             });
 
                             console.log({placementResult});
@@ -304,21 +305,33 @@ let placementQueue = new BackgroundQueue({
 
                     if (result === 'OK') {
                         // verify
-                        // todo: verify first that collateral is there
+                        // todo: verify that collateral is there
                         
                         // verify that it is now activated
                         const processState = await ao().getState(placement.process_id);
                         console.log('Process State: ', processState);
 
                         if (processState.Status !== 'Activated') {
-                            console.error('Process not activated');
-                            placement.status = PLACEMENT_STATUS.FAILED;
-                            placement.error_was = 'Process not activated';
-                            await placement.save();
+                            // Allow some time to activate
+                            const last_update = placement.updated_at.getTime();
+                            const WAIT_FOR = 1 * 60;
+                            const now = new Date().getTime();
+                            if (now - last_update > WAIT_FOR * 1000) {
+                                console.error('Process not activated');
+                                placement.status = PLACEMENT_STATUS.FAILED;
+                                placement.error_was = 'Process not activated';
+                                await placement.save();
+                            } else {
+                                console.log('Waiting for activation');
+                                setTimeout(() => {
+                                    placementQueue.add(placement.id);
+                                }, 5000);
+                            }
+                        } else {
+                            placement.status = PLACEMENT_STATUS.COMPLETED;
+                            await placement.save();    
                         }
                         
-                        placement.status = PLACEMENT_STATUS.COMPLETED;
-                        await placement.save();
                     } else {
                         console.error('Complete failed: ', result);
                         placement.status = PLACEMENT_STATUS.FAILED;

@@ -26,6 +26,8 @@ State = {
     Token = "",
 
     LastVerification = 0,
+
+    Logs = {}
 }
 
 function Log(msg)
@@ -58,28 +60,9 @@ function Handle(type, fn)
     )
 end
 
-Handle("Activate", function(msg, Data)
-    -- Verify that it's from the Provider
-    if msg.From ~= State.Provider then
-        return
-    end
-
-    if State.Status ~= StatusEnum.Created then
-        return
-    end
-
-    if State.ReceivedCollateral < State.RequiredCollateral then
-        return
-    end
-
-    if State.ReceivedReward < State.RequiredReward then
-        return
-    end
-
-    State.Status = StatusEnum.Activated
-end)
-
 Handle("Credit-Notice", function(msg, Data)
+    State.Logs[#State.Logs + 1] = json.encode(msg)
+
     -- Validate token
     if msg.From ~= State.Token then
         return
@@ -90,10 +73,30 @@ Handle("Credit-Notice", function(msg, Data)
         return
     end
 
+    -- todo: verify Target == ao.id
+
     if msg.Sender == State.Client then
-        State.ReceivedReward = State.ReceivedReward + msg.Amount
+        State.ReceivedReward = State.ReceivedReward + msg.Quantity
     elseif msg.Sender == State.Provider then
-        State.ReceivedCollateral = State.ReceivedCollateral + msg.Amount
+        State.ReceivedCollateral = State.ReceivedCollateral + msg.Quantity
+
+        -- Activate
+        
+        if State.Status ~= StatusEnum.Created then
+            return
+        end
+    
+        if State.ReceivedCollateral < State.RequiredCollateral then
+            return
+        end
+    
+        if State.ReceivedReward < State.RequiredReward then
+            return
+        end
+    
+        State.Status = StatusEnum.Activated
+        State.RemainingCollateral = State.ReceivedCollateral
+    
     else
         return
     end

@@ -63,6 +63,15 @@ const startPublicServer = async() => {
                     const placement_id = req.body.placement_id;
                     const size = req.body.size;
                     const chunks = req.body.chunks;
+                    const provider_id = req.body.provider_id;
+
+                    const provider = require('../../provider')();
+                    console.log(provider.address);
+                    if (!provider_id || provider_id !== provider.address) {
+                        console.error('Error: Provider id mismatch');
+                        res.send('Error: Provider id mismatch');
+                        return;
+                    }
 
                     const required_reward = req.body.required_reward;
                     const required_collateral = req.body.required_collateral;
@@ -211,6 +220,13 @@ const startPublicServer = async() => {
                     const placement_id = req.body.placement_id;
                     const placement = await PSPlacement.findOrFail(placement_id);
                     placement.validateOwnership(client_id);
+
+                    if (placement.status === PS_PLACEMENT_STATUS.COMPLETED) {
+                        // Already activated
+                        res.send('OK');
+                        return;
+                    }
+
                     placement.validateStatus(PS_PLACEMENT_STATUS.ACCEPTED);
 
                     const public_key = req.body.public_key;
@@ -228,7 +244,7 @@ const startPublicServer = async() => {
                     if (collateralRequired > 0) {
                         const { getAoInstance } = require('../../arweave/ao');
                         try {
-                            await getAoInstance().sendToken(config.defaultToken, placement.process_id, collateralRequired);
+                            await (getAoInstance()).sendToken(config.defaultToken, placement.process_id, collateralRequired);
                             // todo: placement.txid = txid;
                             await placement.save();
                         } catch(e) {
