@@ -72,6 +72,13 @@ module.exports = {
 
         return [...levels].flat();
     },
+    normalizeHeaders(headers) {
+        const normalized = {};
+        for (const key in headers) {
+            normalized[key.toLowerCase()] = headers[key];
+        }
+        return normalized;
+    },
     mkdirp: function(path) {
         const fs = require('fs');
         if (!fs.existsSync(path)) {
@@ -79,10 +86,27 @@ module.exports = {
         }
     },
     myExternalIP: async function() {
-        const service = 'https://ifconfig.me';
+        const services = ['https://ifconfig.me', 'https://api.ipify.org', 'https://ipinfo.io/ip'];
+        let service = services[0];
         const axios = require('axios');
-        const response = await axios.get(service);
-        return response.data;
+        try {
+            const response = await axios.get(service);
+            return response.data;                
+        } catch (e) {
+            let service = services[1];
+            try {
+                const response = await axios.get(service);
+                return response.data;                
+            } catch (e) {
+                let service = services[2];
+                try {
+                    const response = await axios.get(service);
+                    return response.data;                
+                } catch (e) {
+                    throw e;
+                }
+            }
+        }
     },
     xorBuffersInPlace: function(a, b) {
         var length = Math.min(a.length, b.length);
