@@ -5,3 +5,4 @@ backend/dist
 frontend/dist
 .env
 testdir
+_local

@@ -21,6 +21,8 @@ PLACEMENT_STATUS = {
     APPROVED: 'approved',
     ENCRYPTED: 'encrypted',
     PROCESS_CREATED: 'process_created',
+    FUNDED: 'funded',
+    FAILED: 'failed',
     COMPLETED: 'completed',
 }
 
@@ -36,6 +38,7 @@ Placement.init(
         private_key: {type: Sequelize.DataTypes.STRING, allowNull: true},
         public_key: {type: Sequelize.DataTypes.STRING, allowNull: true},
         expires: {type: Sequelize.DataTypes.BIGINT, allowNull: true},
+        is_funded: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         status: {
             type: Sequelize.DataTypes.STRING,
             defaultValue: PLACEMENT_STATUS.CREATED

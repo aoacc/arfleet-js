@@ -203,6 +203,14 @@
                     "field": "expires",
                     "seqType": "Sequelize.BIGINT"
                 },
+                "is_funded": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "is_funded",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
                 "status": {
                     "allowNull": false,
                     "defaultValue": {

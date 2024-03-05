@@ -11,19 +11,19 @@ const announce = async(provider, connectionStrings = null) => {
 
     console.log(`Announcing from ${provider.address}, URL are ${provider.connectionStrings}`);
 
-    await ao().sendAction(config.marketplace, "Announce", {
+    await ao().sendActionJSON(config.marketplace, "Announce", {
         "Connection-Strings": provider.connectionStrings,
         "Storage-Capacity": await provider.getCapacity()
     });
 }
 
 const getAnnouncement = async(provider_id) => {
-    const ret = await ao().sendAction(config.marketplace, "Get-Announcement", {"Provider": provider_id});
+    const ret = await ao().sendActionJSON(config.marketplace, "Get-Announcement", {"Provider": provider_id});
     return JSON.parse(ret);
 }
 
 const getAnnouncements = async() => {
-    const ret = await ao().sendAction(config.marketplace, "Get-Announcements", {});
+    const ret = await ao().sendActionJSON(config.marketplace, "Get-Announcements", {});
     return JSON.parse(ret);
 }
 

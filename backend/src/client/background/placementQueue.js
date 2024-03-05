@@ -6,6 +6,8 @@ const { BackgroundQueue } = require('./backgroundQueue');
 const utils = require('../../utils');
 const deal = require('../../arweave/deal');
 const ao = () => { return require('../../arweave/ao').getAoInstance(); }
+const client = require('../../client');
+const config = require('../../config');
 
 class ProviderApi {
     constructor(connectionString) {
@@ -125,13 +127,42 @@ let placementQueue = new BackgroundQueue({
                 break;
             case PLACEMENT_STATUS.ENCRYPTED:
                 // create process
-                const process_id = await deal.spawnDeal("State.Activated = true");
+                const createdAtTimestamp = placement.created_at.getTime();
+                const lua_lines = [
+                    "State.Provider = '" + placement.provider_id + "'",
+                    "State.MerkleRoot = '" + placement.merkle_root + "'",
+                    "State.Client = '" + client().address + "'",
+                    "State.CreatedAt = " + createdAtTimestamp + "",
+                ];
+                const process_id = await deal.spawnDeal(lua_lines.join("\n"));
                 console.log('Process ID: ', process_id);
 
                 console.log(await ao().sendAction(process_id, "Eval", "State"));
 
-                process.exit(0);
+                placement.process_id = process_id;
+                placement.status = PLACEMENT_STATUS.PROCESS_CREATED;
+                await placement.save();
 
+                break;
+            case PLACEMENT_STATUS.PROCESS_CREATED:
+                // fund
+                // aos> Send({ Target = ao.id, Action = "Transfer", Recipient = Trinity, Quantity = "1000"})
+
+                // change the state before sending the action
+                placement.status = PLACEMENT_STATUS.FUNDED;
+                placement.is_funded = true;
+                await placement.save();
+                
+                try {
+                    const tokenSend = await ao().sendActionExtra(config.defaultToken, "Transfer", "1000", { Recipient: placement.process_id });
+                    console.log('Token send: ', tokenSend);
+                } catch(e) {
+                    console.log('Funding Error: ', e);
+                    placement.status = PLACEMENT_STATUS.FAILED; // todo: try to take the money out
+                    await placement.save();
+                }
+                break;
+                
             default:
                 // todo
         } // end of switch(placement.status)

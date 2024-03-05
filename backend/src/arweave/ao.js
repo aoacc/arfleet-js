@@ -30,6 +30,10 @@ class AOClient {
             }
         }
     }
+
+    async sendActionJSON(process_id, action, data, tags = {}, attempt = 0) {
+        return await this.sendAction(process_id, action, JSON.stringify(data), tags, attempt);
+    }
     
     async sendAction(process_id, action, data, tags = {}, attempt = 0) {
         try {
@@ -50,7 +54,7 @@ class AOClient {
                 process: process_id,
                 signer: this.signer,
                 tags: t,
-                data: JSON.stringify(data),
+                data: data,
             });
     
             console.log({ res });
@@ -61,6 +65,14 @@ class AOClient {
                 const result = resdata["Messages"][0].Data;
                 return result;
             } else {
+                // Try Output.data
+                if (resdata.Output && resdata.Output.data) {
+                    if (resdata.Output.json && resdata.Output.json !== 'undefined') {
+                        return JSON.parse(resdata.Output.json);
+                    } else {
+                        return resdata.Output.data.output;
+                    }
+                }
                 console.log("Returning null!!!");
                 console.log("resdata", resdata);
                 return null;
@@ -73,45 +85,6 @@ class AOClient {
             } else {
                 console.log("Retrying action...");
                 return this.sendAction(process_id, action, data, tags, attempt + 1);
-            }
-        }
-    }
-    
-    async sendActionExtra(process_id, action, data, extra, attempt) {
-        try {
-            if (!attempt) attempt = 0;
-    
-            let tags =
-                [
-                    { name: "Action", value: action },
-                    { name: "Target", value: process_id }
-                ];
-    
-            for (let key in extra) {
-                tags.push({ name: key, value: extra[key] });
-            }
-    
-            console.log("sendActionExtra", { action, data, extra });
-    
-            const res = await connection.message({
-                process: process_id,
-                signer: this.signer,
-                tags,
-                data: data,
-            });
-    
-            console.log({ action, data, res });
-    
-            const resdata = await this.getResult(process_id, res);
-    
-            console.log({ resdata });
-            return resdata;
-        } catch (e) {
-            if (attempt > 3) {
-                throw e;
-            } else {
-                console.log("Retrying action...");
-                return this.sendActionExtra(process_id, action, data, extra, attempt + 1);
             }
         }
     }

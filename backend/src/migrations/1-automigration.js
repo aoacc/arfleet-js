@@ -23,7 +23,7 @@ var Sequelize = require('sequelize');
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-03-04T23:13:51.326Z",
+    "created": "2024-03-05T00:07:33.106Z",
     "comment": ""
 };
 
@@ -231,6 +231,12 @@ var migrationCommands = function(transaction) {
                         "type": Sequelize.BIGINT,
                         "field": "expires",
                         "allowNull": true
+                    },
+                    "is_funded": {
+                        "type": Sequelize.BOOLEAN,
+                        "field": "is_funded",
+                        "defaultValue": false,
+                        "allowNull": false
                     },
                     "status": {
                         "type": Sequelize.STRING,
