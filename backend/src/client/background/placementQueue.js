@@ -62,7 +62,7 @@ let placementQueue = new BackgroundQueue({
 
                     if (result === 'pong') {
                         // available, contact about the placement
-                        const placementResult = await pApi.cmd('placement', { size: assignment.size, chunks: assignment.chunk_count });
+                        const placementResult = await pApi.cmd('placement', { placement_id: placement.id, size: assignment.size, chunks: assignment.chunk_count });
 
                         console.log({placementResult});
 
@@ -275,11 +275,11 @@ let placementQueue = new BackgroundQueue({
             {
                 // Make the provider send the collateral
                 const pApi = new ProviderApi(placement.getConnectionString());
-                const collateralResult = await pApi.cmd('collateral', {
+                const result = await pApi.cmd('complete', {
                     placement_id: placement.id
                 });
 
-                if (collateralResult === 'OK') {
+                if (result === 'OK') {
                     // verify
                     // todo: verify first that collateral is there
                     

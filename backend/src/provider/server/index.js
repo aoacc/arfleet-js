@@ -1,10 +1,25 @@
 const config = require('../../config');
+const { PSPlacement } = require('../../db/models');
+const { PS_PLACEMENT_STATUS } = require('../../db/models/PSPlacement');
 const MODE = process.env.MODE;
 const apiServerConfig = config[MODE].apiServer;
 const publicServerConfig = config[MODE].publicServer;
 const utils = require('../../utils');
 
 let state = {};
+
+const validateSignature = (req) => {
+    const client_id = req.headers['tw-address'];
+    const signature = req.headers['tw-signature'];
+
+    if (!client_id || !signature) {
+        throw new Error('Invalid signature');
+    }
+
+    const data = req.body;
+    // const hash = utils.hashFnHex(Buffer.from(JSON.stringify(data)));
+    // todo
+};
 
 const startPublicServer = async() => {
     return new Promise((resolve, reject) => {            
@@ -23,16 +38,40 @@ const startPublicServer = async() => {
             });
             
             app.post('/cmd/ping', (req, res) => {
+                const client_id = validateSignature(req);
                 res.send('pong');
             });
 
-            app.post('/cmd/placement', (req, res) => {
+            app.post('/cmd/placement', async(req, res) => {
+                const client_id = validateSignature(req);
+
                 // todo: validate here
                 console.log('Received placement: ', req.body);
+                const placement_id = req.body.placement_id;
+                const size = req.body.size;
+                const chunks = req.body.chunks;
+
+                // todo: validate size / chunk count
+
+                // save
+                const existing = await PSPlacement.findOneBy('id', placement_id);
+                if (existing) {
+                    res.send('Error: Placement already exists');
+                    return;
+                }
+
+                const placement = await PSPlacement.findByIdOrCreate(placement_id, {
+                    client_id,
+                    // todo: reported_size
+                    // todo: reported chunk count
+                });
+
                 res.send('OK');
             });
 
-            app.post('/cmd/accept', (req, res) => {
+            app.post('/cmd/accept', async(req, res) => {
+                const client_id = validateSignature(req);
+
                 // todo: validate everything about the deal process here
 
                 // process
@@ -49,11 +88,34 @@ const startPublicServer = async() => {
                 // - chunks
                 // - process_id
 
+                const placement = await PSPlacement.findOneByOrFail('id', req.body.placement_id);
+                if (placement.status !== PS_PLACEMENT_STATUS.CREATED) {
+                    res.send('Error: Incorrect placement status');
+                    return;
+                }
+
+                // todo: make sure it's from the same client
+
+                placement.process_id = req.body.process_id;
+                placement.merkle_root = req.body.merkle_root;
+                const chunksHex = req.body.chunks;
+                const chunks = chunksHex.map(c => Buffer.from(c, 'hex'));
+                const merkle_tree = utils.merkle(chunks, utils.hashFn);
+                const our_merkle_root = merkle_tree[merkle_tree.length-1];
+                if (our_merkle_root !== placement.merkle_root) {
+                    res.send('Error: Merkle root mismatch');
+                    return;
+                }
+                placement.status = PS_PLACEMENT_STATUS.ACCEPTED;
+                await placement.save();
+
                 console.log('Accepting placement: ', req.body);
                 res.send('OK');
             });
 
             app.post('/cmd/transfer', (req, res) => {
+                const client_id = validateSignature(req);
+
                 const placement_id = req.body.placement_id;
                 const merkle_root = req.body.merkle_root;
                 const pos = req.body.pos;
@@ -69,6 +131,14 @@ const startPublicServer = async() => {
 
                 console.log('Received chunk: ', req.body);
                 res.send('OK');
+            });
+
+            app.post('/cmd/complete', (req, res) => {
+                const client_id = validateSignature(req);
+
+                const placement_id = req.body.placement_id;
+
+                // send collateral and thus activate it
             });
 
             app.listen(port, host, async() => {

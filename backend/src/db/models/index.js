@@ -1,13 +1,12 @@
-// import File from './file';
-// const Identity = require('./identity');
 const { Chunk } = require('./Chunk');
 const { Assignment } = require('./Assignment');
 const { AssignmentChunk } = require('./AssignmentChunk');
 const { Placement } = require('./Placement');
 const { PlacementChunk } = require('./PlacementChunk');
-// import FileMap from './file_map';
-// import DirMap from './dir_map';
-// import {Database} from '../index';
+
+const { PSPlacement } = require('./PSPlacement');
+const { PSPlacementChunk } = require('./PSPlacementChunk');
+
 const {Database} = require('../index');
 const sequelize = Database.client;
 
@@ -28,13 +27,18 @@ Placement.hasMany(PlacementChunk);
 Assignment.hasMany(Placement);
 Placement.belongsTo(Assignment);
 
-// export {File, Identity, Chunk, Database, FileMap, DirMap, sequelize};
+PSPlacementChunk.belongsTo(PSPlacement);
+PSPlacement.hasMany(PSPlacementChunk);
+
 module.exports = {
     Chunk,
     Assignment,
     AssignmentChunk,
     Placement,
     PlacementChunk,
+
+    PSPlacement,
+    PSPlacementChunk,
 
     Database,
     sequelize
