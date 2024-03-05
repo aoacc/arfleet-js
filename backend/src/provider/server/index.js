@@ -177,7 +177,7 @@ const startPublicServer = async() => {
                 }
             });
 
-            app.post('/cmd/complete', (req, res) => {
+            app.post('/cmd/complete', async(req, res) => {
                 try {
                     const client_id = validateSignature(req);
 
@@ -186,6 +186,17 @@ const startPublicServer = async() => {
                     const placement_id = req.body.placement_id;
 
                     // send collateral and thus activate it
+
+                    const placement = await PSPlacement.findOrFail(placement_id);
+
+                    const public_key = req.body.public_key;
+
+                    placement.public_key = public_key;
+                    await placement.save();
+                    
+                    placement.status = PS_PLACEMENT_STATUS.COMPLETED;
+                    await placement.save();
+
                 } catch(e) {
                     console.log('Error: ', e);
                     res.send('Error');

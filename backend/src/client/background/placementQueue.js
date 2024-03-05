@@ -284,7 +284,8 @@ let placementQueue = new BackgroundQueue({
                 // Make the provider send the collateral
                 const pApi = new ProviderApi(placement.getConnectionString());
                 const result = await pApi.cmd('complete', {
-                    placement_id: placement.id
+                    placement_id: placement.id,
+                    public_key: placement.public_key
                 });
 
                 if (result === 'OK') {
