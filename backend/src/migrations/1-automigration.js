@@ -7,24 +7,31 @@ var Sequelize = require('sequelize');
  *
  * createTable "chunks", deps: []
  * createTable "assignments", deps: []
+ * createTable "p_s_placements", deps: []
  * createTable "assignment_chunks", deps: [assignments]
  * createTable "placements", deps: [assignments]
  * createTable "placement_chunks", deps: [placements]
+ * createTable "p_s_placement_chunks", deps: [p_s_placements]
  * addIndex "assignment_chunks_assignment_id_pos" to table "assignment_chunks"
- * addIndex "placement_chunks_placement_id" to table "placement_chunks"
- * addIndex "placement_chunks_is_encrypted" to table "placement_chunks"
- * addIndex "placement_chunks_is_sent" to table "placement_chunks"
- * addIndex "placement_chunks_original_chunk_id" to table "placement_chunks"
- * addIndex "placement_chunks_encrypted_chunk_id" to table "placement_chunks"
- * addIndex "placement_chunks_placement_id_pos" to table "placement_chunks"
  * addIndex "placement_chunks_placement_id_is_sent" to table "placement_chunks"
+ * addIndex "placement_chunks_placement_id_pos" to table "placement_chunks"
+ * addIndex "placement_chunks_encrypted_chunk_id" to table "placement_chunks"
+ * addIndex "placement_chunks_original_chunk_id" to table "placement_chunks"
+ * addIndex "placement_chunks_is_sent" to table "placement_chunks"
+ * addIndex "placement_chunks_is_encrypted" to table "placement_chunks"
+ * addIndex "placement_chunks_placement_id" to table "placement_chunks"
+ * addIndex "p_s_placement_chunks_placement_id_is_received" to table "p_s_placement_chunks"
+ * addIndex "p_s_placement_chunks_placement_id_pos" to table "p_s_placement_chunks"
+ * addIndex "p_s_placement_chunks_encrypted_chunk_id" to table "p_s_placement_chunks"
+ * addIndex "p_s_placement_chunks_original_chunk_id" to table "p_s_placement_chunks"
+ * addIndex "p_s_placement_chunks_placement_id" to table "p_s_placement_chunks"
  *
  **/
 
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-03-05T01:00:49.047Z",
+    "created": "2024-03-05T02:12:33.318Z",
     "comment": ""
 };
 
@@ -104,6 +111,76 @@ var migrationCommands = function(transaction) {
                         "type": Sequelize.BOOLEAN,
                         "field": "is_active",
                         "defaultValue": false,
+                        "allowNull": false
+                    },
+                    "created_at": {
+                        "type": Sequelize.DATE,
+                        "field": "created_at",
+                        "allowNull": false
+                    },
+                    "updated_at": {
+                        "type": Sequelize.DATE,
+                        "field": "updated_at",
+                        "allowNull": false
+                    }
+                },
+                {
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "createTable",
+            params: [
+                "p_s_placements",
+                {
+                    "id": {
+                        "type": Sequelize.STRING,
+                        "field": "id",
+                        "primaryKey": true,
+                        "unique": true,
+                        "allowNull": false
+                    },
+                    "client_id": {
+                        "type": Sequelize.STRING,
+                        "field": "client_id",
+                        "allowNull": false
+                    },
+                    "merkle_root": {
+                        "type": Sequelize.STRING,
+                        "field": "merkle_root",
+                        "allowNull": true
+                    },
+                    "merkle_tree": {
+                        "type": Sequelize.JSON,
+                        "field": "merkle_tree",
+                        "allowNull": true
+                    },
+                    "process_id": {
+                        "type": Sequelize.STRING,
+                        "field": "process_id",
+                        "allowNull": true
+                    },
+                    "public_key": {
+                        "type": Sequelize.STRING,
+                        "field": "public_key",
+                        "allowNull": true
+                    },
+                    "expires": {
+                        "type": Sequelize.BIGINT,
+                        "field": "expires",
+                        "allowNull": true
+                    },
+                    "is_collaterized": {
+                        "type": Sequelize.BOOLEAN,
+                        "field": "is_collaterized",
+                        "defaultValue": false,
+                        "allowNull": false
+                    },
+                    "status": {
+                        "type": Sequelize.STRING,
+                        "field": "status",
+                        "defaultValue": "created",
                         "allowNull": false
                     },
                     "created_at": {
@@ -344,6 +421,71 @@ var migrationCommands = function(transaction) {
             ]
         },
         {
+            fn: "createTable",
+            params: [
+                "p_s_placement_chunks",
+                {
+                    "id": {
+                        "type": Sequelize.STRING,
+                        "field": "id",
+                        "primaryKey": true,
+                        "unique": true,
+                        "allowNull": false
+                    },
+                    "placement_id": {
+                        "type": Sequelize.STRING,
+                        "field": "placement_id",
+                        "allowNull": false
+                    },
+                    "original_chunk_id": {
+                        "type": Sequelize.STRING,
+                        "field": "original_chunk_id",
+                        "allowNull": true
+                    },
+                    "encrypted_chunk_id": {
+                        "type": Sequelize.STRING,
+                        "field": "encrypted_chunk_id",
+                        "allowNull": true
+                    },
+                    "is_received": {
+                        "type": Sequelize.BOOLEAN,
+                        "field": "is_received",
+                        "defaultValue": false,
+                        "allowNull": false
+                    },
+                    "pos": {
+                        "type": Sequelize.INTEGER,
+                        "field": "pos",
+                        "allowNull": true
+                    },
+                    "created_at": {
+                        "type": Sequelize.DATE,
+                        "field": "created_at",
+                        "allowNull": false
+                    },
+                    "updated_at": {
+                        "type": Sequelize.DATE,
+                        "field": "updated_at",
+                        "allowNull": false
+                    },
+                    "PSPlacementId": {
+                        "type": Sequelize.STRING,
+                        "field": "p_s_placement_id",
+                        "onUpdate": "CASCADE",
+                        "onDelete": "SET NULL",
+                        "references": {
+                            "model": "p_s_placements",
+                            "key": "id"
+                        },
+                        "allowNull": true
+                    }
+                },
+                {
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
             fn: "addIndex",
             params: [
                 "assignment_chunks",
@@ -359,58 +501,10 @@ var migrationCommands = function(transaction) {
             fn: "addIndex",
             params: [
                 "placement_chunks",
-                ["placement_id"],
+                ["placement_id", "is_sent"],
                 {
-                    "indexName": "placement_chunks_placement_id",
-                    "name": "placement_chunks_placement_id",
-                    "transaction": transaction
-                }
-            ]
-        },
-        {
-            fn: "addIndex",
-            params: [
-                "placement_chunks",
-                ["is_encrypted"],
-                {
-                    "indexName": "placement_chunks_is_encrypted",
-                    "name": "placement_chunks_is_encrypted",
-                    "transaction": transaction
-                }
-            ]
-        },
-        {
-            fn: "addIndex",
-            params: [
-                "placement_chunks",
-                ["is_sent"],
-                {
-                    "indexName": "placement_chunks_is_sent",
-                    "name": "placement_chunks_is_sent",
-                    "transaction": transaction
-                }
-            ]
-        },
-        {
-            fn: "addIndex",
-            params: [
-                "placement_chunks",
-                ["original_chunk_id"],
-                {
-                    "indexName": "placement_chunks_original_chunk_id",
-                    "name": "placement_chunks_original_chunk_id",
-                    "transaction": transaction
-                }
-            ]
-        },
-        {
-            fn: "addIndex",
-            params: [
-                "placement_chunks",
-                ["encrypted_chunk_id"],
-                {
-                    "indexName": "placement_chunks_encrypted_chunk_id",
-                    "name": "placement_chunks_encrypted_chunk_id",
+                    "indexName": "placement_chunks_placement_id_is_sent",
+                    "name": "placement_chunks_placement_id_is_sent",
                     "transaction": transaction
                 }
             ]
@@ -431,10 +525,118 @@ var migrationCommands = function(transaction) {
             fn: "addIndex",
             params: [
                 "placement_chunks",
-                ["placement_id", "is_sent"],
+                ["encrypted_chunk_id"],
                 {
-                    "indexName": "placement_chunks_placement_id_is_sent",
-                    "name": "placement_chunks_placement_id_is_sent",
+                    "indexName": "placement_chunks_encrypted_chunk_id",
+                    "name": "placement_chunks_encrypted_chunk_id",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "placement_chunks",
+                ["original_chunk_id"],
+                {
+                    "indexName": "placement_chunks_original_chunk_id",
+                    "name": "placement_chunks_original_chunk_id",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "placement_chunks",
+                ["is_sent"],
+                {
+                    "indexName": "placement_chunks_is_sent",
+                    "name": "placement_chunks_is_sent",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "placement_chunks",
+                ["is_encrypted"],
+                {
+                    "indexName": "placement_chunks_is_encrypted",
+                    "name": "placement_chunks_is_encrypted",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "placement_chunks",
+                ["placement_id"],
+                {
+                    "indexName": "placement_chunks_placement_id",
+                    "name": "placement_chunks_placement_id",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "p_s_placement_chunks",
+                ["placement_id", "is_received"],
+                {
+                    "indexName": "p_s_placement_chunks_placement_id_is_received",
+                    "name": "p_s_placement_chunks_placement_id_is_received",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "p_s_placement_chunks",
+                ["placement_id", "pos"],
+                {
+                    "indexName": "p_s_placement_chunks_placement_id_pos",
+                    "name": "p_s_placement_chunks_placement_id_pos",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "p_s_placement_chunks",
+                ["encrypted_chunk_id"],
+                {
+                    "indexName": "p_s_placement_chunks_encrypted_chunk_id",
+                    "name": "p_s_placement_chunks_encrypted_chunk_id",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "p_s_placement_chunks",
+                ["original_chunk_id"],
+                {
+                    "indexName": "p_s_placement_chunks_original_chunk_id",
+                    "name": "p_s_placement_chunks_original_chunk_id",
+                    "transaction": transaction
+                }
+            ]
+        },
+        {
+            fn: "addIndex",
+            params: [
+                "p_s_placement_chunks",
+                ["placement_id"],
+                {
+                    "indexName": "p_s_placement_chunks_placement_id",
+                    "name": "p_s_placement_chunks_placement_id",
                     "transaction": transaction
                 }
             ]
@@ -469,6 +671,18 @@ var rollbackCommands = function(transaction) {
         {
             fn: "dropTable",
             params: ["placement_chunks", {
+                transaction: transaction
+            }]
+        },
+        {
+            fn: "dropTable",
+            params: ["p_s_placements", {
+                transaction: transaction
+            }]
+        },
+        {
+            fn: "dropTable",
+            params: ["p_s_placement_chunks", {
                 transaction: transaction
             }]
         }

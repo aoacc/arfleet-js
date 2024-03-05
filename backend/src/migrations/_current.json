@@ -385,6 +385,190 @@
                     }
                 }
             }
+        },
+        "p_s_placements": {
+            "tableName": "p_s_placements",
+            "schema": {
+                "id": {
+                    "allowNull": false,
+                    "unique": true,
+                    "primaryKey": true,
+                    "field": "id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "client_id": {
+                    "allowNull": false,
+                    "field": "client_id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "merkle_root": {
+                    "allowNull": true,
+                    "field": "merkle_root",
+                    "seqType": "Sequelize.STRING"
+                },
+                "merkle_tree": {
+                    "allowNull": true,
+                    "field": "merkle_tree",
+                    "seqType": "Sequelize.JSON"
+                },
+                "process_id": {
+                    "allowNull": true,
+                    "field": "process_id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "public_key": {
+                    "allowNull": true,
+                    "field": "public_key",
+                    "seqType": "Sequelize.STRING"
+                },
+                "expires": {
+                    "allowNull": true,
+                    "field": "expires",
+                    "seqType": "Sequelize.BIGINT"
+                },
+                "is_collaterized": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "is_collaterized",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "status": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": "created"
+                    },
+                    "field": "status",
+                    "seqType": "Sequelize.STRING"
+                },
+                "created_at": {
+                    "allowNull": false,
+                    "field": "created_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updated_at": {
+                    "allowNull": false,
+                    "field": "updated_at",
+                    "seqType": "Sequelize.DATE"
+                }
+            },
+            "indexes": []
+        },
+        "p_s_placement_chunks": {
+            "tableName": "p_s_placement_chunks",
+            "schema": {
+                "id": {
+                    "allowNull": false,
+                    "unique": true,
+                    "primaryKey": true,
+                    "field": "id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "placement_id": {
+                    "allowNull": false,
+                    "field": "placement_id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "original_chunk_id": {
+                    "allowNull": true,
+                    "field": "original_chunk_id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "encrypted_chunk_id": {
+                    "allowNull": true,
+                    "field": "encrypted_chunk_id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "is_received": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "is_received",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "pos": {
+                    "allowNull": true,
+                    "field": "pos",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "created_at": {
+                    "allowNull": false,
+                    "field": "created_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updated_at": {
+                    "allowNull": false,
+                    "field": "updated_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "PSPlacementId": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "p_s_placements",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "p_s_placement_id",
+                    "seqType": "Sequelize.STRING"
+                }
+            },
+            "indexes": {
+                "bd714088a8c5c9de94c45b1221c8cf868a3a6055": {
+                    "fields": [
+                        "placement_id"
+                    ],
+                    "name": "p_s_placement_chunks_placement_id",
+                    "options": {
+                        "indexName": "p_s_placement_chunks_placement_id",
+                        "name": "p_s_placement_chunks_placement_id"
+                    }
+                },
+                "5c34696838a1432326f4fc813dc444e1f39f7c01": {
+                    "fields": [
+                        "original_chunk_id"
+                    ],
+                    "name": "p_s_placement_chunks_original_chunk_id",
+                    "options": {
+                        "indexName": "p_s_placement_chunks_original_chunk_id",
+                        "name": "p_s_placement_chunks_original_chunk_id"
+                    }
+                },
+                "e2fbc23f0c1ed75f7405a62c8e86904dbc0abb93": {
+                    "fields": [
+                        "encrypted_chunk_id"
+                    ],
+                    "name": "p_s_placement_chunks_encrypted_chunk_id",
+                    "options": {
+                        "indexName": "p_s_placement_chunks_encrypted_chunk_id",
+                        "name": "p_s_placement_chunks_encrypted_chunk_id"
+                    }
+                },
+                "62d3cc3e461260bf389704e3d81f2b93a61e4c88": {
+                    "fields": [
+                        "placement_id",
+                        "pos"
+                    ],
+                    "name": "p_s_placement_chunks_placement_id_pos",
+                    "options": {
+                        "indexName": "p_s_placement_chunks_placement_id_pos",
+                        "name": "p_s_placement_chunks_placement_id_pos"
+                    }
+                },
+                "eba0be438817c1e56ab44bd9d75cad56e896944b": {
+                    "fields": [
+                        "placement_id",
+                        "is_received"
+                    ],
+                    "name": "p_s_placement_chunks_placement_id_is_received",
+                    "options": {
+                        "indexName": "p_s_placement_chunks_placement_id_is_received",
+                        "name": "p_s_placement_chunks_placement_id_is_received"
+                    }
+                }
+            }
         }
     },
     "revision": 1

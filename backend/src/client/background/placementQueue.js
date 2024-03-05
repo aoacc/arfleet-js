@@ -15,10 +15,16 @@ class ProviderApi {
         this.connectionString = connectionString;
     }
 
-    async cmd(command, data) {
+    async cmd(command, data, headers) {
         const url = `${this.connectionString}/cmd/${command}`;
         console.log('Sending request to: ', url);
-        const response = await axios.post(url, data);
+        const config = {
+            headers: {
+                'tw-address': client().address,
+                'tw-signature': 'todo' // todo
+            }
+        };
+        const response = await axios.post(url, data, config);
         return response.data;
     }
 }
@@ -218,6 +224,7 @@ let placementQueue = new BackgroundQueue({
                     placement.status = PLACEMENT_STATUS.ACCEPTED;
                     await placement.save();
                 } else {
+                    console.error('Accept failed: ', acceptResult);
                     placement.status = PLACEMENT_STATUS.FAILED;
                     await placement.save();
                 }
@@ -263,6 +270,7 @@ let placementQueue = new BackgroundQueue({
                         placementChunk.is_sent = true;
                         await placementChunk.save();
                     } else {
+                        console.error('Transfer failed: ', result);
                         placement.status = PLACEMENT_STATUS.FAILED;
                         await placement.save();
                         break;
@@ -286,6 +294,7 @@ let placementQueue = new BackgroundQueue({
                     placement.status = PLACEMENT_STATUS.COMPLETED;
                     await placement.save();
                 } else {
+                    console.error('Complete failed: ', result);
                     placement.status = PLACEMENT_STATUS.FAILED;
                     await placement.save();
                 }

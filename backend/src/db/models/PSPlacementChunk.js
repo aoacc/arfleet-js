@@ -20,6 +20,7 @@ PSPlacementChunk.init(
         placement_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
         original_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
         encrypted_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
+        is_received: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         pos: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
     },
     {
@@ -28,6 +29,7 @@ PSPlacementChunk.init(
             {fields: ['original_chunk_id']},
             {fields: ['encrypted_chunk_id']},
             {fields: ['placement_id', 'pos']},
+            {fields: ['placement_id', 'is_received']},
             // {fields: ['ul_status']},
             // {fields: ['dl_status']}
         ]
