@@ -225,11 +225,19 @@ Handle("SubmitChallenge", function(msg, Data)
         return "Error: Too late"
     end
 
+    local ChallengeFromProvider = Data["Challenge"]
+    if ChallengeFromProvider ~= State.Challenge then
+        -- don't slash, maybe it was just out of sync
+        return "Error: Challenge mismatch: " .. ChallengeFromProvider .. " != " .. State.Challenge
+    end
+
     -- State.Logs[#State.Logs + 1] = json.encode(msg)
     -- State.Logs[#State.Logs + 1] = json.encode(msg.Data)
 
     local Path = Data["Path"]
     -- State.Logs[#State.Logs + 1] = json.encode(Path)
+
+    State.Logs[#State.Logs + 1] = "Start"
 
     -- Walk through all elements of the path, according to the binary string State.Challenge
     local i = 1
@@ -255,7 +263,15 @@ Handle("SubmitChallenge", function(msg, Data)
             return "Error: Path, i=" .. i .. ", ExpectedNext=" .. ExpectedNext .. ", ElemValue=" .. ElemValue
         end
 
-        local Direction = State.Challenge[i]
+        local Direction = string.sub(State.Challenge, i, i)
+
+        if Direction == nil then
+            return "Error: Path, i=" .. i .. ", Direction=nil, State.Challenge=" .. State.Challenge -- todo: should we slash?
+        end
+
+        State.Logs[#State.Logs + 1] = json.encode({
+            ["i"] = i, ["Direction"] = Direction, ["ElemValue"] = ElemValue, ["ElemLeft"] = ElemLeft, ["ElemRight"] = ElemRight, ["State.Challenge"] = State.Challenge
+        })
 
         if Direction == "0" then
             if ElemLeft == nil then
@@ -263,12 +279,14 @@ Handle("SubmitChallenge", function(msg, Data)
                 return "Error: Path, i=" .. i .. ", Direction=0, ElemLeft=nil"
             end
             ExpectedNext = ElemLeft
-        else
+        elseif Direction == "1" then
             if ElemRight == nil then
                 Slash()
                 return "Error: Path, i=" .. i .. ", Direction=1, ElemRight=nil"
             end
             ExpectedNext = ElemRight
+        else
+            return "Error: Something went wrong, Direction=" .. Direction
         end
 
         -- Verify the hashes

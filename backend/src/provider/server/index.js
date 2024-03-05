@@ -286,11 +286,31 @@ const startPublicServer = async() => {
                 }
             });
 
-            app.post('/cmd/download', (req, res) => {
+            app.post('/cmd/download', async(req, res) => {
                 try {
-                    const client_id = validateSignature(req);
+                    // const client_id = validateSignature(req);
 
-                    // todo
+                    // const chunk_id = req.body.chunk_id;
+
+                    // try {
+                    //     const chunk = await PSPlacementChunk.findOneByOrFail('encrypted_chunk_id', chunk_id);
+                    //     const data = fs.readFileSync(PSPlacementChunk.getPath(chunk_id));
+                    //     res.send(data);
+                    // } catch(e) {
+
+                    //     try {
+                    //         const chunk = await PSPlacementChunk.findOneByOrFail('decrypted_chunk_id', chunk_id);
+                    //         const data = fs.readFileSync(PSPlacementChunk.getDecryptedPath(chunk_id));
+                    //         res.send(data);
+                    //     } catch(e) {
+    
+                    //         // 404
+                    //         res.status(404).send('Not found');
+
+                    //     }    
+
+                    }
+                    
                 } catch(e) {
                     console.log('Error: ', e);
                     res.send('Error');

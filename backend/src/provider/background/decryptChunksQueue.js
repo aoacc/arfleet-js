@@ -37,7 +37,7 @@ let decryptChunksQueue = new BackgroundQueue({
         const placement = await PSPlacement.findOrFail(placement_chunk.placement_id);
         const public_key = placement.public_key;
         if (!public_key) {
-            console.log('No public key for placement: ', placement.id);
+            console.log('No public key to decrypt placement chunk: ', placement_chunk.id);
             return;
         }
 

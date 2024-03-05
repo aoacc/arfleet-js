@@ -63,6 +63,8 @@ const prepareChallengeResponse = async(placement, challenge) => {
 
     result.Leaf = data_base64;
 
+    result.Challenge = challenge;
+
     return result;
 }
 
