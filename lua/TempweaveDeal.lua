@@ -54,7 +54,17 @@ Handle("Activate", function(msg, Data)
         return
     end
 
-    -- todo: check that collateral has been sent and is enough
+    if State.Status ~= StatusEnum.Created then
+        return
+    end
+
+    if State.ReceivedCollateral < State.RequiredCollateral then
+        return
+    end
+
+    if State.ReceivedReward < State.RequiredReward then
+        return
+    end
 
     State.Status = StatusEnum.Activated
 end)
@@ -97,6 +107,10 @@ Handle("Verify", function(msg, Data)
     -- too early?
 
     -- get the string
+end)
+
+Handle("GetState", function(msg)
+    return json.encode(State)
 end)
 
 -- todo: withdraw collateral at the end when expires by provider

@@ -5,6 +5,25 @@ class PSPlacement extends Model {
     constructor(...args) {
         super(...args);
     }
+
+    validateOwnership(client_id) {
+        if (this.client_id !== client_id) {
+            throw new Error('Client does not own this placement');
+        }
+    }
+
+    validateStatus(status) {
+        if (this.status !== status) {
+            throw new Error(`Placement status is not ${status}`);
+        }
+    }
+
+    async getCollateralLeftToSend() {
+        const ao = require('../../arweave/deal');
+        const state = await ao.getState(this.process_id)
+
+        return state["RequiredCollateral"] - state["ReceivedCollateral"];
+    }
 }
 
 PS_PLACEMENT_STATUS = {

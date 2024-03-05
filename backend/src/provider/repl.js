@@ -1,5 +1,17 @@
+const fs = require('fs');
+const nodepath = require('path');
+
 const startProviderRepl = async (provider) => {
     const readline = require('readline');
+
+    // check that the terminal width is at least 80
+    const terminal_width = process.stdout.columns;
+    if (terminal_width >= 80) {
+        const logo_txt = fs.readFileSync(nodepath.join(__dirname, '..', '..', 'resources/logo.txt'), 'utf-8');
+
+        // print logo
+        console.log(logo_txt);
+    }
 
     const rl = readline.createInterface({
         input: process.stdin,

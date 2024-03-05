@@ -211,6 +211,16 @@
                     "field": "is_funded",
                     "seqType": "Sequelize.BOOLEAN"
                 },
+                "required_reward": {
+                    "allowNull": true,
+                    "field": "required_reward",
+                    "seqType": "Sequelize.BIGINT"
+                },
+                "required_collateral": {
+                    "allowNull": true,
+                    "field": "required_collateral",
+                    "seqType": "Sequelize.BIGINT"
+                },
                 "status": {
                     "allowNull": false,
                     "defaultValue": {

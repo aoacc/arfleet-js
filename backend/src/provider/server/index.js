@@ -11,8 +11,11 @@ const fs = require('fs');
 let state = {};
 
 const validateSignature = (req) => {
-    const client_id = req.headers['Tempweave-Address'];
-    const signature = req.headers['Tempweave-Signature'];
+    const headers = utils.normalizeHeaders(req.headers);
+    const client_id = headers['tempweave-address'];
+    const signature = headers['tempweave-signature'];
+
+    console.log('Received signature: ', signature);
 
     if (!client_id || !signature) {
         throw new Error('Invalid signature');
@@ -32,7 +35,7 @@ const startPublicServer = async() => {
             const app = express();
 
             app.use(express.json());
-            app.use(express.urlencoded({ extended: false }));
+            // app.use(express.urlencoded({ extended: false }));
 
             const host = publicServerConfig.host;
             const port = publicServerConfig.port;
@@ -61,7 +64,11 @@ const startPublicServer = async() => {
                     const size = req.body.size;
                     const chunks = req.body.chunks;
 
-                    // todo: validate size / chunk count
+                    const required_reward = req.body.required_reward;
+                    const required_collateral = req.body.required_collateral;
+
+                    // todo: validate size / chunk count that you can afford that much
+                    // todo: validate that placement_id is in correct format, and all other fields
 
                     // save
                     const existing = await PSPlacement.findOneBy('id', placement_id);
@@ -72,6 +79,7 @@ const startPublicServer = async() => {
 
                     const placement = await PSPlacement.findByIdOrCreate(placement_id, {
                         client_id,
+                        status: PS_PLACEMENT_STATUS.CREATED,
                         // todo: reported_size
                         // todo: reported chunk count
                     });
@@ -104,12 +112,8 @@ const startPublicServer = async() => {
                     // - process_id
 
                     const placement = await PSPlacement.findOneByOrFail('id', req.body.placement_id);
-                    if (placement.status !== PS_PLACEMENT_STATUS.CREATED) {
-                        res.send('Error: Incorrect placement status');
-                        return;
-                    }
-
-                    // todo: make sure it's from the same client
+                    placement.validateOwnership(client_id);
+                    placement.validateStatus(PS_PLACEMENT_STATUS.CREATED);
 
                     placement.process_id = req.body.process_id;
                     placement.merkle_root = req.body.merkle_root;
@@ -148,13 +152,22 @@ const startPublicServer = async() => {
                     const client_id = validateSignature(req);
 
                     const placement_id = req.body.placement_id;
+                    const placement = await PSPlacement.findOneByOrFail('id', placement_id);
+                    placement.validateOwnership(client_id);
+                    placement.validateStatus(PS_PLACEMENT_STATUS.ACCEPTED);
+
                     const merkle_root = req.body.merkle_root;
                     const pos = req.body.pos;
                     const chunk_data_b64 = req.body.chunk_data;
                     const chunk_data = Buffer.from(chunk_data_b64, 'base64');
-                    const encrypted_chunk_id = req.body.encrypted_chunk_id;
+                    const hash = req.body.hash;
 
-                    // todo: make sure chunk data hashes to the encrypted_chunk_id
+                    const chunk_data_hashed = utils.hashFnHex(chunk_data);
+                    if (chunk_data_hashed !== hash) {
+                        res.send('Error: Chunk data hash mismatch: ours[' + chunk_data_hashed + '] vs received[' + hash + ']');
+                        return;
+                    }
+
                     // todo: make sure it's part of the tree
                     // todo: make sure it's the right position
 
@@ -164,9 +177,13 @@ const startPublicServer = async() => {
                     fs.writeFileSync(path, chunk_data);
 
                     const placement_chunk = await PSPlacementChunk.findOneByOrFail('id', placement_id + '_' + pos);
-                    // todo: validate it belongs to the client
-                    // todo: validate it belongs to the placement
+                    if (placement_chunk.placement_id !== placement_id) {
+                        res.send('Error: Placement id mismatch');
+                        return;
+                    }
+                    
                     placement_chunk.is_received = true;
+                    placement_chunk.encrypted_chunk_id = hash;
                     await placement_chunk.save();
 
                     console.log('Received chunk: ', req.body);
@@ -181,19 +198,32 @@ const startPublicServer = async() => {
                 try {
                     const client_id = validateSignature(req);
 
-                    // receive public key to decrypt
-
                     const placement_id = req.body.placement_id;
-
-                    // send collateral and thus activate it
-
                     const placement = await PSPlacement.findOrFail(placement_id);
+                    placement.validateOwnership(client_id);
+                    placement.validateStatus(PS_PLACEMENT_STATUS.ACCEPTED);
 
                     const public_key = req.body.public_key;
-
                     placement.public_key = public_key;
                     await placement.save();
+
+                    // --- Send collateral and thus activate it ---
                     
+                    // First, mark it as funded to avoid double spending
+                    placement.is_funded = true;
+                    await placement.save();
+
+                    // Then, send the collateral
+                    const collateralRequired = await placement.getCollateralLeftToSend();
+                    if (collateralRequired > 0) {
+                        const ao = require('../../arweave/deal');
+                        const result = await ao.sendCollateral(placement.process_id, collateralRequired);
+                        // todo: placement.txid = txid;
+                        await placement.save();
+                    }
+
+                    // ---
+
                     placement.status = PS_PLACEMENT_STATUS.COMPLETED;
                     await placement.save();
 

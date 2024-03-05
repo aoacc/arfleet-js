@@ -6,7 +6,7 @@ const { BackgroundQueue } = require('./backgroundQueue');
 const utils = require('../../utils');
 const deal = require('../../arweave/deal');
 const ao = () => { return require('../../arweave/ao').getAoInstance(); }
-const client = require('../../client');
+const getClientInstance = require('../../client');
 const config = require('../../config');
 const fs = require('fs');
 
@@ -20,7 +20,7 @@ class ProviderApi {
         console.log('Sending request to: ', url);
         const config = {
             headers: {
-                'Tempweave-Address': client().address,
+                'Tempweave-Address': getClientInstance().address,
                 'Tempweave-Signature': 'todo' // todo
             }
         };
@@ -67,8 +67,19 @@ let placementQueue = new BackgroundQueue({
                     const assignment = await Assignment.findOrFail(placement.assignment_id);
 
                     if (result === 'pong') {
+                        // todo: calculate reward and collateral
+                        placement.required_reward = 500; // todo
+                        placement.required_collateral = 1000; // todo
+                        await placement.save();
+
                         // available, contact about the placement
-                        const placementResult = await pApi.cmd('placement', { placement_id: placement.id, size: assignment.size, chunks: assignment.chunk_count });
+                        const placementResult = await pApi.cmd('placement', {
+                            placement_id: placement.id,
+                            size: assignment.size,
+                            chunks: assignment.chunk_count,
+                            required_reward: placement.required_reward,
+                            required_collateral: placement.required_collateral,
+                        });
 
                         console.log({placementResult});
 
@@ -151,11 +162,11 @@ let placementQueue = new BackgroundQueue({
                 const lua_lines = [
                     "State.Provider = '" + placement.provider_id + "'",
                     "State.MerkleRoot = '" + placement.merkle_root + "'",
-                    "State.Client = '" + client().address + "'",
+                    "State.Client = '" + getClientInstance().address + "'",
                     "State.Token = '" + config.defaultToken + "'",
-                    "State.RequiredReward = 500", // todo
+                    "State.RequiredReward = " + placement.required_reward,
                     "State.ReceivedReward = 0",
-                    "State.RequiredCollateral = 1000", // todo
+                    "State.RequiredCollateral = " + placement.required_collateral,
                     "State.ReceivedCollateral = 0",
                     "State.VerificationEveryPeriod = 10000", // todo
                     "State.VerificationResponsePeriod = 100", // todo
@@ -177,8 +188,7 @@ let placementQueue = new BackgroundQueue({
 
             case PLACEMENT_STATUS.PROCESS_SPAWNED:
             {
-                // fund
-                // aos> Send({ Target = ao.id, Action = "Transfer", Recipient = Trinity, Quantity = "1000"})
+                // fund with the reward
 
                 console.log('Funding placement: ', placement.id);
 
@@ -188,7 +198,7 @@ let placementQueue = new BackgroundQueue({
                 await placement.save();
                 
                 try {
-                    const tokenSend = await ao().sendAction(config.defaultToken, "Transfer", "", { Recipient: placement.process_id, Quantity: "1000" });
+                    const tokenSend = await ao().sendAction(config.defaultToken, "Transfer", "", { Recipient: placement.process_id, Quantity: placement.required_reward.toString() });
                     console.log('Token send: ', tokenSend);
                 } catch(e) {
                     console.log('Funding Error: ', e);
@@ -235,7 +245,7 @@ let placementQueue = new BackgroundQueue({
             {
                 const pApi = new ProviderApi(placement.getConnectionString());
 
-                // Transfer files
+                // Transfer chunks
                 const placementChunks = await PlacementChunk.findAll({
                     where: {
                         placement_id,
@@ -291,6 +301,7 @@ let placementQueue = new BackgroundQueue({
                 if (result === 'OK') {
                     // verify
                     // todo: verify first that collateral is there
+                    // todo: verify that it is now activated
                     
                     placement.status = PLACEMENT_STATUS.COMPLETED;
                     await placement.save();

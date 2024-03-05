@@ -9,13 +9,14 @@ let state = {};
 class Client {
     constructor({ wallet }) {
         this.wallet = wallet;
-        this.address = wallet.getAddress();
         this.start();
     }
 
     async start() {
+        this.address = await this.wallet.getAddress();
+
         console.log("Datadir: ", utils.getDatadir());
-        console.log("Wallet address: ", await this.wallet.getAddress());
+        console.log("Wallet address: ", this.address);
 
         this.ao = getAoInstance({ wallet: this.wallet });
 

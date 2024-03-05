@@ -23,6 +23,9 @@
 - [] better errors from api
 
 [] provider: delete chunks that we don't have to keep because the deal never finalized
+[] clean the connection string from extra stuff and only leave host and port and known protocol - for security
+[] if some provider has been dead for a long while, don't contact them, even with other placements
+[] if the deal doesn't move for some time, fail it. same from provider side!
 
 what will we have to keep after the container is stored?
 

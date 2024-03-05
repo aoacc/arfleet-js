@@ -31,7 +31,7 @@ var Sequelize = require('sequelize');
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-03-05T02:12:33.318Z",
+    "created": "2024-03-05T15:47:23.130Z",
     "comment": ""
 };
 
@@ -315,6 +315,16 @@ var migrationCommands = function(transaction) {
                         "field": "is_funded",
                         "defaultValue": false,
                         "allowNull": false
+                    },
+                    "required_reward": {
+                        "type": Sequelize.BIGINT,
+                        "field": "required_reward",
+                        "allowNull": true
+                    },
+                    "required_collateral": {
+                        "type": Sequelize.BIGINT,
+                        "field": "required_collateral",
+                        "allowNull": true
                     },
                     "status": {
                         "type": Sequelize.STRING,

@@ -17,6 +17,12 @@ const spawnDeal = async(extra_lines) => {
     return process_id;
 }
 
+const getState = async(process_id) => {
+    const ret = await ao().sendAction(process_id, "GetState", "");
+    return JSON.parse(ret);
+}
+
 module.exports = {
-    spawnDeal
+    spawnDeal,
+    getState,
 }

@@ -13,9 +13,9 @@ class Wallet {
         return fs.readFileSync(this.walletPath, 'utf8');
     }
 
-    getAddress() {
+    async getAddress() {
         if (!this._address) {
-            this._address = arweave.wallets.jwkToAddress(JSON.parse(this.readPrivateKey()));
+            this._address = await arweave.wallets.jwkToAddress(JSON.parse(this.readPrivateKey()));
         }
         return this._address;
     }
