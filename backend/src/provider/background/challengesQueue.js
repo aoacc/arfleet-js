@@ -31,8 +31,15 @@ let challengesQueue = new BackgroundQueue({
         const challengeResponse = await prepareChallengeResponse(placement, challenge);
         console.log('Challenge response: ', challengeResponse);
 
-        const challengeResult = await getAoInstance().sendAction(placement.process_id, 'SubmitChallenge', '');
+        const challengeResult = await getAoInstance().sendActionJSON(placement.process_id, 'SubmitChallenge', challengeResponse);
         console.log('Challenge result: ', challengeResult);
+
+        const state = await getAoInstance().getState(placement.process_id);
+        console.log('State: ', state);
+
+        const nextChallenge = state["NextVerification"];
+        placement.next_challenge = new Date(nextChallenge * 1000);
+        await placement.save();
 
         process.exit(0);
     }

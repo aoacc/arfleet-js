@@ -50,6 +50,7 @@ Moving parts
 - Lua Modules
     - TempweaveMarketplace.lua
     - TempweaveDeal.lua
+    - libraries: sha256, base64, hex
 - Client
     - Local API
     - Store files/directories

@@ -53,7 +53,6 @@ function Handle(type, fn)
         type,
         Handlers.utils.hasMatchingTag("Action", type),
         function(msg)
-            -- if starts with { or [, try to decode
             local Data = nil
             
             local success, res = pcall(json.decode, msg.Data)
@@ -74,7 +73,7 @@ function Handle(type, fn)
 end
 
 Handle("Credit-Notice", function(msg, Data)
-    State.Logs[#State.Logs + 1] = json.encode(msg)
+    -- State.Logs[#State.Logs + 1] = json.encode(msg)
 
     -- Validate token
     if msg.From ~= State.Token then
@@ -226,13 +225,17 @@ Handle("SubmitChallenge", function(msg, Data)
         return "Error: Too late"
     end
 
-    local Path = msg.Data["Path"]
+    -- State.Logs[#State.Logs + 1] = json.encode(msg)
+    -- State.Logs[#State.Logs + 1] = json.encode(msg.Data)
+
+    local Path = Data["Path"]
+    -- State.Logs[#State.Logs + 1] = json.encode(Path)
 
     -- Walk through all elements of the path, according to the binary string State.Challenge
     local i = 1
     local ExpectedNext = State.MerkleRoot
     while true do
-        local Elem = Elem[i]
+        local Elem = Path[i]
 
         if Elem == nil then
             break
@@ -244,12 +247,12 @@ Handle("SubmitChallenge", function(msg, Data)
 
         if ElemValue == nil then
             Slash()
-            return "Error: Path"
+            return "Error: Path, i=" .. i .. ", ElemValue=nil"
         end
 
         if ExpectedNext ~= ElemValue then
             Slash()
-            return "Error: Path"
+            return "Error: Path, i=" .. i .. ", ExpectedNext=" .. ExpectedNext .. ", ElemValue=" .. ElemValue
         end
 
         local Direction = State.Challenge[i]
@@ -257,19 +260,19 @@ Handle("SubmitChallenge", function(msg, Data)
         if Direction == "0" then
             if ElemLeft == nil then
                 Slash()
-                return "Error: Path"
+                return "Error: Path, i=" .. i .. ", Direction=0, ElemLeft=nil"
             end
             ExpectedNext = ElemLeft
         else
             if ElemRight == nil then
                 Slash()
-                return "Error: Path"
+                return "Error: Path, i=" .. i .. ", Direction=1, ElemRight=nil"
             end
             ExpectedNext = ElemRight
         end
 
         -- Verify the hashes
-        local ExpectedHash = HexToBytes(ElemValue)
+        local ExpectedHash = ElemValue
         local LeftData = HexToBytes(ElemLeft)
         local RightData = HexToBytes(ElemRight)
         local HashData = LeftData .. RightData
@@ -282,18 +285,18 @@ Handle("SubmitChallenge", function(msg, Data)
         local Hash = sha256(HashData)
         if Hash ~= ExpectedHash then
             Slash()
-            return "Error: Hash"
+            return "Error: Hash, i=" .. i .. ", ExpectedHash=" .. ExpectedHash .. ", Hash=" .. Hash
         end
 
         i = i + 1
     end
 
     -- And finally, we have ExpectedValue is the hash of the leaf
-    local LeafData = base64.decode(msg.Data["Leaf"])
+    local LeafData = base64.decode(Data["Leaf"])
     local LeafHash = sha256(LeafData)
     if ExpectedNext ~= LeafHash then
         Slash()
-        return "Error: Leaf"
+        return "Error: Leaf, ExpectedNext=" .. ExpectedNext .. ", LeafHash=" .. LeafHash
     end
 
     -- Challenge successfully passed!
