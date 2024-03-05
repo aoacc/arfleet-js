@@ -7,10 +7,23 @@ const ao = () => {
 
 const config = require('../config');
 
+const loadLuaSourceFile = (filename) => {
+    const thisScriptPath = __dirname;
+    return fs.readFileSync(nodepath.join(thisScriptPath, '..', '..', '..', 'lua', filename), 'utf-8');
+}
+
 const spawnDeal = async(extra_lines) => {
     const thisScriptPath = __dirname;
-    const source_lua = fs.readFileSync(nodepath.join(thisScriptPath, '..', '..', '..', 'lua', 'TempweaveDeal.lua'), 'utf-8');
-    const process_id = await ao().spawn(source_lua, [{name: "Name", value: "tw-deal"}])
+    const sources = [
+        loadLuaSourceFile('libs/hex.lua'),
+        loadLuaSourceFile('libs/sha256.lua'),
+        loadLuaSourceFile('libs/base64.lua'),
+        loadLuaSourceFile('TempweaveDeal.lua'),
+    ];
+
+    const sources_concat = sources.join('\n\n');
+
+    const process_id = await ao().spawn(sources_concat, [{name: "Name", value: "tw-deal"}]); // todo: why not working in explorer?
 
     await ao().sendAction(process_id, "Eval", extra_lines);
 

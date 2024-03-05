@@ -212,23 +212,95 @@ Handle("SubmitChallenge", function(msg, Data)
 
     -- Only in active state
     if State.Status ~= StatusEnum.Activated then
-        return
+        return "Error: Not activated"
     end
 
     -- Too early?
     if (msg.Timestamp/1000) < State.NextVerification then
-        return
+        return "Error: Too early"
     end
 
     -- Too late?
     if (msg.Timestamp/1000) > State.NextVerification + State.VerificationResponsePeriod then
         Slash()
-        return
+        return "Error: Too late"
     end
 
     local Path = msg.Data["Path"]
 
-    -- verify all parts of the path
+    -- Walk through all elements of the path, according to the binary string State.Challenge
+    local i = 1
+    local ExpectedNext = State.MerkleRoot
+    while true do
+        local Elem = Elem[i]
+
+        if Elem == nil then
+            break
+        end
+
+        local ElemValue = Elem[1]
+        local ElemLeft = Elem[2]
+        local ElemRight = Elem[3]
+
+        if ElemValue == nil then
+            Slash()
+            return "Error: Path"
+        end
+
+        if ExpectedNext ~= ElemValue then
+            Slash()
+            return "Error: Path"
+        end
+
+        local Direction = State.Challenge[i]
+
+        if Direction == "0" then
+            if ElemLeft == nil then
+                Slash()
+                return "Error: Path"
+            end
+            ExpectedNext = ElemLeft
+        else
+            if ElemRight == nil then
+                Slash()
+                return "Error: Path"
+            end
+            ExpectedNext = ElemRight
+        end
+
+        -- Verify the hashes
+        local ExpectedHash = HexToBytes(ElemValue)
+        local LeftData = HexToBytes(ElemLeft)
+        local RightData = HexToBytes(ElemRight)
+        local HashData = LeftData .. RightData
+
+        -- If this is the last element, prepend zero byte
+        if Elem[i + 1] == nil then
+            HashData = string.char(0) .. HashData
+        end
+
+        local Hash = sha256(HashData)
+        if Hash ~= ExpectedHash then
+            Slash()
+            return "Error: Hash"
+        end
+
+        i = i + 1
+    end
+
+    -- And finally, we have ExpectedValue is the hash of the leaf
+    local LeafData = base64.decode(msg.Data["Leaf"])
+    local LeafHash = sha256(LeafData)
+    if ExpectedNext ~= LeafHash then
+        Slash()
+        return "Error: Leaf"
+    end
+
+    -- Challenge successfully passed!
+    State.NextVerification = State.NextVerification + State.VerificationEveryPeriod
+    State.Challenge = ""
+
+    return "Success"
 end)
 
 Handle("GetState", function(msg)
