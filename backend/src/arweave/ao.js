@@ -113,6 +113,11 @@ class AOClient {
 
         return res;
     }
+
+    async sendToken(token, to, amount) {
+        const res = await this.sendAction(token, "Transfer", "", { Recipient: to, Quantity: amount.toString() });
+        return res;
+    }
 }
 
 let aoInstance;

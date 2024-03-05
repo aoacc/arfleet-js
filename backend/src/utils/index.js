@@ -87,26 +87,18 @@ module.exports = {
     },
     myExternalIP: async function() {
         const services = ['https://ifconfig.me', 'https://api.ipify.org', 'https://ipinfo.io/ip'];
-        let service = services[0];
-        const axios = require('axios');
-        try {
-            const response = await axios.get(service);
-            return response.data;                
-        } catch (e) {
-            let service = services[1];
+        let lastError = null;
+        for (let service of services) {
+            const axios = require('axios');
             try {
                 const response = await axios.get(service);
                 return response.data;                
             } catch (e) {
-                let service = services[2];
-                try {
-                    const response = await axios.get(service);
-                    return response.data;                
-                } catch (e) {
-                    throw e;
-                }
+                lastError = e;
+                continue;
             }
         }
+        throw lastError;
     },
     xorBuffersInPlace: function(a, b) {
         var length = Math.min(a.length, b.length);

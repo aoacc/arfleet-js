@@ -22,7 +22,12 @@ const getState = async(process_id) => {
     return JSON.parse(ret);
 }
 
+const sendCollateral = async(process_id, collateral) => {
+    await ao().sendAction(process_id, "SendCollateral", collateral);
+}
+
 module.exports = {
     spawnDeal,
     getState,
+    sendCollateral
 }

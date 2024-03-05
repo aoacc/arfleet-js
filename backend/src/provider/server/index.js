@@ -216,10 +216,18 @@ const startPublicServer = async() => {
                     // Then, send the collateral
                     const collateralRequired = await placement.getCollateralLeftToSend();
                     if (collateralRequired > 0) {
-                        const ao = require('../../arweave/deal');
-                        const result = await ao.sendCollateral(placement.process_id, collateralRequired);
-                        // todo: placement.txid = txid;
-                        await placement.save();
+                        const ao = require('../../arweave/ao');
+                        try {
+                            await ao().sendToken(config.defaultToken, placement.process_id, collateralRequired);
+                            // todo: placement.txid = txid;
+                            await placement.save();
+                        } catch(e) {
+                            placement.status = PS_PLACEMENT_STATUS.FAILED;
+                            await placement.save();
+
+                            console.log('Error: ', e);
+                            res.send('Error');
+                        }
                     }
 
                     // ---

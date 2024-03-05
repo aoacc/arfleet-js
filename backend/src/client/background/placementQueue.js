@@ -198,8 +198,8 @@ let placementQueue = new BackgroundQueue({
                 await placement.save();
                 
                 try {
-                    const tokenSend = await ao().sendAction(config.defaultToken, "Transfer", "", { Recipient: placement.process_id, Quantity: placement.required_reward.toString() });
-                    console.log('Token send: ', tokenSend);
+                    await ao().sendToken(config.defaultToken, placement.process_id, placement.required_reward);
+                    console.log('Token sent');
                 } catch(e) {
                     console.log('Funding Error: ', e);
                     placement.status = PLACEMENT_STATUS.FAILED; // todo: try to take the money out

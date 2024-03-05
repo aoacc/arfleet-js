@@ -52,7 +52,8 @@ let assignmentQueue = new BackgroundQueue({
                     placement.provider_connection_strings = (provider.connectionStrings || '').split('|');
                     await placement.save();
 
-                    console.log('Already tried this provider'); // todo: retry after some time
+                    // console.log('Already tried this provider');
+                    // todo: retry after some time
                     continue;
                 }
 
