@@ -11,8 +11,8 @@ const fs = require('fs');
 let state = {};
 
 const validateSignature = (req) => {
-    const client_id = req.headers['tw-address'];
-    const signature = req.headers['tw-signature'];
+    const client_id = req.headers['Tempweave-Address'];
+    const signature = req.headers['Tempweave-Signature'];
 
     if (!client_id || !signature) {
         throw new Error('Invalid signature');
