@@ -1,7 +1,7 @@
-- [] processes should work
-- [] process
-    - [] funded
-    - [] files sent
+- [x] processes should work
+- [x] process
+    - [x] funded
+    - [x] files sent
     - [] collaterized, switch flipped (assume how much collateral is needed precisely)
 - [] verification game
 - [] retrieval
@@ -12,6 +12,13 @@
 [x] chunkify
 
 [] will fail on another `store` because assignment already exists, fix this.
+
+[] accelerate instead of 5 s (and chunks too)
+[] rsa in separate processes
+
+[] pricing and deal duration
+
+[] turn/proxy server? at least for now?
 
 tables:
 files

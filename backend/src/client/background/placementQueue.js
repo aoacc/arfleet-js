@@ -138,13 +138,24 @@ let placementQueue = new BackgroundQueue({
 
             case PLACEMENT_STATUS.ENCRYPTED:
             {
+                const dealDuration = 1000 * 60 * 60 * 24; // todo
+
                 // create process
                 const createdAtTimestamp = placement.created_at.getTime();
                 const lua_lines = [
                     "State.Provider = '" + placement.provider_id + "'",
                     "State.MerkleRoot = '" + placement.merkle_root + "'",
                     "State.Client = '" + client().address + "'",
+                    "State.Token = '" + config.defaultToken + "'",
+                    "State.RequiredReward = 500", // todo
+                    "State.ReceivedReward = 0",
+                    "State.RequiredCollateral = 1000", // todo
+                    "State.ReceivedCollateral = 0",
+                    "State.VerificationEveryPeriod = 10000", // todo
+                    "State.VerificationResponsePeriod = 100", // todo
                     "State.CreatedAt = " + createdAtTimestamp + "",
+                    "State.ExpiresAt = " + (createdAtTimestamp + dealDuration) + "",
+                    "State.Status = StatusEnum.Created",
                 ];
                 const process_id = await deal.spawnDeal(lua_lines.join("\n"));
                 console.log('Process ID: ', process_id);
@@ -152,13 +163,13 @@ let placementQueue = new BackgroundQueue({
                 console.log(await ao().sendAction(process_id, "Eval", "State"));
 
                 placement.process_id = process_id;
-                placement.status = PLACEMENT_STATUS.PROCESS_CREATED;
+                placement.status = PLACEMENT_STATUS.PROCESS_SPAWNED;
                 await placement.save();
 
                 break;
             }
 
-            case PLACEMENT_STATUS.PROCESS_CREATED:
+            case PLACEMENT_STATUS.PROCESS_SPAWNED:
             {
                 // fund
                 // aos> Send({ Target = ao.id, Action = "Transfer", Recipient = Trinity, Quantity = "1000"})
@@ -258,6 +269,26 @@ let placementQueue = new BackgroundQueue({
                     }
                 }
                 break;
+            }
+
+            case PLACEMENT_STATUS.TRANSFERRED:
+            {
+                // Make the provider send the collateral
+                const pApi = new ProviderApi(placement.getConnectionString());
+                const collateralResult = await pApi.cmd('collateral', {
+                    placement_id: placement.id
+                });
+
+                if (collateralResult === 'OK') {
+                    // verify
+                    // todo: verify first that collateral is there
+                    
+                    placement.status = PLACEMENT_STATUS.COMPLETED;
+                    await placement.save();
+                } else {
+                    placement.status = PLACEMENT_STATUS.FAILED;
+                    await placement.save();
+                }
             }
 
             default:

@@ -36,6 +36,10 @@ const startPublicServer = async() => {
                 // todo: validate everything about the deal process here
 
                 // process
+                // - wasm
+                // - memory
+                // - variables
+                // - owner
                 // payment
                 // merkle tree
 

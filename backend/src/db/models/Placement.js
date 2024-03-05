@@ -24,7 +24,7 @@ PLACEMENT_STATUS = {
     UNAVAILABLE: 'unavailable',
     INITIALIZED: 'initialized',
     ENCRYPTED: 'encrypted',
-    PROCESS_CREATED: 'process_created',
+    PROCESS_SPAWNED: 'process_spawned',
     FUNDED: 'funded',
     ACCEPTED: 'accepted',
     TRANSFERRED: 'transferred',
