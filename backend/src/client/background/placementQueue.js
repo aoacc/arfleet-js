@@ -2,7 +2,7 @@ const axios = require('axios');
 const Sequelize = require('sequelize');
 const { PLACEMENT_STATUS } = require('../../db/models/Placement');
 const { Assignment, Placement, AssignmentChunk, PlacementChunk } = require('../../db/models');
-const { BackgroundQueue } = require('./backgroundQueue');
+const { BackgroundQueue } = require('../../utils/backgroundQueue');
 const utils = require('../../utils');
 const deal = require('../../arweave/deal');
 const ao = () => { return require('../../arweave/ao').getAoInstance(); }
@@ -157,10 +157,10 @@ let placementQueue = new BackgroundQueue({
 
                 case PLACEMENT_STATUS.ENCRYPTED:
                 {
-                    const dealDuration = 1000 * 60 * 60 * 24; // todo
+                    const dealDuration = 1 * 365 * 24 * 60 * 60; // todo
 
                     // create process
-                    const createdAtTimestamp = placement.created_at.getTime();
+                    const createdAtTimestamp = Math.ceil(placement.created_at.getTime() / 1000);
                     const lua_lines = [
                         "State.Provider = '" + placement.provider_id + "'",
                         "State.MerkleRoot = '" + placement.merkle_root + "'",
@@ -170,7 +170,7 @@ let placementQueue = new BackgroundQueue({
                         "State.ReceivedReward = 0",
                         "State.RequiredCollateral = " + placement.required_collateral,
                         "State.ReceivedCollateral = 0",
-                        "State.VerificationEveryPeriod = 10000", // todo
+                        "State.VerificationEveryPeriod = 30", // todo
                         "State.VerificationResponsePeriod = 100", // todo
                         "State.CreatedAt = " + createdAtTimestamp + "",
                         "State.ExpiresAt = " + (createdAtTimestamp + dealDuration) + "",

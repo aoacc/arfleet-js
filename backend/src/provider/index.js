@@ -22,6 +22,9 @@ class Provider {
         this.externalIP = result.externalIP;
         this.connectionStrings = result.connectionStrings;
 
+        const challengesQueue = require('./background/challengesQueue.js');
+        challengesQueue; // start the queue
+
         const { startProviderRepl } = require('./repl.js');
         await startProviderRepl(this);
     }

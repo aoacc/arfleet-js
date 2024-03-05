@@ -42,6 +42,7 @@ PSPlacement.init(
         process_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
         public_key: {type: Sequelize.DataTypes.STRING, allowNull: true},
         expires: {type: Sequelize.DataTypes.BIGINT, allowNull: true},
+        next_challenge: {type: Sequelize.DataTypes.DATE, allowNull: true},
         is_collaterized: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         status: {
             type: Sequelize.DataTypes.STRING,

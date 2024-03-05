@@ -247,6 +247,13 @@ const startPublicServer = async() => {
                             await (getAoInstance()).sendToken(config.defaultToken, placement.process_id, collateralRequired);
                             // todo: placement.txid = txid;
                             await placement.save();
+
+                            const state = await getAoInstance().getState(placement.process_id);
+                            console.log('Process state: ', state);
+                            
+                            const next_verification_timestamp = state["NextVerification"];
+                            placement.next_challenge = new Date(next_verification_timestamp * 1000);
+                            await placement.save();
                         } catch(e) {
                             placement.status = PS_PLACEMENT_STATUS.FAILED;
                             await placement.save();

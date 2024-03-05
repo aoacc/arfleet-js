@@ -2,6 +2,13 @@ const nodepath = require('path');
 const os = require('os');
 const config = require('../config');
 
+class MrklNode {
+    constructor(value) {
+        this.value = value;
+        this.left = null;
+        this.right = null;
+    }
+}
 module.exports = {
     setDataDir: function(path) {
         process.env.DATADIR = this.resolveHome(path);
@@ -78,6 +85,32 @@ module.exports = {
             normalized[key.toLowerCase()] = headers[key];
         }
         return normalized;
+    },
+    merkleFlatToTree(flat) {
+        const totalNodesCount = flat.length;
+        let leafNodesCount = Math.ceil((totalNodesCount + 1) / 2);
+        let remainingNodesCount = totalNodesCount;
+        
+        let levels = [];
+        while(leafNodesCount > 0) {
+            const layer = flat.slice((remainingNodesCount - leafNodesCount), remainingNodesCount);
+            levels.unshift(layer);
+            remainingNodesCount -= leafNodesCount;
+            leafNodesCount = Math.floor(leafNodesCount / 2);
+        }
+    
+        let nodes = levels.shift().map(value => new MrklNode(value));
+    
+        while (levels.length) {
+            let nextNodes = levels.shift().map(value => new MrklNode(value));
+            for (let i = 0; i < nextNodes.length; i++) {
+                nextNodes[i].left = nodes[2 * i];
+                nextNodes[i].right = nodes[2 * i + 1];
+            }
+            nodes = nextNodes;
+        }
+     
+        return nodes[0]; // return root of the tree
     },
     mkdirp: function(path) {
         const fs = require('fs');

@@ -2,7 +2,7 @@ const { Assignment, Placement } = require('../../db/models');
 const { placementQueue } = require('./placementQueue');
 const announcements = require('./providerAnnouncements');
 const Sequelize = require('sequelize');
-const { BackgroundQueue } = require('./backgroundQueue');
+const { BackgroundQueue } = require('../../utils/backgroundQueue');
 
 let assignmentQueue = new BackgroundQueue({
     REBOOT_INTERVAL: 5 * 1000,

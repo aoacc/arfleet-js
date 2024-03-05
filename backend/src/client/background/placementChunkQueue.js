@@ -2,7 +2,7 @@ const axios = require('axios');
 const Sequelize = require('sequelize');
 const { PLACEMENT_STATUS } = require('../../db/models/Placement');
 const { Assignment, Placement, AssignmentChunk, PlacementChunk } = require('../../db/models');
-const { BackgroundQueue } = require('./backgroundQueue');
+const { BackgroundQueue } = require('../../utils/backgroundQueue');
 
 let placementChunkQueue = new BackgroundQueue({
     REBOOT_INTERVAL: 5 * 1000,

@@ -31,7 +31,7 @@ var Sequelize = require('sequelize');
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-03-05T17:27:13.084Z",
+    "created": "2024-03-05T18:01:42.571Z",
     "comment": ""
 };
 
@@ -169,6 +169,11 @@ var migrationCommands = function(transaction) {
                     "expires": {
                         "type": Sequelize.BIGINT,
                         "field": "expires",
+                        "allowNull": true
+                    },
+                    "next_challenge": {
+                        "type": Sequelize.DATE,
+                        "field": "next_challenge",
                         "allowNull": true
                     },
                     "is_collaterized": {

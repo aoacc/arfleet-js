@@ -441,6 +441,11 @@
                     "field": "expires",
                     "seqType": "Sequelize.BIGINT"
                 },
+                "next_challenge": {
+                    "allowNull": true,
+                    "field": "next_challenge",
+                    "seqType": "Sequelize.DATE"
+                },
                 "is_collaterized": {
                     "allowNull": false,
                     "defaultValue": {
