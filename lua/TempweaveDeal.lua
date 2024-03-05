@@ -204,7 +204,7 @@ Handle("GetChallenge", function(msg, Data)
     return State.Challenge
 end)
 
-Handle("VerifyChallenge", function(msg)
+Handle("SubmitChallenge", function(msg, Data)
     -- Verify that it's from the Provider
     if msg.From ~= State.Provider then
         return
@@ -226,8 +226,9 @@ Handle("VerifyChallenge", function(msg)
         return
     end
 
-    local Challenge = msg.Data["Challenge"]
-    local Steps = msg.Data["Steps"]
+    local Path = msg.Data["Path"]
+
+    -- verify all parts of the path
 end)
 
 Handle("GetState", function(msg)

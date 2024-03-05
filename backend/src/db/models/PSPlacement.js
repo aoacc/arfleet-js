@@ -38,7 +38,7 @@ PSPlacement.init(
         id: {type: Sequelize.DataTypes.STRING, unique: true, primaryKey: true},
         client_id: {type: Sequelize.DataTypes.STRING, allowNull: false},
         merkle_root: {type: Sequelize.DataTypes.STRING, allowNull: true},
-        merkle_tree: {type: Sequelize.DataTypes.JSON, allowNull: true},
+        merkle_tree_full: {type: Sequelize.DataTypes.JSON, allowNull: true},
         process_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
         public_key: {type: Sequelize.DataTypes.STRING, allowNull: true},
         expires: {type: Sequelize.DataTypes.BIGINT, allowNull: true},

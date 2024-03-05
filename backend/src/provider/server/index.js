@@ -136,6 +136,16 @@ const startPublicServer = async() => {
                         return;
                     }
 
+                    // todo: better place it in a file, not in db
+                    placement.merkle_tree_full = utils.merkleFullBinToHex(utils.merkleFull(chunks, utils.hashFn));
+                    await placement.save();
+
+                    // console.log('Hashes: ', chunksHex);
+                    // console.log('Merkle root: ', placement.merkle_root);
+                    // console.log('Merkle tree flat: ', merkle_tree_hex);
+                    // console.log('Merkle tree: ', placement.merkle_tree_full);
+                    // process.exit(0);
+
                     // Get process state
                     const { getAoInstance } = require('../../arweave/ao');
                     const state = await getAoInstance().getState(placement.process_id);

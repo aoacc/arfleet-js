@@ -31,7 +31,7 @@ var Sequelize = require('sequelize');
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-03-05T18:01:42.571Z",
+    "created": "2024-03-05T19:03:11.533Z",
     "comment": ""
 };
 
@@ -151,9 +151,9 @@ var migrationCommands = function(transaction) {
                         "field": "merkle_root",
                         "allowNull": true
                     },
-                    "merkle_tree": {
+                    "merkle_tree_full": {
                         "type": Sequelize.JSON,
-                        "field": "merkle_tree",
+                        "field": "merkle_tree_full",
                         "allowNull": true
                     },
                     "process_id": {

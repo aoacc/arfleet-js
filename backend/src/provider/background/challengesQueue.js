@@ -2,6 +2,7 @@ const { PSPlacement } = require('../../db/models');
 const { PS_PLACEMENT_STATUS } = require('../../db/models/PSPlacement');
 const Sequelize = require('sequelize');
 const { BackgroundQueue } = require('../../utils/backgroundQueue');
+const prepareChallengeResponse = require('./challengeResponse');
 
 let challengesQueue = new BackgroundQueue({
     REBOOT_INTERVAL: 5 * 1000,
@@ -27,6 +28,12 @@ let challengesQueue = new BackgroundQueue({
         const challenge = await getAoInstance().sendAction(placement.process_id, 'GetChallenge', '');
 
         console.log('Challenge: ', challenge);
+        const challengeResponse = await prepareChallengeResponse(placement, challenge);
+        console.log('Challenge response: ', challengeResponse);
+
+        const challengeResult = await getAoInstance().sendAction(placement.process_id, 'SubmitChallenge', '');
+        console.log('Challenge result: ', challengeResult);
+
         process.exit(0);
     }
 });

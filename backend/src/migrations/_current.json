@@ -421,9 +421,9 @@
                     "field": "merkle_root",
                     "seqType": "Sequelize.STRING"
                 },
-                "merkle_tree": {
+                "merkle_tree_full": {
                     "allowNull": true,
-                    "field": "merkle_tree",
+                    "field": "merkle_tree_full",
                     "seqType": "Sequelize.JSON"
                 },
                 "process_id": {
