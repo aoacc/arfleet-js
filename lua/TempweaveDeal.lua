@@ -237,7 +237,7 @@ Handle("SubmitChallenge", function(msg, Data)
     local Path = Data["Path"]
     -- State.Logs[#State.Logs + 1] = json.encode(Path)
 
-    State.Logs[#State.Logs + 1] = "Start"
+    -- State.Logs[#State.Logs + 1] = "Start"
 
     -- Walk through all elements of the path, according to the binary string State.Challenge
     local i = 1
@@ -269,9 +269,9 @@ Handle("SubmitChallenge", function(msg, Data)
             return "Error: Path, i=" .. i .. ", Direction=nil, State.Challenge=" .. State.Challenge -- todo: should we slash?
         end
 
-        State.Logs[#State.Logs + 1] = json.encode({
-            ["i"] = i, ["Direction"] = Direction, ["ElemValue"] = ElemValue, ["ElemLeft"] = ElemLeft, ["ElemRight"] = ElemRight, ["State.Challenge"] = State.Challenge
-        })
+        -- State.Logs[#State.Logs + 1] = json.encode({
+        --     ["i"] = i, ["Direction"] = Direction, ["ElemValue"] = ElemValue, ["ElemLeft"] = ElemLeft, ["ElemRight"] = ElemRight, ["State.Challenge"] = State.Challenge
+        -- })
 
         if Direction == "0" then
             if ElemLeft == nil then

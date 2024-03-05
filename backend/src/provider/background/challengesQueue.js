@@ -27,6 +27,12 @@ let challengesQueue = new BackgroundQueue({
         const { getAoInstance } = require('../../arweave/ao');
         const challenge = await getAoInstance().sendAction(placement.process_id, 'GetChallenge', '');
 
+        // if starts with Error:
+        if (challenge.startsWith('Error:')) {
+            console.log('Error getting challenge: ', challenge);
+            return;
+        }
+
         console.log('Challenge: ', challenge);
         const challengeResponse = await prepareChallengeResponse(placement, challenge);
         console.log('Challenge response: ', challengeResponse);
