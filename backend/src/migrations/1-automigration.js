@@ -31,7 +31,7 @@ var Sequelize = require('sequelize');
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-03-05T22:13:37.216Z",
+    "created": "2024-03-06T16:36:23.650Z",
     "comment": ""
 };
 
@@ -408,6 +408,11 @@ var migrationCommands = function(transaction) {
                         "field": "encrypted_chunk_id",
                         "allowNull": true
                     },
+                    "original_size": {
+                        "type": Sequelize.BIGINT,
+                        "field": "original_size",
+                        "allowNull": true
+                    },
                     "pos": {
                         "type": Sequelize.INTEGER,
                         "field": "pos",
@@ -460,6 +465,11 @@ var migrationCommands = function(transaction) {
                     "original_chunk_id": {
                         "type": Sequelize.STRING,
                         "field": "original_chunk_id",
+                        "allowNull": true
+                    },
+                    "original_size": {
+                        "type": Sequelize.BIGINT,
+                        "field": "original_size",
                         "allowNull": true
                     },
                     "encrypted_chunk_id": {

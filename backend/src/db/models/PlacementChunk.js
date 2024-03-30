@@ -46,6 +46,7 @@ PlacementChunk.init(
         is_sent: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         original_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
         encrypted_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
+        original_size: {type: Sequelize.DataTypes.BIGINT, allowNull: true},
         pos: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
         // dl_status: {
         //     type: Sequelize.DataTypes.STRING,

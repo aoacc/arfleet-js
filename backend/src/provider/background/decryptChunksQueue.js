@@ -44,6 +44,13 @@ let decryptChunksQueue = new BackgroundQueue({
         // decrypt
         decryptFile(encrypted_chunk_path, decrypted_chunk_path, public_key);
 
+        // original size
+        if (placement_chunk.original_size !== null) {
+            const dataToCut = fs.readFileSync(decrypted_chunk_path, null);
+            const cutData = dataToCut.slice(0, placement_chunk.original_size);
+            fs.writeFileSync(decrypted_chunk_path, cutData, null);
+        }
+
         // update
         placement_chunk.is_decrypted = true;
         placement_chunk.original_chunk_id = utils.hashFnHex(fs.readFileSync(decrypted_chunk_path, null));

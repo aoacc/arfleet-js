@@ -23,6 +23,7 @@ PSPlacementChunk.init(
         id: {type: Sequelize.DataTypes.STRING, unique: true, primaryKey: true},
         placement_id: {type: Sequelize.DataTypes.STRING, allowNull: false}, // shouldn't it be p_s_placement_id?
         original_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
+        original_size: {type: Sequelize.DataTypes.BIGINT, allowNull: true},
         encrypted_chunk_id: {type: Sequelize.DataTypes.STRING, allowNull: true},
         is_received: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         pos: {type: Sequelize.DataTypes.INTEGER, allowNull: true},

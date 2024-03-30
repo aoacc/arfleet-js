@@ -299,6 +299,11 @@
                     "field": "encrypted_chunk_id",
                     "seqType": "Sequelize.STRING"
                 },
+                "original_size": {
+                    "allowNull": true,
+                    "field": "original_size",
+                    "seqType": "Sequelize.BIGINT"
+                },
                 "pos": {
                     "allowNull": true,
                     "field": "pos",
@@ -494,6 +499,11 @@
                     "allowNull": true,
                     "field": "original_chunk_id",
                     "seqType": "Sequelize.STRING"
+                },
+                "original_size": {
+                    "allowNull": true,
+                    "field": "original_size",
+                    "seqType": "Sequelize.BIGINT"
                 },
                 "encrypted_chunk_id": {
                     "allowNull": true,

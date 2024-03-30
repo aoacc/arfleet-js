@@ -191,6 +191,8 @@ const startPublicServer = async() => {
                     const chunk_data = Buffer.from(chunk_data_b64, 'base64');
                     const hash = req.body.hash;
 
+                    const original_size = req.body.original_size;
+
                     const chunk_data_hashed = utils.hashFnHex(chunk_data);
                     if (chunk_data_hashed !== hash) {
                         res.send('Error: Chunk data hash mismatch: ours[' + chunk_data_hashed + '] vs received[' + hash + ']');
@@ -213,6 +215,7 @@ const startPublicServer = async() => {
                     
                     placement_chunk.is_received = true;
                     placement_chunk.encrypted_chunk_id = hash;
+                    placement_chunk.original_size = original_size;
                     await placement_chunk.save();
 
                     console.log('Received chunk: ', req.body);
@@ -303,7 +306,14 @@ const startPublicServer = async() => {
 
                         try {
                             const chunk = await PSPlacementChunk.findOneByOrFail('original_chunk_id', chunk_id);
-                            const data = fs.readFileSync(PSPlacementChunk.getDecryptedPath(chunk.id));
+                            let data = fs.readFileSync(PSPlacementChunk.getDecryptedPath(chunk.id));
+
+                            const original_size = chunk.original_size;
+                            if (original_size) {
+                                // cut data
+                                data = data.slice(0, original_size);
+                            }
+
                             res.send(data);
                         } catch(e) {
     
