@@ -7,7 +7,7 @@ const PB = 1024 * TB;
 const defaultConfig = {
     walletPath: 'wallet.json',
     client: {
-        defaultDatadir: '~/.tempweave-client',
+        defaultDatadir: '~/.arfleet-client',
         apiServer: {
             host: '127.0.0.1',
             port: 8885
@@ -15,7 +15,7 @@ const defaultConfig = {
         defaultDesiredRedundancy: 3,
     },
     provider: {
-        defaultDatadir: '~/.tempweave-provider',
+        defaultDatadir: '~/.arfleet-provider',
         apiServer: {
             host: '127.0.0.1',
             port: 8886
@@ -34,7 +34,7 @@ const defaultConfig = {
             updatedAt: 'updated_at'
         },
         dialect: 'sqlite',
-        storage: 'tempweave.db',
+        storage: 'arfleet.db',
         transactionType: 'DEFERRED',
         retry: {
             max: 5
@@ -42,8 +42,8 @@ const defaultConfig = {
     },
     chunkSize: 4096,
     _chunkSize: 2048,
-    chunkinfoPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*INFO',
-    directoryPrologue: 'TEMPWEAVE\x05\x06\xf5\xf6*DIR',
+    chunkinfoPrologue: 'ARFLEET\x05\x06\xf5\xf6*INFO',
+    directoryPrologue: 'ARFLEET\x05\x06\xf5\xf6*DIR',
 
     defaultToken: 'w_4ejp8gRKi2B2KEkVjwlj-W3CpDEfjtJ8qV_0mjNMI',
     marketplace: '-jydy0Gqhtdf2ilVR0zbGrizkx4GJXfcvpJYXzQxwlU',

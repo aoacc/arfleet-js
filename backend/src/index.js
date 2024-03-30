@@ -9,7 +9,7 @@ const utils = require('./utils');
     const app = require('../package.json');
     program.version(app.version || 'N/A');
 
-    program.description("TempWeave\nhttps://tempweave.com\n\nLicensed under MIT license.");
+    program.description("Arfleet\nhttps://arfleet.io\n\nLicensed under MIT license.");
 
     program.option('-d, --datadir <path>', 'path to the data directory');
     program.option('-v, --verbose', 'force the logger to show debug level messages', false);
@@ -59,7 +59,7 @@ const utils = require('./utils');
     program.parse(process.argv);
 
     // Print version
-    console.log("TempWeave v" + app.version);
+    console.log("ArFleet v" + app.version);
 
     // Load config
     const config = require('./config');

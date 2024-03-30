@@ -48,8 +48,8 @@ Moving parts
     - AES256 encrypt/decrypt
     - Signing/verifying requests/responses between parties
 - Lua Modules
-    - TempweaveMarketplace.lua
-    - TempweaveDeal.lua
+    - ArFleetMarketplace.lua
+    - ArFleetDeal.lua
     - libraries: sha256, base64, hex
 - Client
     - Local API

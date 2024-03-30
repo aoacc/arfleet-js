@@ -13,7 +13,7 @@ const makeMigration = () => {
 
     // A little hack: prepare sequelize-auto-migrations for reading from the current datadir config
     process.argv = [
-        './tempweave',
+        './arfleet',
         'makemigration',
         '--models-path',
         // 'dist/db/models',

@@ -20,8 +20,8 @@ class ProviderApi {
         console.log('Sending request to: ', url);
         const config = {
             headers: {
-                'Tempweave-Address': getClientInstance().address,
-                'Tempweave-Signature': 'todo' // todo
+                'ArFleet-Address': getClientInstance().address,
+                'ArFleet-Signature': 'todo' // todo
             }
         };
         const response = await axios.post(url, data, config);

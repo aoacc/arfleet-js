@@ -18,12 +18,12 @@ const spawnDeal = async(extra_lines) => {
         loadLuaSourceFile('libs/hex.lua'),
         loadLuaSourceFile('libs/sha256.lua'),
         loadLuaSourceFile('libs/base64.lua'),
-        loadLuaSourceFile('TempweaveDeal.lua'),
+        loadLuaSourceFile('ArFleetDeal.lua'),
     ];
 
     const sources_concat = sources.join('\n\n');
 
-    const process_id = await ao().spawn(sources_concat, [{name: "Name", value: "tw-deal"}]); // todo: why not working in explorer?
+    const process_id = await ao().spawn(sources_concat, [{name: "Name", value: "arfleet-deal"}]); // todo: why not working in explorer?
 
     await ao().sendAction(process_id, "Eval", extra_lines);
 

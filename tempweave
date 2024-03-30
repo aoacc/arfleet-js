@@ -5,7 +5,7 @@ const { spawn } = require('child_process');
 // Pass arguments
 const args = process.argv.slice(2);
 
-// First argument to tempweave
+// First argument to arfleet
 const mode = args[0];
 
 // Start backend

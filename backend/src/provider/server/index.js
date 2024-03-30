@@ -12,8 +12,8 @@ let state = {};
 
 const validateSignature = (req) => {
     const headers = utils.normalizeHeaders(req.headers);
-    const client_id = headers['tempweave-address'];
-    const signature = headers['tempweave-signature'];
+    const client_id = headers['arfleet-address'];
+    const signature = headers['arfleet-signature'];
 
     console.log('Received signature: ', signature);
 

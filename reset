@@ -1,18 +1,18 @@
-rm -rf ~/.tempweave-client
-rm -rf ~/.tempweave-provider
+rm -rf ~/.arfleet-client
+rm -rf ~/.arfleet-provider
 rm backend/src/migrations/*
-./tempweave client makemigration
-./tempweave client migrate
-./tempweave provider migrate
-mkdir ~/.tempweave-client
-mkdir ~/.tempweave-provider
+./arfleet client makemigration
+./arfleet client migrate
+./arfleet provider migrate
+mkdir ~/.arfleet-client
+mkdir ~/.arfleet-provider
 
 if [ -f ./_local/keys/client.json ]; then
-  cp ./_local/keys/client.json ~/.tempweave-client/wallet.json
+  cp ./_local/keys/client.json ~/.arfleet-client/wallet.json
 fi
 
 if [ -f ./_local/keys/provider.json ]; then
-  cp ./_local/keys/provider.json ~/.tempweave-provider/wallet.json
+  cp ./_local/keys/provider.json ~/.arfleet-provider/wallet.json
 fi
 
 echo "Done"
