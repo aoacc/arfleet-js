@@ -19,6 +19,15 @@ module.exports = {
         }
         return filepath;
     },
+    getProjectDir: function() {
+        return nodepath.join(nodepath.dirname(require.main.filename), '..', '..');
+    },
+    getResourcesDir: function() {
+        return nodepath.join(this.getProjectDir(), 'backend', 'resources');
+    },
+    getPublicDir: function() {
+        return nodepath.join(this.getResourcesDir(), 'public');
+    },
     getModeConfig: function() {
         const mode = this.getMode();
         return config[mode];
@@ -132,6 +141,30 @@ module.exports = {
             "left": node.left ? this.merkleFullBinToHex(node.left) : null,
             "right": node.right ? this.merkleFullBinToHex(node.right) : null
         }
+    },
+    printTree: function(tree, level=0) {
+        let result = "";
+        for (let i = 0; i < level; i++) {
+            result += "  ";
+        }
+        result += tree.value + "\n";
+        if (tree.left) {
+            result += this.printTree(tree.left, level + 1);
+        } else {
+            for (let i = 0; i < level; i++) {
+                result += "  ";
+            }
+            result += "  null\n";
+        }
+        if (tree.right) {
+            result += this.printTree(tree.right, level + 1);
+        } else {
+            for (let i = 0; i < level; i++) {
+                result += "  ";
+            }
+            result += "  null\n";
+        }
+        return result;
     },
     normalizeHeaders(headers) {
         const normalized = {};

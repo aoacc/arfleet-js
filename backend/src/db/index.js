@@ -23,8 +23,9 @@ class Database {
                     storage,
                     transactionType: dbConfig.transactionType,
                     retry: {max: dbConfig.retry.max},
-                    // logQueryParameters: true,
-                    // logging: config.get('db.enable_db_logging') ? log.trace.bind(log) : false,
+                    logQueryParameters: true,
+                    // logging: dbConfig.enable_db_logging ? log.trace.bind(log) : false,
+                    logging: dbConfig.enable_db_logging,
                     isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE
                 }
             );

@@ -18,13 +18,34 @@ const startApi = async() => {
     if (MODE === 'client') {
         const { apiStore } = require('../client/apiStore');
         app.post('/store', apiStore);
+
+        app.get('/api/assignments', async(req, res) => {
+            const getClientInstance = require('../client');
+            const client = getClientInstance();
+            const assignments = await client.getAssignments();
+            res.send({ assignments: assignments });
+        });
+
+        app.get('/api/assignments/:id', async(req, res) => {
+            const getClientInstance = require('../client');
+            const client = getClientInstance();
+            const placements = await client.getPlacements(req.params.id);
+            res.send({ placements: placements });
+        });
+
+        app.get('/api/placements/:id', async(req, res) => {
+            const getClientInstance = require('../client');
+            const client = getClientInstance();
+            const placement = await client.getPlacement(req.params.id);
+            res.send({ placement: placement });
+        });
     }
 
     if (MODE === 'provider') {
     }
 
     app.get('/', (req, res) => {
-        res.send('Hello World!')
+        res.send('Hello from ' + MODE + ' API!')
     });
 
     app.listen(port, host, () => {

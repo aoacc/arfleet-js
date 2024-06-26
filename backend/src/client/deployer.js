@@ -52,7 +52,7 @@ const processFile = async (buf, chunkQueue) => {
     if (chunks.length > 1) {
         const merkleRoot = merkleTree[merkleTree.length - 1];
 
-        const fileIndex = config.chunkinfoPrologue + JSON.stringify({"type": "file", "hash": merkleRoot, "size": filesize, "chunks": chunkHashesHex});
+        const fileIndex = config.chunkinfoPrologue + JSON.stringify({"type": "file", "hash": merkleRoot.toString('hex'), "size": filesize, "chunks": chunkHashesHex});
         const fileIndexRaw = Buffer.from(fileIndex, 'utf-8');
         const fileIndexResult = await processFile(fileIndexRaw, chunkQueue);
         // if fileIndexRaw is less than CHUNK_SIZE, we will just get its hash

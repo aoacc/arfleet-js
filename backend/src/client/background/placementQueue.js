@@ -93,17 +93,17 @@ let placementQueue = new BackgroundQueue({
                                 // start the encryption
                                 await placement.startEncryption();
 
-                                const originalData = fs.readFileSync(AssignmentChunk.getPath(assignment.id), null);
-
                                 const assignmentChunks = await AssignmentChunk.allBy('assignment_id', assignment.id);
                                 for (const assignmentChunk of assignmentChunks) {
+                                    const originalData = fs.readFileSync(AssignmentChunk.getPath(assignmentChunk.chunk_id), null);
+
                                     // mark as encrypting
                                     PlacementChunk.findByIdOrCreate(placement.id + '_' + assignmentChunk.pos, {
                                         placement_id: placement.id,
                                         is_encrypted: false,
                                         is_sent: false,
                                         original_chunk_id: assignmentChunk.chunk_id,
-                                        original_size: originalData.length,
+                                        original_size: originalData.byteLength,
                                         pos: assignmentChunk.pos
                                     });
                                 }
@@ -333,7 +333,10 @@ let placementQueue = new BackgroundQueue({
                             }
                         } else {
                             placement.status = PLACEMENT_STATUS.COMPLETED;
-                            await placement.save();    
+                            await placement.save();
+
+                            // Print merkle tree
+                            console.log(JSON.stringify(placement.merkle_tree));
                         }
                         
                     } else {

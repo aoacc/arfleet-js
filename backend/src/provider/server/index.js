@@ -7,15 +7,98 @@ const publicServerConfig = config[MODE].publicServer;
 const utils = require('../../utils');
 const nodepath = require('path');
 const fs = require('fs');
+const mime = require('mime-types');
 
 let state = {};
+
+const exploreChunk = async(chunk_id, data, filename, req, res) => {
+    if (data.toString().startsWith(config.directoryPrologue)) {
+        const dir = JSON.parse(data.toString().slice(config.directoryPrologue.length));
+        if (dir.type === 'directory') {
+            let html = `
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+                    .container { max-width: 1000px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                    h1,h2,h3,h4 { color: #333; margin-top: 20px; }
+                    .monospace { font-family: monospace; font-weight: normal; }
+                    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+                    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+                    th { background-color: #f2f2f2; color: #333; font-weight: bold; }
+                    tr:hover { background-color: #f5f5f5; }
+                    a { color: #0066cc; text-decoration: none; }
+                    a:hover { text-decoration: underline; }
+                    .back-button { display: inline-block; padding: 8px 16px; background-color: #e0e0e0; color: #333; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-bottom: 20px; }
+                    .back-button:hover { background-color: #d0d0d0; }
+                    .file-icon { margin-right: 5px; }
+                    .logo { max-width: 180px; }
+                    .header-stripe {
+                        background: linear-gradient(to right, rgba(224, 224, 224, 100), rgba(224, 224, 224, 0));
+                        margin: -20px -20px 20px -20px;
+                        padding: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header-stripe">
+                        <img src="/public/arfleet-logo.png" alt="ArFleet Logo" class="logo">
+                    </div>
+                    <button onclick="history.back()" class="back-button">← Back</button>
+                    <h2>Index of <span class="monospace">${chunk_id}/</span></h2>
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th style="text-align: right">Size</th>
+                            <th>Hash</th>
+                        </tr>`;
+            
+            for (const [name, info] of Object.entries(dir.files)) {
+                const urlSafeName = encodeURIComponent(name);
+                const isDirectory = (info.type === 'dir' || info.type === 'dirptr');
+                const icon = isDirectory ? '📁' : '📄';
+                html += `
+                    <tr>
+                        <td><span class="file-icon">${icon}</span><a href="/explore/${info.hash}?filename=${urlSafeName}">${name}</a></td>
+                        <td style="text-align: right">${info.size} bytes</td>
+                        <td style="font-family: monospace;">${info.hash}</td>
+                    </tr>`;
+            }
+            
+            html += `
+                </table>
+            </body>
+            </html>`;
+            
+            res.setHeader('Content-Type', 'text/html');
+            res.send(html);
+        } else {
+            res.send('Not a directory');
+        }
+    } else if (data.toString().startsWith(config.chunkinfoPrologue)) {
+        const chunkInfo = JSON.parse(data.toString().slice(config.chunkinfoPrologue.length));
+        const chunks = chunkInfo.chunks;
+        const chunkData = await Promise.all(chunks.map(chunk => PSPlacementChunk.getData(chunk)));
+        const fileData = Buffer.concat(chunkData);
+        // todo: verify the final hash against the chunkinfo!
+
+        return await exploreChunk(chunk_id, fileData, filename, req, res);
+    } else {
+        let contentType = 'application/octet-stream'; // Default content type                        
+        if (filename) contentType = mime.lookup(filename) || 'application/octet-stream';                        
+        res.setHeader('Content-Type', contentType);
+
+        res.send(data);
+    }
+}
 
 const validateSignature = (req) => {
     const headers = utils.normalizeHeaders(req.headers);
     const client_id = headers['arfleet-address'];
     const signature = headers['arfleet-signature'];
 
-    console.log('Received signature: ', signature);
+    // console.log('Received signature: ', signature);
 
     if (!client_id || !signature) {
         throw new Error('Invalid signature');
@@ -40,8 +123,10 @@ const startPublicServer = async() => {
             const host = publicServerConfig.host;
             const port = publicServerConfig.port;
 
+            app.use('/public', express.static(utils.getPublicDir()));
+
             app.get('/', (req, res) => {
-                res.send('Hello World!')
+                res.send('Hello from Provider (public)!')
             });
             
             app.post('/cmd/ping', (req, res) => {
@@ -137,19 +222,30 @@ const startPublicServer = async() => {
                     }
 
                     // todo: better place it in a file, not in db
+
+                    console.log('placement:', placement);
+                    console.log('chunksHex:', chunksHex);
+                    console.log('chunks:', chunks);
+                    console.log('merkle_tree:', merkle_tree);
+                    console.log('merkle_tree_hex:', merkle_tree_hex);
+                    console.log('our_merkle_root:', our_merkle_root);
+                    console.log('received merkle_root:', placement.merkle_root);
+
                     placement.merkle_tree_full = utils.merkleFullBinToHex(utils.merkleFull(chunks, utils.hashFn));
                     await placement.save();
 
-                    // console.log('Hashes: ', chunksHex);
-                    // console.log('Merkle root: ', placement.merkle_root);
-                    // console.log('Merkle tree flat: ', merkle_tree_hex);
-                    // console.log('Merkle tree: ', placement.merkle_tree_full);
+                    console.log('Hashes: ', chunksHex);
+                    console.log('Merkle root: ', placement.merkle_root);
+                    console.log('Merkle tree flat: ', merkle_tree_hex);
+                    console.log('Merkle tree: ', utils.printTree(placement.merkle_tree_full));
                     // process.exit(0);
 
                     // Get process state
                     const { getAoInstance } = require('../../arweave/ao');
                     const state = await getAoInstance().getState(placement.process_id);
                     console.log('Process state: ', state);
+
+                    if (!state) return res.send('Error: Process not found');
 
                     if (state["Client"] !== client_id) return res.send('Error: Client mismatch');
                     // todo: if (state["Provider"] !== provider.address) return res.send('Error: Provider mismatch');
@@ -292,44 +388,44 @@ const startPublicServer = async() => {
             app.get('/download/:chunk_id', async(req, res) => {
                 try {
                     // const client_id = validateSignature(req);
-
                     // const chunk_id = req.body.chunk_id;
                     const chunk_id = req.params.chunk_id;
+                    const data = await PSPlacementChunk.getData(chunk_id);
 
-                    try {
-                        const chunk = await PSPlacementChunk.findOneByOrFail('encrypted_chunk_id', chunk_id);
-                        const data = fs.readFileSync(PSPlacementChunk.getPath(chunk.id));
+                    // if (data.toString().startsWith(config.directoryPrologue)) {
+                    //     res.setHeader('Content-Type', 'text/plain');
+                    //     res.send(data.toString('utf8').slice(config.directoryPrologue.length));
+                    // } else {
                         res.send(data);
-                    } catch(e) {
-
-                        console.error('Error: Chunk not found: ', chunk_id, e);
-
-                        try {
-                            const chunk = await PSPlacementChunk.findOneByOrFail('original_chunk_id', chunk_id);
-                            let data = fs.readFileSync(PSPlacementChunk.getDecryptedPath(chunk.id));
-
-                            const original_size = chunk.original_size;
-                            if (original_size) {
-                                // cut data
-                                data = data.slice(0, original_size);
-                            }
-
-                            res.send(data);
-                        } catch(e) {
-    
-                            console.error('Error: Chunk not found: ', chunk_id, e);
-
-                            // 404
-                            res.status(404).send('Not found');
-
-                        }    
-
-                    }
-                    
+                    // }
                 } catch(e) {
                     console.log('Error: ', e);
                     res.send('Error');
                 }
+            });
+
+            app.get('/explore/:chunk_id', async(req, res) => {
+                try {
+                    const chunk_id = req.params.chunk_id;
+                    const filename = req.query.filename; // Get the filename from the query parameter
+                    const data = await PSPlacementChunk.getData(chunk_id);
+
+                    return await exploreChunk(chunk_id, data, filename, req, res);
+                } catch(e) {
+                    console.error('Error in /explore/:chunk_id:', e);
+                    res.status(500).send('Error: ' + e.message);
+                }
+            });
+
+            app.get('/announcement', async(req, res) => {
+                const provider = require('../../provider')();
+                res.send({
+                    announcement: {
+                        ProviderId: provider.address,
+                        ConnectionStrings: `http://localhost:${port}`,
+                        StorageCapacity: await provider.getCapacity(),
+                    }
+                });
             });
 
             app.listen(port, host, async() => {

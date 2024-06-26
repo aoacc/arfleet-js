@@ -269,9 +269,9 @@ Handle("SubmitChallenge", function(msg, Data)
             return "Error: Path, i=" .. i .. ", Direction=nil, State.Challenge=" .. State.Challenge -- todo: should we slash?
         end
 
-        -- State.Logs[#State.Logs + 1] = json.encode({
-        --     ["i"] = i, ["Direction"] = Direction, ["ElemValue"] = ElemValue, ["ElemLeft"] = ElemLeft, ["ElemRight"] = ElemRight, ["State.Challenge"] = State.Challenge
-        -- })
+        State.Logs[#State.Logs + 1] = json.encode({
+            ["i"] = i, ["Direction"] = Direction, ["ElemValue"] = ElemValue, ["ElemLeft"] = ElemLeft, ["ElemRight"] = ElemRight, ["State.Challenge"] = State.Challenge
+        })
 
         if Direction == "0" then
             if ElemLeft == nil then
@@ -296,7 +296,7 @@ Handle("SubmitChallenge", function(msg, Data)
         local HashData = LeftData .. RightData
 
         -- If this is the last element, prepend zero byte
-        if Elem[i + 1] == nil then
+        if Path[i + 1] == nil then
             HashData = string.char(0) .. HashData
         end
 

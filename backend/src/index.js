@@ -106,7 +106,7 @@ const utils = require('./utils');
 
     // Start API
     const { startApi } = require('./api');
-    await startApi();    
+    await startApi();
 
     // Start client/provider
     switch(process.env.MODE) {

@@ -14,7 +14,7 @@ const migrate = async () => {
 
     // List files and debug log them
     const files = glob.sync(resolvedMigrationsGlob);
-    console.log({files}, 'Migrations files');
+    // console.log({files}, 'Migrations files');
 
     const context = sequelize.getQueryInterface();
 
@@ -37,7 +37,7 @@ const migrate = async () => {
         // logger: log
     });
 
-    console.log({migrationsGlob}, 'Migrations glob');
+    // console.log({migrationsGlob}, 'Migrations glob');
 
     try {
         await umzug.up();

@@ -16,6 +16,35 @@ class PSPlacementChunk extends Model {
     static getDecryptedPath(placement_chunk_id) {
         return utils.getDatadir('/ps_placement_chunks_decrypted/' + placement_chunk_id);
     }
+
+    static async getData(chunk_id) {
+        try {
+            const chunk = await PSPlacementChunk.findOneByOrFail('encrypted_chunk_id', chunk_id);
+            const data = fs.readFileSync(PSPlacementChunk.getPath(chunk.id));
+            res.send(data);
+        } catch(e) {
+
+            // console.error('Error: Chunk not found: ', chunk_id, e);
+
+            try {
+                const chunk = await PSPlacementChunk.findOneByOrFail('original_chunk_id', chunk_id);
+                let data = fs.readFileSync(PSPlacementChunk.getDecryptedPath(chunk.id));
+
+                const original_size = chunk.original_size;
+                if (original_size) {
+                    // cut data
+                    data = data.slice(0, original_size);
+                }
+
+                return data;
+            } catch(e) {
+
+                // 404
+                throw new Error('Chunk not found: ' + chunk_id);
+
+            }    
+        }
+    }
 }
 
 PSPlacementChunk.init(

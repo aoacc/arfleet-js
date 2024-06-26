@@ -6,7 +6,7 @@ const { connect, createDataItemSigner, result } = require("@permaweb/aoconnect")
 
 const connection = connect(config.aoConfig);
 
-const MAX_ATTEMPTS = 50;
+const MAX_ATTEMPTS = 100;
 
 class AOClient {
     constructor({ wallet }) {
@@ -85,6 +85,7 @@ class AOClient {
             if (attempt > MAX_ATTEMPTS) {
                 throw e;
             } else {
+                console.error(e);
                 console.log("Retrying action...");
                 return this.sendAction(process_id, action, data, tags, attempt + 1);
             }

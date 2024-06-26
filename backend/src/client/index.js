@@ -2,6 +2,7 @@ const config = require('../config');
 const utils = require('../utils');
 const providerAnnouncements = require('./background/providerAnnouncements');
 const { getAoInstance } = require('../arweave/ao');
+const { Assignment, Placement } = require('../db/models');
 
 let state = {};
 
@@ -23,6 +24,16 @@ class Client {
 
         const { placementChunkQueue } = require('./background/placementChunkQueue');
         placementChunkQueue; // start the queue
+    }
+
+    async getAssignments() {
+        const assignments = await Assignment.findAll();
+        return assignments;
+    }
+
+    async getPlacements(assignmentId) {
+        const placements = await Placement.findAll({ where: { assignment_id: assignmentId } });
+        return placements;
     }
 }
 

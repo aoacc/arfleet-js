@@ -7,9 +7,12 @@ const prepareChallengeResponse = async(placement, challenge) => {
 
     const walk = [];
 
-    const idx = 0;
+    let idx = 0;
     let next;
     let node = placement.merkle_tree_full;
+
+    console.log(JSON.stringify(node));
+
     while(true) {
         const add = {
             value: node.value,
@@ -26,19 +29,25 @@ const prepareChallengeResponse = async(placement, challenge) => {
         walk.push(add);
 
         const bit = challenge[idx];
+        let bit_log = "[[CH]] "+idx+" "+bit+" ";
         if (bit === '0') {
             next = node.left;
+            bit_log += "L ";
         } else if (bit === '1') {
             next = node.right;
+            bit_log += "R ";
         } else {
-            break; // todo: error here
+            throw new Error('Invalid bit: '+bit);
         }
+        bit_log += node.value + " " + add.hash + " " + add.hash0 + " next " + JSON.stringify(next ? next.value : null);
+        console.log(bit_log);
 
         if (!next) {
             break;
         }
 
         node = next;
+        idx++; // increment index
     }
 
     // remove last node
