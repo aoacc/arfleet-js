@@ -23,7 +23,7 @@ const spawnDeal = async(extra_lines) => {
 
     const sources_concat = sources.join('\n\n');
 
-    const process_id = await ao().spawn(sources_concat, [{name: "Name", value: "arfleet-deal"}]); // todo: why not working in explorer?
+    const process_id = await ao().spawn(sources_concat, [{name: "Name", value: "arfleet-deal"}]); // todo 3: why not working in explorer?
 
     await ao().sendAction(process_id, "Eval", extra_lines);
 

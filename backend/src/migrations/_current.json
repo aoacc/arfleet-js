@@ -66,6 +66,11 @@
                     "field": "achieved_redundancy",
                     "seqType": "Sequelize.INTEGER"
                 },
+                "desired_storage_duration": {
+                    "allowNull": true,
+                    "field": "desired_storage_duration",
+                    "seqType": "Sequelize.INTEGER"
+                },
                 "is_active": {
                     "allowNull": false,
                     "defaultValue": {

@@ -1,31 +1,43 @@
-- [x] processes should work
-- [x] process
-    - [x] funded
-    - [x] files sent
-    - [x] collaterized, switch flipped (assume how much collateral is needed precisely)
-- [] verification game
-- [] retrieval
-- [] instead of 5 seconds, trigger changes immediately. and 5 seconds could now be extended
+[] announcements - how will clients find providers, and how can they become ones behind nat? and what if i want to test on localhost [] turn/proxy server? at least for now?
+    [] how to give people tokens to test
 
-[] create simple bootstrap/react UI
-[] maintain peers addr book
-[x] chunkify
+[] signature + encrypt
+
+[] retrieval discovery. dht?
+[] proper frontend
+
+- [] retrieval
+
+[] instead of 5 seconds, trigger changes immediately. and 5 seconds could now be extended [] accelerate instead of 5 s (and chunks too)
+[] accelerate in general
+[] rsa in separate processes [] multithreaded encryption
+
+[] UI
+[] private vs public vs unlisted files
 
 [] will fail on another `store` because assignment already exists, fix this.
 
-[] accelerate instead of 5 s (and chunks too)
-[] rsa in separate processes
-
 [] pricing and deal duration
 
-[] turn/proxy server? at least for now?
+[] delete storage we don't have to keep anymore (slashed or expired) [] provider: delete chunks that we don't have to keep because the deal never finalized
+[] warnings for the provider in ui when the next challenge is, so they stay online during that time
+
+[] allow to flip the switch and not accept any more deals
+
+[] from time to time check deals, and if something is wrong, recover the data and send to another provider
+[] advanced: allow to transfer the storage deal to another provider (from the provider itself)
 
 - [] better errors from api
 
-[] provider: delete chunks that we don't have to keep because the deal never finalized
 [] clean the connection string from extra stuff and only leave host and port and known protocol - for security
 [] if some provider has been dead for a long while, don't contact them, even with other placements
 [] if the deal doesn't move for some time, fail it. same from provider side!
+
+
+[] what happens if a file is uploaded with one of the prologues? security check
+
+[] maintain peers addr book
+
 
 what will we have to keep after the container is stored?
 

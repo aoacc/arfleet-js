@@ -15,6 +15,7 @@ Assignment.init(
         root_hash: {type: Sequelize.DataTypes.STRING, allowNull: true},
         desired_redundancy: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
         achieved_redundancy: {type: Sequelize.DataTypes.INTEGER, allowNull: false, defaultValue: 0},
+        desired_storage_duration: {type: Sequelize.DataTypes.INTEGER, allowNull: true},
         is_active: {type: Sequelize.DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
         // dl_status: {
         //     type: Sequelize.DataTypes.STRING,

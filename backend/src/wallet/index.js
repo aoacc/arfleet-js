@@ -19,6 +19,12 @@ class Wallet {
         }
         return this._address;
     }
+
+    async sign(data) {
+        const jwk = JSON.parse(this.readPrivateKey());
+        const signer = await arweave.wallets.jwkToSigner(jwk);
+        return signer.sign(data);
+    }
 }
 
 const createWallet = async(path) => {

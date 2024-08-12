@@ -31,7 +31,7 @@ var Sequelize = require('sequelize');
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-06-26T12:13:13.500Z",
+    "created": "2024-07-31T17:46:35.396Z",
     "comment": ""
 };
 
@@ -106,6 +106,11 @@ var migrationCommands = function(transaction) {
                         "field": "achieved_redundancy",
                         "defaultValue": 0,
                         "allowNull": false
+                    },
+                    "desired_storage_duration": {
+                        "type": Sequelize.INTEGER,
+                        "field": "desired_storage_duration",
+                        "allowNull": true
                     },
                     "is_active": {
                         "type": Sequelize.BOOLEAN,

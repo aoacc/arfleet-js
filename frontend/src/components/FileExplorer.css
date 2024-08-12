@@ -1,0 +1,30 @@
+.file-explorer {
+    /* padding: 1rem; */
+}
+
+.file-explorer h2 {
+    /* margin-bottom: 1rem; */
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.file-item:hover {
+    background-color: #f0f0f0;
+}
+
+.file-item i {
+    margin-right: 0.5rem;
+}
+
+.file-item.folder i {
+    color: #ffd700;
+}
+
+.file-item.file i {
+    color: #4a4a4a;
+}

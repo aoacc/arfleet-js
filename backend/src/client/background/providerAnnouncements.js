@@ -8,6 +8,8 @@ const checkAnnouncements = async() => {
     announcements = await marketplace.getAnnouncements();
     console.log("Announcements:", announcements);
 
+    announcements = [];
+
     // And now check local announcements
     checkLocalAnnouncements();
 }
@@ -37,12 +39,21 @@ const startChecking = async() => {
     setInterval(checkAnnouncements, config.client.fetchAnnouncementsInterval || 1 * 60 * 1000);
 }
 
+// todo: validate the announcement schema, because some bugs might come from there (parsing it, default values etc.)
 const getProvidersToConnect = () => {
     let result = [];
     for (const [provider, announcement] of Object.entries(announcements)) {
         result.push({
             address: provider,
-            connectionStrings: announcement["ConnectionStrings"]
+            connectionStrings: announcement["ConnectionStrings"],
+            storageCapacity: announcement["Storage-Capacity"],
+            storagePriceDeal: announcement["Storage-Price-Deal"],
+            storagePriceUploadKBSec: announcement["Storage-Price-Upload-KB-Sec"],
+            minChallengeDuration: announcement["Min-Challenge-Duration"],
+            minStorageDuration: announcement["Min-Storage-Duration"],
+            maxStorageDuration: announcement["Max-Storage-Duration"],
+            // todo: report version
+            // todo: if any of the values are missing or wrong, invalidate
         })
     }
     return result;

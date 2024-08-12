@@ -13,7 +13,12 @@ const announce = async(provider, connectionStrings = null) => {
 
     await ao().sendActionJSON(config.marketplace, "Announce", {
         "Connection-Strings": provider.connectionStrings,
-        "Storage-Capacity": await provider.getCapacity()
+        "Storage-Capacity": await provider.getCapacityRemaining(),
+        "Storage-Price-Deal": await provider.getStoragePriceDeal(),
+        "Storage-Price-Upload-KB-Sec": await provider.getStoragePriceUploadKBSec(),
+        "Min-Challenge-Duration": await provider.getMinChallengeDuration(),
+        "Min-Storage-Duration": await provider.getMinStorageDuration(),
+        "Max-Storage-Duration": await provider.getMaxStorageDuration(),
     });
 }
 

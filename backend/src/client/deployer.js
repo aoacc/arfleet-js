@@ -143,8 +143,9 @@ const store = async (path) => {
     assignment.root_hash = storeInfo.hash;
     assignment.size = storeInfo.size;
     assignment.chunk_count = chunkQueue.length;
-    assignment.desired_redundancy = config.client.defaultDesiredRedundancy;
+    assignment.desired_redundancy = config.client.defaultDesiredRedundancy; // todo: allow user to adjust
     assignment.achieved_redudancy = 0;
+    assignment.desired_storage_duration = config.client.defaultDesiredStorageDuration; // todo: allow user to adjust
     assignment.is_active = false;
     await assignment.save();
 

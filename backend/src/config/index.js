@@ -4,9 +4,16 @@ const GB = 1024 * MB;
 const TB = 1024 * GB;
 const PB = 1024 * TB;
 
+const WINSTON = 1;
+const AR = 10 ** 12;
+
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
 const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+const WEEK = 7 * DAY;
+const MONTH = 30 * DAY;
+const YEAR = 365 * DAY;
 
 const defaultConfig = {
     walletPath: 'wallet.json',
@@ -17,7 +24,9 @@ const defaultConfig = {
             port: 8885
         },
         defaultDesiredRedundancy: 3,
+        defaultDesiredStorageDuration: 6 * MONTH,
         fetchAnnouncementsInterval: 1 * MINUTE,
+        defaultMaxChallengeDuration: 1 * WEEK,
     },
     provider: {
         defaultDatadir: '~/.arfleet-provider',
@@ -30,6 +39,11 @@ const defaultConfig = {
             port: 8890
         },
         defaultStorageCapacity: 1 * GB,
+        defaultStoragePriceDeal: 1 * WINSTON,
+        defaultStoragePriceUploadKBSec: 1 * WINSTON,
+        defaultMinStorageDuration: 1 * DAY,
+        defaultMaxStorageDuration: 6 * MONTH,
+        defaultMinChallengeDuration: 1 * DAY,
     },
     db: {
         define: {
@@ -52,7 +66,7 @@ const defaultConfig = {
     directoryPrologue: 'ARFLEET\x05\x06\xf5\xf6*DIR',
     encryptedChunkPrologue: 'ARFLEET\x05\x06\xf5\xf6*ENC',
 
-    defaultToken: 'w_4ejp8gRKi2B2KEkVjwlj-W3CpDEfjtJ8qV_0mjNMI',
+    defaultToken: 'oyzGfUcq-uQURhTC3cKhCG97Y3fV6NLcMh1fqx5wq4E',
     marketplace: '-jydy0Gqhtdf2ilVR0zbGrizkx4GJXfcvpJYXzQxwlU',
     aoScheduler: '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA',
     aosModule: '9afQ1PLf2mrshqCTZEzzJTR2gWaC9zNPnYgYEqg1Pt4',

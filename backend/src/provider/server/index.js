@@ -423,7 +423,12 @@ const startPublicServer = async() => {
                     announcement: {
                         ProviderId: provider.address,
                         ConnectionStrings: `http://localhost:${port}`,
-                        StorageCapacity: await provider.getCapacity(),
+                        StorageCapacity: await provider.getCapacityRemaining(),
+                        MinStorageDuration: await provider.getMinStorageDuration(),
+                        MaxStorageDuration: await provider.getMaxStorageDuration(),
+                        MinChallengeDuration: await provider.getMinChallengeDuration(),
+                        StoragePriceDeal: await provider.getStoragePriceDeal(),
+                        StoragePriceUploadKBSec: await provider.getStoragePriceUploadKBSec(),
                     }
                 });
             });

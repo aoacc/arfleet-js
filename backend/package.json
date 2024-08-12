@@ -19,6 +19,7 @@
     "sequelize": "^6.37.2",
     "sequelize-auto-migrations": "github:pointnetwork/sequelize-auto-migrations",
     "sqlite3": "^5.1.7",
-    "umzug": "^3.7.0"
+    "umzug": "^3.7.0",
+    "mime-types": "^2.1.35"
   }
 }

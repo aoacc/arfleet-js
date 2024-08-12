@@ -32,9 +32,36 @@ class Provider {
         await startProviderRepl(this);
     }
 
-    async getCapacity() {
-        // todo: return remaining
-        return config.provider.defaultStorageCapacity;
+    async getCapacityRemaining() {
+        return Math.max(0, this.getCapacityLimit() - this.getCapacityUsed());
+    }
+
+    async getCapacityLimit() {
+        return config.provider.defaultStorageCapacity; // todo: allow user to adjust
+    }
+
+    async getCapacityUsed() {
+        return 0; // todo
+    }
+
+    async getStoragePriceDeal() {
+        return config.provider.defaultStoragePriceDeal; // todo: allow user to adjust
+    }
+
+    async getStoragePriceUploadKBSec() {
+        return config.provider.defaultStoragePriceUploadKBSec; // todo: allow user to adjust
+    }
+
+    async getMinChallengeDuration() {
+        return config.provider.defaultMinChallengeDuration; // todo: allow user to adjust
+    }
+
+    async getMinStorageDuration() {
+        return config.provider.defaultMinStorageDuration; // todo: allow user to adjust
+    }
+
+    async getMaxStorageDuration() {
+        return config.provider.defaultMaxStorageDuration; // todo: allow user to adjust
     }
 }
 

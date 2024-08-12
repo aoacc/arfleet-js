@@ -1,0 +1,28 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.content-top {
+    display: flex;
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.content-top-left,
+.content-top-right {
+    flex: 1;
+    /* padding: 1rem; */
+    overflow-y: auto;
+}
+
+.content-top-left {
+    border-right: 1px solid #e0e0e0;
+}
+
+.content-bottom {
+    flex: 1;
+    /* padding: 1rem; */
+    overflow-y: auto;
+}

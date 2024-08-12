@@ -29,7 +29,7 @@ let challengesQueue = new BackgroundQueue({
 
         // if starts with Error:
         if (challenge.startsWith('Error:')) {
-            console.log('Error getting challenge: ', challenge);
+            console.log('Can\'t obtain challenge: ', challenge);
             return;
         }
 

@@ -10,8 +10,10 @@ const startProviderRepl = async (provider) => {
         const logo_txt = fs.readFileSync(nodepath.join(__dirname, '..', '..', 'resources/logo.txt'), 'utf-8');
 
         // print logo
-        console.log(logo_txt);
+        console.log('\x1b[32m%s\x1b[0m', logo_txt); // Green color
     }
+
+    console.log("Enter 'help' to see a list of commands.");
 
     const rl = readline.createInterface({
         input: process.stdin,
