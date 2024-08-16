@@ -29,14 +29,14 @@ const startApi = async() => {
         app.get('/api/assignments/:id', async(req, res) => {
             const getClientInstance = require('../client');
             const client = getClientInstance();
-            const placements = await client.getPlacements(req.params.id);
+            const placements = await client.getAssignments(req.params.id);
             res.send({ placements: placements });
         });
 
         app.get('/api/placements/:id', async(req, res) => {
             const getClientInstance = require('../client');
             const client = getClientInstance();
-            const placement = await client.getPlacement(req.params.id);
+            const placement = await client.getPlacements(req.params.id);
             res.send({ placement: placement });
         });
     }

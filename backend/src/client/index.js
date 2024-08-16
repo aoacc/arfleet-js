@@ -44,7 +44,7 @@ function getClientInstance(initialState = null) {
         if (!initialState) throw new Error("Client is not initialized with a state");
         clientInstance = new Client(initialState);
     }
-    
+
     return clientInstance;
 }
 

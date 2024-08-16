@@ -41,7 +41,7 @@ let verifyProviderConstraints = (provider, assignment) => {
     const storagePriceDeal = provider.storagePriceDeal;
     const storagePriceUploadKBSec = provider.storagePriceUploadKBSec;
     // todo: negotiate on prices
-    
+
     // todo: sanity check the values
 
     return true;
@@ -65,11 +65,11 @@ let assignmentQueue = new BackgroundQueue({
         console.log('Processing assignment: ', assignment_id);
 
         const assignment = await Assignment.findOrFail(assignment_id);
-        console.log('Assignment: ', assignment);
+        // console.log('Assignment: ', assignment);
 
         if (assignment.desired_redundancy > assignment.achieved_redundancy) {
             // try to find a matching provider
-            console.log('Redundancy not achieved, trying to find a matching provider');
+            console.log(`Redundancy for ${assignment_id} not achieved, trying to find a matching provider`);
 
             let providersToConnect = announcements.getProvidersToConnect()
                                                   .sort(() => Math.random() - 0.5); // todo: instead of random shuffle, order based on price, connectivity, reputation etc.

@@ -23,7 +23,7 @@ const defaultConfig = {
             host: '127.0.0.1',
             port: 8885
         },
-        defaultDesiredRedundancy: 3,
+        defaultDesiredRedundancy: 1,
         defaultDesiredStorageDuration: 6 * MONTH,
         fetchAnnouncementsInterval: 1 * MINUTE,
         defaultMaxChallengeDuration: 1 * WEEK,
@@ -66,7 +66,7 @@ const defaultConfig = {
     directoryPrologue: 'ARFLEET\x05\x06\xf5\xf6*DIR',
     encryptedChunkPrologue: 'ARFLEET\x05\x06\xf5\xf6*ENC',
 
-    defaultToken: 'oyzGfUcq-uQURhTC3cKhCG97Y3fV6NLcMh1fqx5wq4E',
+    defaultToken: 'Go7M21ZoTxQndTFoKuroaHgh6s2Yw3cDi_dpsG4F2M0',
     marketplace: '-jydy0Gqhtdf2ilVR0zbGrizkx4GJXfcvpJYXzQxwlU',
     aoScheduler: '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA',
     aosModule: '9afQ1PLf2mrshqCTZEzzJTR2gWaC9zNPnYgYEqg1Pt4',
@@ -75,7 +75,7 @@ const defaultConfig = {
         MU_URL: "https://ao-mu-1.onrender.com",
         CU_URL: "https://ao-cu-1.onrender.com",
         // GATEWAY_URL: "https://arweave.net",
-        GATEWAY_URL: "https://g8way.io",
+        GATEWAY_URL: "https://arweave-search.goldsky.com",
     },
 
     rsa_encryption: {
