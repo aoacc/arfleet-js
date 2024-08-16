@@ -125,7 +125,7 @@ const processDirectory = async (path, chunkQueue) => {
 const storePath = async (path, chunkQueue) => {
     const stats = fs.statSync(path);
     if (stats.isFile()) {
-        const buf = fs.readFileSync
+        const buf = fs.readFileSync(path, null);
         return await processFile(buf, chunkQueue);
     } else {
         return await processDirectory(path, chunkQueue);

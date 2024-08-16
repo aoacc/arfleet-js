@@ -7,8 +7,8 @@ const apiStore = async(req, res) => {
         const path = req.body.path;
         console.log("Storing path:", path);
 
-        const assignmentId = await deployer.store(path);
-        res.json({ assignmentId: assignmentId, message: "Queued for storage: " + path });
+        const storeInfo = await deployer.store(path);
+        res.json({ assignmentId: storeInfo.hash, message: "Queued for storage: " + path });
         // res.send("Queued for storage: " + path);
     } catch (error) {
         console.error(error);
