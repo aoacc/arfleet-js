@@ -41,9 +41,14 @@ class BackgroundQueue {
 
         this.running = true;
 
+
         while (this.queue.length > 0) {
-            const id = this.queue.shift();
-            await this.processCandidate(id);
+            try {
+                const id = this.queue.shift();
+                await this.processCandidate(id);
+            }catch (e) {
+                console.error(e);
+            }
         }
 
         this.running = false;
