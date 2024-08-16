@@ -40,6 +40,9 @@ class BackgroundQueue {
         }
     }
 
+    add(id){
+        this.queue.push(id);
+    }
     // Utility function to pause execution for a given time
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
