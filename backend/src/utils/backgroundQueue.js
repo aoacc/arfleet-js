@@ -1,5 +1,12 @@
 class BackgroundQueue {
-    constructor({ REBOOT_INTERVAL = 5 * 1000, addCandidates = async () => [], processCandidate = async () => {} }, name = "unnamed-queue") {
+    constructor(
+        {
+            REBOOT_INTERVAL = 5 * 1000,
+            addCandidates = async () => [],
+            processCandidate = async () => {}
+        },
+        name = "unnamed-queue"
+    ) {
         this.queue = [];
         this.running = false;
         this.addCandidates = addCandidates;
@@ -9,58 +16,33 @@ class BackgroundQueue {
         this.boot();
     }
 
+    // Start processing the queue
     async boot() {
-        if (this.running) {
-            setTimeout(() => {
-                this.boot();
-            }, this.REBOOT_INTERVAL);
-        }
-        console.log(`booting queue ${this.name} with interval ${this.REBOOT_INTERVAL}`);
-        // add candidates
-        const candidates = await this.addCandidates();
-        console.log(`[${this.name}] added ${candidates.length} candidates`);
-        for (const candidate of candidates) {
-            this.add(candidate);
-        }
-
-        // Ensure run is called if there are any candidates
-        this.run(); // no await
-
-        // check from time to time
-        setTimeout(() => {
-            this.boot();
-        }, this.REBOOT_INTERVAL);
-    }
-
-
-    add(id) {
-        this.queue.push(id);
-        this.run(); // no await
-    }
-
-    async run() {
-        if (this.running) return;
-
-        if (this.queue.length === 0) return;
-
+        console.log(`Starting queue: ${this.name}`);
         this.running = true;
-
-
-        while (this.queue.length > 0) {
+        while (this.running) {
             try {
-                const id = this.queue.shift();
-                await this.processCandidate(id);
-            }catch (e) {
-                console.error(e);
+                // Add new candidates to the queue
+                const candidates = await this.addCandidates();
+                this.queue.push(...candidates);
+
+                // Process each candidate in the queue
+                while (this.queue.length > 0) {
+                    const candidate = this.queue.shift();
+                    await this.processCandidate(candidate);
+                }
+
+                // Wait for the reboot interval before checking the queue again
+                await this.sleep(this.REBOOT_INTERVAL);
+            } catch (error) {
+                console.error(`Error in queue ${this.name}:`, error);
             }
         }
+    }
 
-        this.running = false;
-
-        // schedule next run if more candidates could be added
-        setTimeout(() => {
-            this.run();
-        }, 100);
+    // Utility function to pause execution for a given time
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
 
