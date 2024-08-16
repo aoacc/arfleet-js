@@ -16,7 +16,7 @@ State = {
     ReceivedReward = 0,
 
     RequiredCollateral = 0,
-    ReceivedCollateral = 0, 
+    ReceivedCollateral = 0,
     SlashedCollateral = 0,
     RemainingCollateral = 0,
     SlashedTimes = 0,
@@ -54,7 +54,7 @@ function Handle(type, fn)
         Handlers.utils.hasMatchingTag("Action", type),
         function(msg)
             local Data = nil
-            
+
             local success, res = pcall(json.decode, msg.Data)
             if success then
                 Data = res
@@ -97,19 +97,19 @@ Handle("Credit-Notice", function(msg, Data)
         if State.Status ~= StatusEnum.Created then
             return
         end
-    
+
         if State.ReceivedCollateral < State.RequiredCollateral then
             return
         end
-    
+
         if State.ReceivedReward < State.RequiredReward then
             return
         end
-    
+
         State.Status = StatusEnum.Activated
         State.RemainingCollateral = State.ReceivedCollateral
         State.NextVerification = State.CreatedAt + State.VerificationEveryPeriod -- todo: replace with Now later
-    
+
     else
         return
     end
@@ -137,17 +137,28 @@ Handle("Cancel", function(msg, Data)
     end
 end)
 
-function Slash()
-    -- Slash half of the remaining collateral
-    local Slashed = State.RemainingCollateral / 2
-    State.RemainingCollateral = State.RemainingCollateral - Slashed
-    State.SlashedCollateral = State.SlashedCollateral + Slashed
-    State.SlashedTimes = State.SlashedTimes + 1
+function Slash(currentTimestamp)
+    -- Calculate how many times we should slash based on the delay
+    local SlashTimes = math.ceil((currentTimestamp - State.NextVerification) / (State.VerificationEveryPeriod + State.VerificationResponsePeriod))
 
-    -- Move the challenge
-    State.NextVerification = State.NextVerification + State.VerificationEveryPeriod
-    State.Challenge = ""
+    -- Iteratively slash half of the remaining collateral for each time it should be slashed
+    local Slashed = 0
+    for i = 1, SlashTimes do
+        local ThisSlash = State.RemainingCollateral / 2
+        State.RemainingCollateral = State.RemainingCollateral - ThisSlash
+        Slashed = Slashed + ThisSlash
+    end
+
+    State.SlashedCollateral = State.SlashedCollateral + Slashed
+    State.SlashedTimes = State.SlashedTimes + SlashTimes
+
+    -- Move the challenge if it's a time-based slash
+    if currentTimestamp > 0 then
+        State.NextVerification = currentTimestamp + State.VerificationEveryPeriod
+        State.Challenge = ""
+    end
 end
+
 
 Handle("Slash", function(msg, Data)
     -- Anyone can send
@@ -165,8 +176,9 @@ Handle("Slash", function(msg, Data)
     end
 
     -- Too late?
-    if (msg.Timestamp/1000) > State.NextVerification + State.VerificationResponsePeriod then
-        Slash()
+    local currentTimestamp = (msg.Timestamp//1000)
+    if currentTimestamp > State.NextVerification + State.VerificationResponsePeriod then
+        Slash(currentTimestamp)
     end
 end)
 
@@ -188,9 +200,10 @@ Handle("GetChallenge", function(msg, Data)
     end
 
     -- Too late?
-    if (msg.Timestamp/1000) > State.NextVerification + State.VerificationResponsePeriod then
-        Slash()
-        return "Error: Too late " .. State.NextVerification + State.VerificationResponsePeriod .. " // " .. (msg.Timestamp/1000)
+    local currentTimestamp = (msg.Timestamp//1000)
+    if currentTimestamp > State.NextVerification + State.VerificationResponsePeriod then
+        Slash(currentTimestamp)
+        return "Error: Too late " .. State.NextVerification + State.VerificationResponsePeriod .. " // " .. currentTimestamp
     end
 
     if State.Challenge ~= "" then
@@ -220,8 +233,9 @@ Handle("SubmitChallenge", function(msg, Data)
     end
 
     -- Too late?
-    if (msg.Timestamp/1000) > State.NextVerification + State.VerificationResponsePeriod then
-        Slash()
+    local currentTimestamp = (msg.Timestamp//1000)
+    if currentTimestamp > State.NextVerification + State.VerificationResponsePeriod then
+        Slash(currentTimestamp)
         return "Error: Too late"
     end
 
@@ -254,12 +268,12 @@ Handle("SubmitChallenge", function(msg, Data)
         local ElemRight = Elem[3]
 
         if ElemValue == nil then
-            Slash()
+            Slash(-1)
             return "Error: Path, i=" .. i .. ", ElemValue=nil"
         end
 
         if ExpectedNext ~= ElemValue then
-            Slash()
+            Slash(-1)
             return "Error: Path, i=" .. i .. ", ExpectedNext=" .. ExpectedNext .. ", ElemValue=" .. ElemValue
         end
 
@@ -275,13 +289,13 @@ Handle("SubmitChallenge", function(msg, Data)
 
         if Direction == "0" then
             if ElemLeft == nil then
-                Slash()
+                Slash(-1)
                 return "Error: Path, i=" .. i .. ", Direction=0, ElemLeft=nil"
             end
             ExpectedNext = ElemLeft
         elseif Direction == "1" then
             if ElemRight == nil then
-                Slash()
+                Slash(-1)
                 return "Error: Path, i=" .. i .. ", Direction=1, ElemRight=nil"
             end
             ExpectedNext = ElemRight
@@ -302,7 +316,7 @@ Handle("SubmitChallenge", function(msg, Data)
 
         local Hash = sha256(HashData)
         if Hash ~= ExpectedHash then
-            Slash()
+            Slash(-1)
             return "Error: Hash, i=" .. i .. ", ExpectedHash=" .. ExpectedHash .. ", Hash=" .. Hash
         end
 
@@ -313,7 +327,7 @@ Handle("SubmitChallenge", function(msg, Data)
     local LeafData = base64.decode(Data["Leaf"])
     local LeafHash = sha256(LeafData)
     if ExpectedNext ~= LeafHash then
-        Slash()
+        Slash(-1)
         return "Error: Leaf, ExpectedNext=" .. ExpectedNext .. ", LeafHash=" .. LeafHash
     end
 
