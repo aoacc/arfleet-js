@@ -56,6 +56,6 @@ let decryptChunksQueue = new BackgroundQueue({
         placement_chunk.original_chunk_id = utils.hashFnHex(fs.readFileSync(decrypted_chunk_path, null));
         await placement_chunk.save();
     }
-});
+}, 'decryptChunksQueue');
 
 module.exports = decryptChunksQueue;

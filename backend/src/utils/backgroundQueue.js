@@ -1,5 +1,5 @@
 class BackgroundQueue {
-    constructor({ REBOOT_INTERVAL = 5 * 1000, addCandidates = async () => [], processCandidate = async () => {} }) {
+    constructor({ REBOOT_INTERVAL = 5 * 1000, addCandidates = async () => [], processCandidate = async () => {} }, name = "unnamed-queue") {
         this.queue = [];
         this.running = false;
         this.addCandidates = addCandidates;
@@ -10,9 +10,10 @@ class BackgroundQueue {
 
     async boot() {
         if (this.running) return;
-
+        console.log("booting queue ${name} with interval ${REBOOT_INTERVAL}");
         // add candidates
         const candidates = await this.addCandidates();
+        console.log("[${name}]added " + candidates.length + " candidates");
         for (const candidate of candidates) {
             this.add(candidate);
         }
@@ -51,7 +52,6 @@ class BackgroundQueue {
             this.run();
         }, 100);
     }
-
 }
 
 module.exports = { BackgroundQueue };

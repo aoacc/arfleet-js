@@ -120,6 +120,6 @@ let assignmentQueue = new BackgroundQueue({
             }
         }
     }
-});
+}, 'assignment-queue');
 
 module.exports = assignmentQueue;

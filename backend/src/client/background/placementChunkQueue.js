@@ -38,6 +38,6 @@ let placementChunkQueue = new BackgroundQueue({
             });
         }
     }
-});
+}, 'placementChunkQueue');
 
 module.exports = { placementChunkQueue };

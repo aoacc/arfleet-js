@@ -332,7 +332,7 @@ Handle("SubmitChallenge", function(msg, Data)
     end
 
     -- Challenge successfully passed!
-    State.NextVerification = State.NextVerification + State.VerificationEveryPeriod
+    State.NextVerification = currentTimestamp + State.VerificationEveryPeriod
     State.Challenge = ""
 
     return "Success"

@@ -40,6 +40,7 @@ let placementQueue = new BackgroundQueue({
             }
         });
         const ids = candidates.map(c => c.id);
+        console.log("adding ${ids.length} candidates to the placement queue");
         return ids;
     },
     processCandidate: async (placement_id) => {
@@ -360,6 +361,6 @@ let placementQueue = new BackgroundQueue({
             await placement.save();
         }
     }
-});
+}, 'PlacementQueue');
 
 module.exports = { placementQueue };

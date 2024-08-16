@@ -47,6 +47,6 @@ let challengesQueue = new BackgroundQueue({
         placement.next_challenge = new Date(nextChallenge * 1000);
         await placement.save();
     }
-});
+}, 'challengesQueue');
 
 module.exports = challengesQueue;
