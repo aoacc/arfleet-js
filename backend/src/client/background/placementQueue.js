@@ -62,7 +62,7 @@ let placementQueue = new BackgroundQueue({
 
                     try {
                         const result = await pApi.cmd('ping', {});
-                
+
                         console.log({result});
 
                         const assignment = await Assignment.findOrFail(placement.assignment_id);
@@ -201,7 +201,7 @@ let placementQueue = new BackgroundQueue({
                     placement.status = PLACEMENT_STATUS.FUNDED;
                     placement.is_funded = true;
                     await placement.save();
-                    
+
                     try {
                         await ao().sendToken(config.defaultToken, placement.process_id, placement.required_reward);
                         console.log('Token sent');
@@ -227,7 +227,7 @@ let placementQueue = new BackgroundQueue({
                         ]
                     });
                     const chunkHashes = placementChunks.map(c => c.encrypted_chunk_id);
-                    
+
                     const acceptResult = await pApi.cmd('accept', {
                         placement_id: placement.id,
                         merkle_root: placement.merkle_root,
@@ -269,7 +269,7 @@ let placementQueue = new BackgroundQueue({
                     }
 
                     for (const placementChunk of placementChunks) {
-                        console.log('Transfering chunk: ', placementChunk);
+                        console.log('Transferring chunk: ', placementChunk);
                         const placementChunkPath = PlacementChunk.getPath(placementChunk.id);
                         const chunkData = fs.readFileSync(placementChunkPath);
                         const chunkDataB64 = chunkData.toString('base64'); // todo: replace with proper streaming/binary
@@ -310,7 +310,7 @@ let placementQueue = new BackgroundQueue({
                     if (result === 'OK') {
                         // verify
                         // todo: verify that collateral is there
-                        
+
                         // verify that it is now activated
                         const processState = await ao().getState(placement.process_id);
                         console.log('Process State: ', processState);
@@ -333,12 +333,15 @@ let placementQueue = new BackgroundQueue({
                             }
                         } else {
                             placement.status = PLACEMENT_STATUS.COMPLETED;
+                            const assignment = await Assignment.findOrFail(placement.assignment_id);
+                            assignment.achieved_redundancy++;
                             await placement.save();
+                            await assignment.save();
 
                             // Print merkle tree
                             console.log(JSON.stringify(placement.merkle_tree));
                         }
-                        
+
                     } else {
                         console.error('Complete failed: ', result);
                         placement.status = PLACEMENT_STATUS.FAILED;

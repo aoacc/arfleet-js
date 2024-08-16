@@ -69,7 +69,7 @@ let assignmentQueue = new BackgroundQueue({
 
         if (assignment.desired_redundancy > assignment.achieved_redundancy) {
             // try to find a matching provider
-            console.log(`Redundancy for ${assignment_id} not achieved, trying to find a matching provider`);
+            console.log(`Redundancy for ${assignment_id} not achieved (${assignment.achieved_redundancy}/${assignment.desired_redundancy}), trying to find a matching provider`);
 
             let providersToConnect = announcements.getProvidersToConnect()
                                                   .sort(() => Math.random() - 0.5); // todo: instead of random shuffle, order based on price, connectivity, reputation etc.
@@ -87,7 +87,7 @@ let assignmentQueue = new BackgroundQueue({
                     }
                 });
 
-                console.log(await Placement.allBy('id', assignment.id + '_' + provider.address));
+                // console.log(await Placement.allBy('id', assignment.id + '_' + provider.address));
 
                 console.log('Count: ', count);
                 if (count > 0) {
