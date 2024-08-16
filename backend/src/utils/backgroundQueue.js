@@ -10,7 +10,11 @@ class BackgroundQueue {
     }
 
     async boot() {
-        if (this.running) return;
+        if (this.running) {
+            setTimeout(() => {
+                this.boot();
+            }, this.REBOOT_INTERVAL);
+        }
         console.log(`booting queue ${this.name} with interval ${this.REBOOT_INTERVAL}`);
         // add candidates
         const candidates = await this.addCandidates();
