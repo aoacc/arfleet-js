@@ -10,33 +10,31 @@ class BackgroundQueue {
 
     async boot() {
         if (this.running) return;
-        this.running = true;
-        
+
         // add candidates
         const candidates = await this.addCandidates();
         for (const candidate of candidates) {
             this.add(candidate);
         }
 
-        this.running = false;
-
+        // Ensure run is called if there are any candidates
         this.run(); // no await
-        
+
         // check from time to time
         setTimeout(() => {
             this.boot();
         }, this.REBOOT_INTERVAL);
     }
-    
+
+
     add(id) {
         this.queue.push(id);
         this.run(); // no await
     }
-    
+
     async run() {
         if (this.running) return;
-        
-        // before we make .processing = true, check if there's any work. if not, don't even bother
+
         if (this.queue.length === 0) return;
 
         this.running = true;
@@ -48,11 +46,12 @@ class BackgroundQueue {
 
         this.running = false;
 
-        // schedule next; will instantly quit if empty
+        // schedule next run if more candidates could be added
         setTimeout(() => {
             this.run();
         }, 100);
     }
+
 }
 
 module.exports = { BackgroundQueue };
