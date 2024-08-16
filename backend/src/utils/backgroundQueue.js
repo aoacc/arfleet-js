@@ -5,15 +5,16 @@ class BackgroundQueue {
         this.addCandidates = addCandidates;
         this.processCandidate = processCandidate;
         this.REBOOT_INTERVAL = REBOOT_INTERVAL;
+        this.name = name;
         this.boot();
     }
 
     async boot() {
         if (this.running) return;
-        console.log("booting queue ${name} with interval ${REBOOT_INTERVAL}");
+        console.log(`booting queue ${this.name} with interval ${this.REBOOT_INTERVAL}`);
         // add candidates
         const candidates = await this.addCandidates();
-        console.log("[${name}]added " + candidates.length + " candidates");
+        console.log(`[${this.name}] added ${candidates.length} candidates`);
         for (const candidate of candidates) {
             this.add(candidate);
         }
