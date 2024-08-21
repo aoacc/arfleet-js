@@ -30,7 +30,7 @@ let challengesQueue = new BackgroundQueue({
         // if starts with Error:
         if (challenge.startsWith('Error:')) {
             console.log('Can\'t obtain challenge: ', challenge);
-            if (challenge.contains('Not activated')){
+            if (challenge.includes('Not activated')){
                 placement.status = PS_PLACEMENT_STATUS.FAILED;
                 await placement.save();
             }
