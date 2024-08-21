@@ -87,33 +87,24 @@ Handle("Credit-Notice", function(msg, Data)
 
     -- todo: verify Target == ao.id
 
+    -- Process the message based on the sender
     if msg.Sender == State.Client then
         State.ReceivedReward = State.ReceivedReward + msg.Quantity
     elseif msg.Sender == State.Provider then
         State.ReceivedCollateral = State.ReceivedCollateral + msg.Quantity
-
-        -- Activate
-
-        if State.Status ~= StatusEnum.Created then
-            return
-        end
-
-        if State.ReceivedCollateral < State.RequiredCollateral then
-            return
-        end
-
-        if State.ReceivedReward < State.RequiredReward then
-            return
-        end
-
-        State.Status = StatusEnum.Activated
-        State.RemainingCollateral = State.ReceivedCollateral
-        State.NextVerification = State.CreatedAt + State.VerificationEveryPeriod -- todo: replace with Now later
-
     else
         return
     end
+
+    -- Check if both collateral and reward conditions are met to activate
+    if State.ReceivedCollateral >= State.RequiredCollateral and
+            State.ReceivedReward >= State.RequiredReward then
+        State.Status = StatusEnum.Activated
+        State.RemainingCollateral = State.ReceivedCollateral
+        State.NextVerification = (msg.Timestamp // 1000) + State.VerificationEveryPeriod
+    end
 end)
+
 
 Handle("Cancel", function(msg, Data)
     -- Verify that it's from the Client
