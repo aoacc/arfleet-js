@@ -53,7 +53,7 @@ const exploreChunk = async(chunk_id, data, filename, req, res) => {
                             <th style="text-align: right">Size</th>
                             <th>Hash</th>
                         </tr>`;
-            
+
             for (const [name, info] of Object.entries(dir.files)) {
                 const urlSafeName = encodeURIComponent(name);
                 const isDirectory = (info.type === 'dir' || info.type === 'dirptr');
@@ -65,12 +65,12 @@ const exploreChunk = async(chunk_id, data, filename, req, res) => {
                         <td style="font-family: monospace;">${info.hash}</td>
                     </tr>`;
             }
-            
+
             html += `
                 </table>
             </body>
             </html>`;
-            
+
             res.setHeader('Content-Type', 'text/html');
             res.send(html);
         } else {
@@ -85,8 +85,8 @@ const exploreChunk = async(chunk_id, data, filename, req, res) => {
 
         return await exploreChunk(chunk_id, fileData, filename, req, res);
     } else {
-        let contentType = 'application/octet-stream'; // Default content type                        
-        if (filename) contentType = mime.lookup(filename) || 'application/octet-stream';                        
+        let contentType = 'application/octet-stream'; // Default content type
+        if (filename) contentType = mime.lookup(filename) || 'application/octet-stream';
         res.setHeader('Content-Type', contentType);
 
         res.send(data);
@@ -112,7 +112,7 @@ const validateSignature = (req) => {
 };
 
 const startPublicServer = async() => {
-    return new Promise((resolve, reject) => {            
+    return new Promise((resolve, reject) => {
         try {
             const express = require('express');
             const app = express();
@@ -128,7 +128,7 @@ const startPublicServer = async() => {
             app.get('/', (req, res) => {
                 res.send('Hello from Provider (public)!')
             });
-            
+
             app.post('/cmd/ping', (req, res) => {
                 try {
                     const client_id = validateSignature(req);
@@ -308,7 +308,7 @@ const startPublicServer = async() => {
                         res.send('Error: Placement id mismatch');
                         return;
                     }
-                    
+
                     placement_chunk.is_received = true;
                     placement_chunk.encrypted_chunk_id = hash;
                     placement_chunk.original_size = original_size;
@@ -343,9 +343,9 @@ const startPublicServer = async() => {
                     await placement.save();
 
                     // --- Send collateral and thus activate it ---
-                    
+
                     // First, mark it as funded to avoid double spending
-                    placement.is_funded = true;
+                    placement.is_collaterized = true;
                     await placement.save();
 
                     // Then, send the collateral
@@ -359,7 +359,7 @@ const startPublicServer = async() => {
 
                             const state = await getAoInstance().getState(placement.process_id);
                             console.log('Process state: ', state);
-                            
+
                             const next_verification_timestamp = state["NextVerification"];
                             placement.next_challenge = new Date(next_verification_timestamp * 1000);
                             await placement.save();
