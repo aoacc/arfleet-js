@@ -119,8 +119,8 @@ const startPublicServer = async() => {
             const app = express();
 
             // app.use(express.json());
-            app.use(express.json({ limit: '800kb' }));
-            app.use(express.urlencoded({ limit: '800kb' }));
+            app.use(express.json({ limit: '10mb' }));
+            app.use(express.urlencoded({ limit: '10mb' }));
 
             const host = publicServerConfig.host;
             const port = publicServerConfig.port;
