@@ -134,6 +134,7 @@ const startPublicServer = async() => {
             });
 
             app.post('/cmd/ping', (req, res) => {
+                console.log("calling /cmd/ping");
                 try {
                     const client_id = validateSignature(req);
                     res.send('pong');
@@ -144,6 +145,7 @@ const startPublicServer = async() => {
             });
 
             app.post('/cmd/placement', async(req, res) => {
+                console.log("calling /cmd/placement");
                 try {
                     const client_id = validateSignature(req);
 
@@ -190,6 +192,7 @@ const startPublicServer = async() => {
             });
 
             app.post('/cmd/accept', async(req, res) => {
+                console.log("calling /cmd/accept");
                 try {
                     const client_id = validateSignature(req);
 
@@ -277,6 +280,7 @@ const startPublicServer = async() => {
             });
 
             app.post('/cmd/transfer', async(req, res) => {
+                console.log("calling /cmd/transfer");
                 try {
                     const client_id = validateSignature(req);
 
@@ -327,6 +331,7 @@ const startPublicServer = async() => {
             });
 
             app.post('/cmd/complete', async(req, res) => {
+                console.log("calling /cmd/complete");
                 try {
                     const client_id = validateSignature(req);
 
@@ -406,6 +411,7 @@ const startPublicServer = async() => {
             });
 
             app.get('/download/:chunk_id', async(req, res) => {
+                console.log("calling /download/:chunk_id");
                 try {
                     // const client_id = validateSignature(req);
                     // const chunk_id = req.body.chunk_id;
@@ -482,6 +488,7 @@ const startPublicServer = async() => {
             });
 
             app.get('/announcement', async(req, res) => {
+                console.log("calling /announcement");
                 const provider = require('../../provider')();
                 res.send({
                     announcement: {
