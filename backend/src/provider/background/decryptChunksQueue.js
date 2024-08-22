@@ -26,7 +26,7 @@ let decryptChunksQueue = new BackgroundQueue({
 
         const placement_chunk = await PSPlacementChunk.findOrFail(placement_chunk_id);
 
-        console.log('Placement chunk: ', placement_chunk);
+        // console.log('Placement chunk: ', placement_chunk);
 
         // read
         const encrypted_chunk_path = PSPlacementChunk.getPath(placement_chunk.id);
