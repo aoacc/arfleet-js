@@ -46,7 +46,7 @@ let placementQueue = new BackgroundQueue({
         console.log('Processing placement: ', placement_id);
 
         const placement = await Placement.findOrFail(placement_id);
-        console.log('Placement: ', placement);
+        // console.log('Placement: ', placement);
 
         try {
             switch(placement.status) {
