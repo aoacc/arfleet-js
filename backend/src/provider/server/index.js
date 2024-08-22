@@ -118,11 +118,9 @@ const startPublicServer = async() => {
             const bodyParser = require('body-parser');
             const app = express();
 
-            app.use(express.json());
-            app.use(bodyParser.json({ limit: '10mb' }));
-            // app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-
-            // app.use(express.urlencoded({ extended: false }));
+            // app.use(express.json());
+            app.use(express.json({ limit: '800kb' }));
+            app.use(express.urlencoded({ limit: '800kb' }));
 
             const host = publicServerConfig.host;
             const port = publicServerConfig.port;
