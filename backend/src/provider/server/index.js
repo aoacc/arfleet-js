@@ -115,9 +115,13 @@ const startPublicServer = async() => {
     return new Promise((resolve, reject) => {
         try {
             const express = require('express');
+            const bodyParser = require('body-parser');
             const app = express();
 
             app.use(express.json());
+            app.use(bodyParser.json({ limit: '10mb' }));
+            app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
             // app.use(express.urlencoded({ extended: false }));
 
             const host = publicServerConfig.host;
@@ -424,12 +428,56 @@ const startPublicServer = async() => {
                 try {
                     const chunk_id = req.params.chunk_id;
                     const filename = req.query.filename; // Get the filename from the query parameter
+                    const clientIp = req.ip || req.connection.remoteAddress;
+                    console.log(`GET /explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
+
                     const data = await PSPlacementChunk.getData(chunk_id);
 
                     return await exploreChunk(chunk_id, data, filename, req, res);
                 } catch(e) {
                     console.error('Error in /explore/:chunk_id:', e);
                     res.status(500).send('Error: ' + e.message);
+                }
+            });
+            app.head('/explore/:chunk_id', async (req, res) => {
+                try {
+                    const chunk_id = req.params.chunk_id;
+                    const filename = req.query.filename; // Get the filename from the query parameter
+                    const clientIp = req.ip || req.socket.remoteAddress;
+                    console.log(`HEAD /explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
+                    const data = await PSPlacementChunk.getData(chunk_id);
+
+                    if (data.toString().startsWith(config.directoryPrologue)) {
+                        const dir = JSON.parse(data.toString().slice(config.directoryPrologue.length));
+                        if (dir.type === 'directory') {
+                            res.setHeader('Content-Type', 'text/html');
+                            res.setHeader('Content-Length', Buffer.byteLength(data));
+                            res.end();
+                        } else {
+                            res.setHeader('Content-Type', 'text/plain');
+                            res.setHeader('Content-Length', Buffer.byteLength('Not a directory'));
+                            res.end();
+                        }
+                    } else if (data.toString().startsWith(config.chunkinfoPrologue)) {
+                        const chunkInfo = JSON.parse(data.toString().slice(config.chunkinfoPrologue.length));
+                        const chunks = chunkInfo.chunks;
+                        const chunkData = await Promise.all(chunks.map(chunk => PSPlacementChunk.getData(chunk)));
+                        const fileData = Buffer.concat(chunkData);
+
+                        res.setHeader('Content-Type', 'application/octet-stream');
+                        res.setHeader('Content-Length', Buffer.byteLength(fileData));
+                        res.end();
+                    } else {
+                        let contentType = 'application/octet-stream'; // Default content type
+                        if (filename) contentType = mime.lookup(filename) || 'application/octet-stream';
+
+                        res.setHeader('Content-Type', contentType);
+                        res.setHeader('Content-Length', Buffer.byteLength(data));
+                        res.end();
+                    }
+                } catch (e) {
+                    console.error('Error in /explore/:chunk_id (HEAD):', e);
+                    res.status(500).end();
                 }
             });
 
