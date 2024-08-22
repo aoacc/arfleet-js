@@ -219,7 +219,7 @@ Handle("SubmitChallenge", function(msg, Data)
     end
 
     -- Too early?
-    if (msg.Timestamp/1000) < State.NextVerification then
+    if (msg.Timestamp//1000) < State.NextVerification then
         return "Error: Too early"
     end
 

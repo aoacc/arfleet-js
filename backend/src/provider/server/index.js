@@ -357,8 +357,24 @@ const startPublicServer = async() => {
                             // todo: placement.txid = txid;
                             await placement.save();
 
-                            const state = await getAoInstance().getState(placement.process_id);
-                            console.log('Process state: ', state);
+                            //wait some time for the token process to submit the credit notice
+                            await new Promise(r => setTimeout(r, 5000));
+
+                            let state;
+                            let waitTime = 500;
+                            for (let i = 0; i < 5; i++) {
+                                try {
+                                    state = await getAoInstance().getState(placement.process_id);
+                                    console.log('Process state: ', state);
+                                    if (state.Status === 'Activated') {
+                                        break;
+                                    }
+                                } catch (e) {
+                                    // Ignore
+                                }
+                                await new Promise(r => setTimeout(r, waitTime));
+                                waitTime *= 2;
+                            }
 
                             const next_verification_timestamp = state["NextVerification"];
                             placement.next_challenge = new Date(next_verification_timestamp * 1000);
