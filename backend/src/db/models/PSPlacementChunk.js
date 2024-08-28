@@ -20,8 +20,7 @@ class PSPlacementChunk extends Model {
     static async getData(chunk_id) {
         try {
             const chunk = await PSPlacementChunk.findOneByOrFail('encrypted_chunk_id', chunk_id);
-            const data = fs.readFileSync(PSPlacementChunk.getPath(chunk.id));
-            return data; // Return data instead of sending it directly
+            return fs.readFileSync(PSPlacementChunk.getPath(chunk.id));
         } catch (e) {
             try {
                 const chunk = await PSPlacementChunk.findOneByOrFail('original_chunk_id', chunk_id);
@@ -29,7 +28,7 @@ class PSPlacementChunk extends Model {
 
                 const original_size = chunk.original_size;
                 if (original_size) {
-                    data = data.slice(0, original_size);
+                    data = data.subarray(0, original_size);
                 }
 
                 return data;

@@ -89,7 +89,7 @@ const exploreChunk = async (chunk_id, data, filename, req, res) => {
         if (filename) contentType = mime.lookup(filename) || 'application/octet-stream';
         res.setHeader('Content-Type', contentType);
 
-        res.send(data);
+        return data;
     }
 }
 
@@ -432,21 +432,22 @@ const startPublicServer = async() => {
                     const chunk_id = req.params.chunk_id;
                     const filename = req.query.filename; // Get the filename from the query parameter
                     const clientIp = req.ip || req.connection.remoteAddress;
-                    console.log(`GET /explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
+                    console.log(`GET /ranged_explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
 
                     const data = await PSPlacementChunk.getData(chunk_id);
 
                     // Check for the Range header
                     const range = req.headers.range;
                     if (range) {
+                        const d = await exploreChunk(chunk_id, data, filename, req, res);
                         const positions = range.replace(/bytes=/, "").split("-");
                         const start = parseInt(positions[0], 10);
-                        const end = positions[1] ? parseInt(positions[1], 10) : data.length - 1;
+                        const end = positions[1] ? parseInt(positions[1], 10) : d.length - 1;
                         const chunkSize = (end - start) + 1;
-                        const fileChunk = data.slice(start, end + 1);
+                        const fileChunk = d.subarray(start, end + 1);
 
                         res.status(206).set({
-                            'Content-Range': `bytes ${start}-${end}/${data.length}`,
+                            'Content-Range': `bytes ${start}-${end}/${d.length}`,
                             'Accept-Ranges': 'bytes',
                             'Content-Length': chunkSize,
                             'Content-Type': mime.lookup(filename) || 'application/octet-stream'
@@ -454,7 +455,9 @@ const startPublicServer = async() => {
 
                         return res.send(fileChunk);
                     } else {
-                        return await exploreChunk(chunk_id, data, filename, req, res);
+                        const d = await exploreChunk(chunk_id, data, filename, req, res);
+                        res.send(d);
+
                     }
                 } catch (e) {
                     console.error('Error in /ranged_explore/:chunk_id:', e);
@@ -469,8 +472,7 @@ const startPublicServer = async() => {
                     console.log(`GET /explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
 
                     const data = await PSPlacementChunk.getData(chunk_id);
-
-                    return await exploreChunk(chunk_id, data, filename, req, res);
+                    res.send(await exploreChunk(chunk_id, data, filename, req, res));
                 } catch(e) {
                     console.error('Error in /explore/:chunk_id:', e);
                     res.status(500).send('Error: ' + e.message);
