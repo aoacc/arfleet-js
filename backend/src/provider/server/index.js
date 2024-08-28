@@ -11,7 +11,7 @@ const mime = require('mime-types');
 
 let state = {};
 
-const exploreChunk = async(chunk_id, data, filename, req, res) => {
+const exploreChunk = async (chunk_id, data, filename, req, res) => {
     if (data.toString().startsWith(config.directoryPrologue)) {
         const dir = JSON.parse(data.toString().slice(config.directoryPrologue.length));
         if (dir.type === 'directory') {
@@ -427,7 +427,40 @@ const startPublicServer = async() => {
                     res.send('Error');
                 }
             });
+            app.get('/ranged_explore/:chunk_id', async (req, res) => {
+                try {
+                    const chunk_id = req.params.chunk_id;
+                    const filename = req.query.filename; // Get the filename from the query parameter
+                    const clientIp = req.ip || req.connection.remoteAddress;
+                    console.log(`GET /explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
 
+                    const data = await PSPlacementChunk.getData(chunk_id);
+
+                    // Check for the Range header
+                    const range = req.headers.range;
+                    if (range) {
+                        const positions = range.replace(/bytes=/, "").split("-");
+                        const start = parseInt(positions[0], 10);
+                        const end = positions[1] ? parseInt(positions[1], 10) : data.length - 1;
+                        const chunkSize = (end - start) + 1;
+                        const fileChunk = data.slice(start, end + 1);
+
+                        res.status(206).set({
+                            'Content-Range': `bytes ${start}-${end}/${data.length}`,
+                            'Accept-Ranges': 'bytes',
+                            'Content-Length': chunkSize,
+                            'Content-Type': mime.lookup(filename) || 'application/octet-stream'
+                        });
+
+                        return res.send(fileChunk);
+                    } else {
+                        return await exploreChunk(chunk_id, data, filename, req, res);
+                    }
+                } catch (e) {
+                    console.error('Error in /ranged_explore/:chunk_id:', e);
+                    res.status(500).send('Error: ' + e.message);
+                }
+            });
             app.get('/explore/:chunk_id', async(req, res) => {
                 try {
                     const chunk_id = req.params.chunk_id;
