@@ -432,23 +432,48 @@ const startPublicServer = async() => {
                 try {
                     const chunk_id = req.params.chunk_id;
                     const filename = req.query.filename; // Get the filename from the query parameter
+                    const dataItemId = req.query.data_item_id;
                     const clientIp = req.ip || req.connection.remoteAddress;
                     console.log(`GET /ranged_explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
 
-                    const data = await PSPlacementChunk.getData(chunk_id);
-
+                    const dataHeader = await PSPlacementChunk.getData(chunk_id);
+                    let dataBundle = await exploreChunk(chunk_id, dataHeader, filename, req, res)
+                    if (dataItemId !== undefined && dataItemId!==''){
+                        const bundle = arbundles.unbundleData(dataBundle);
+                        if (!await bundle.verify()){
+                            res.status(400).send('Invalid data bundle');
+                            return;
+                        }
+                        console.log(bundle.getIds());
+                        let dataItem;
+                        bundle.items.forEach(di => {
+                            if (di.id === dataItemId){
+                                dataItem = di;
+                            }
+                        });
+                        // const dataItem = bundle.get(dataItemId);
+                        if (dataItem == null){
+                            res.status(400).send('No such data item');
+                            return;
+                        }
+                        console.log("id of selected dataitem: ",dataItem.id);
+                        if (!await dataItem.isValid() || !dataItem.isSigned()){
+                            res.status(400).send('Invalid data item');
+                            return;
+                        }
+                        dataBundle = dataItem.rawData;
+                    }
                     // Check for the Range header
                     const range = req.headers.range;
                     if (range) {
-                        const d = await exploreChunk(chunk_id, data, filename, req, res);
                         const positions = range.replace(/bytes=/, "").split("-");
                         const start = parseInt(positions[0], 10);
-                        const end = positions[1] ? parseInt(positions[1], 10) : d.length - 1;
+                        const end = positions[1] ? parseInt(positions[1], 10) : dataBundle.length - 1;
                         const chunkSize = (end - start) + 1;
-                        const fileChunk = d.subarray(start, end + 1);
+                        const fileChunk = dataBundle.subarray(start, end + 1);
 
                         res.status(206).set({
-                            'Content-Range': `bytes ${start}-${end}/${d.length}`,
+                            'Content-Range': `bytes ${start}-${end}/${dataBundle.length}`,
                             'Accept-Ranges': 'bytes',
                             'Content-Length': chunkSize,
                             'Content-Type': mime.lookup(filename) || 'application/octet-stream'
@@ -456,9 +481,7 @@ const startPublicServer = async() => {
 
                         return res.send(fileChunk);
                     } else {
-                        const d = await exploreChunk(chunk_id, data, filename, req, res);
-                        res.send(d);
-
+                        res.send(dataBundle);
                     }
                 } catch (e) {
                     console.error('Error in /ranged_explore/:chunk_id:', e);
