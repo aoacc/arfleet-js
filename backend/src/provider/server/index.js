@@ -491,7 +491,7 @@ const startPublicServer = async() => {
                 res.send({
                     announcement: {
                         ProviderId: provider.address,
-                        ConnectionStrings: `http://localhost:${port}`,
+                        ConnectionStrings: process.env.CONNECTION_STRINGS || `http://localhost:${port}`,
                         StorageCapacity: await provider.getCapacityRemaining(),
                         MinStorageDuration: await provider.getMinStorageDuration(),
                         MaxStorageDuration: await provider.getMaxStorageDuration(),
