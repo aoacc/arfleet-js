@@ -13,7 +13,7 @@ const startApi = async() => {
     // app.use(express.static(path.join(__dirname, 'public')));
 
     const host = apiServerConfig.host;
-    const port = apiServerConfig.port;
+    const port = process.env.API_PORT || apiServerConfig.port;
 
     if (MODE === 'client') {
         const { apiStore } = require('../client/apiStore');
