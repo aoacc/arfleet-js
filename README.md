@@ -1,6 +1,6 @@
 # ArFleet Project
 
-![ArFleet Logo](https://docs.arfleet.io/img/logo.svg)
+<!-- ![ArFleet Logo](https://docs.arfleet.io/img/logo.svg) -->
 
 
 [https://arfleet.io](https://arfleet.io)
