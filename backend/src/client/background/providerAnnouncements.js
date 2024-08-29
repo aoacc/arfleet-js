@@ -16,19 +16,28 @@ const checkAnnouncements = async() => {
 
 const checkLocalAnnouncements = async() => {
     const port = config.provider.publicServer.port;
-    try {
-        console.log("Looking for local announcement");
-        const localAnnouncement = await axios.get(`http://localhost:${port}/announcement`);
-        if (localAnnouncement.data.announcement) {
-            console.log("Local announcement:", localAnnouncement.data.announcement);
-            announcements[localAnnouncement.data.announcement.ProviderId] = localAnnouncement.data.announcement;
-            console.log("Announcements:", announcements);
-        } else {
-            console.log("No local announcement found");
+    const connectionStrings = [
+        `http://localhost:${port}/announcement`,
+        `https://p1.arfleet.io/announcement`,
+        `https://p2.arfleet.io/announcement`,
+        `https://p3.arfleet.io/announcement`,
+    ];
+
+    for (const connectionString of connectionStrings) {
+        try {
+            console.log("Looking for local announcement");
+            const localAnnouncement = await axios.get(connectionString);
+            if (localAnnouncement.data.announcement) {
+                console.log("Local announcement:", localAnnouncement.data.announcement);
+                announcements[localAnnouncement.data.announcement.ProviderId] = localAnnouncement.data.announcement;
+                console.log("Announcements:", announcements);
+            } else {
+                console.log("No local announcement found");
+            }
+        } catch(e) {
+            console.log("No local announcement found"/*, e*/);
+            // Do nothing
         }
-    } catch(e) {
-        console.log("No local announcement found"/*, e*/);
-        // Do nothing
     }
 }
 
