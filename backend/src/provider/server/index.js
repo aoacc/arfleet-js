@@ -475,18 +475,26 @@ const startPublicServer = async() => {
 
                     const dataHeader = await PSPlacementChunk.getData(chunk_id);
                     const dataBundle = await exploreChunk(chunk_id, dataHeader, filename, req, res)
-                    if (dataItemId!==''){
+                    if (dataItemId !== undefined && dataItemId!==''){
                         const bundle = arbundles.unbundleData(dataBundle);
                         if (!await bundle.verify()){
                             res.status(400).send('Invalid data bundle');
                             return;
                         }
-                        const dataItem = bundle.get(dataItemId);
+                        console.log(bundle.getIds());
+                        let dataItem;
+                        bundle.items.forEach(di => {
+                            if (di.id === dataItemId){
+                                dataItem = di;
+                            }
+                        });
+                        // const dataItem = bundle.get(dataItemId);
                         if (dataItem == null){
                             res.status(400).send('No such data item');
                             return;
                         }
-                        if (!dataItem.isSigned() || !dataItem.isSigned()){
+                        console.log("id of selected dataitem: ",dataItem.id);
+                        if (!await dataItem.isValid() || !dataItem.isSigned()){
                             res.status(400).send('Invalid data item');
                             return;
                         }
