@@ -10,6 +10,8 @@
 
 ArFleet is a protocol built on and for Arweave+ao designed to facilitate the purchase of time-limited data storage from permissionless peers, eliminating the requirement of a third-party for enforcement.
 
+NOTE: For testnet, only holders of [ArFleet Genesis Pass](https://ao-bazar.arweave.dev/#/asset/kBQOWxXVSj21ZhLqMTFEIJllEal1z_l8YgRRdxIm7pw) would be able to use the provisioned testnet providers
+
 ## Getting Started
 
 ### Prerequisites
