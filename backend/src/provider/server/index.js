@@ -8,6 +8,7 @@ const utils = require('../../utils');
 const nodepath = require('path');
 const fs = require('fs');
 const mime = require('mime-types');
+import {unbundleData} from "arbundles";
 
 let state = {};
 
@@ -468,11 +469,31 @@ const startPublicServer = async() => {
                 try {
                     const chunk_id = req.params.chunk_id;
                     const filename = req.query.filename; // Get the filename from the query parameter
+                    const dataItemId = req.query.data_item_id;
                     const clientIp = req.ip || req.connection.remoteAddress;
                     console.log(`GET /explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
 
-                    const data = await PSPlacementChunk.getData(chunk_id);
-                    res.send(await exploreChunk(chunk_id, data, filename, req, res));
+                    const dataHeader = await PSPlacementChunk.getData(chunk_id);
+                    const dataBundle = await exploreChunk(chunk_id, dataHeader, filename, req, res)
+                    if (dataItemId!==''){
+                        const bundle = unbundleData(dataBundle);
+                        if (!await bundle.verify()){
+                            res.status(400).send('Invalid data bundle');
+                            return;
+                        }
+                        const dataItem = bundle.get(dataItemId);
+                        if (dataItem == null){
+                            res.status(400).send('No such data item');
+                            return;
+                        }
+                        if (!dataItem.isSigned() || !dataItem.isSigned()){
+                            res.status(400).send('Invalid data item');
+                            return;
+                        }
+                        res.send(dataItem.rawData);
+                        return;
+                    }
+                    res.send(dataBundle);
                 } catch(e) {
                     console.error('Error in /explore/:chunk_id:', e);
                     res.status(500).send('Error: ' + e.message);
