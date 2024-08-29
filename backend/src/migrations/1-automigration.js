@@ -31,7 +31,7 @@ var Sequelize = require('sequelize');
 var info = {
     "revision": 1,
     "name": "automigration",
-    "created": "2024-07-31T17:46:35.396Z",
+    "created": "2024-08-29T11:47:37.561Z",
     "comment": ""
 };
 

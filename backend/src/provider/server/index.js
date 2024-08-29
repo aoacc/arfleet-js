@@ -123,7 +123,7 @@ const startPublicServer = async() => {
             app.use(express.urlencoded({ limit: '10mb' }));
 
             const host = publicServerConfig.host;
-            const port = publicServerConfig.port;
+            const port = process.env.PORT || publicServerConfig.port;
 
             app.use('/public', express.static(utils.getPublicDir()));
 

@@ -27,7 +27,7 @@ const checkLocalAnnouncements = async() => {
             console.log("No local announcement found");
         }
     } catch(e) {
-        console.log("No local announcement found", e);
+        console.log("No local announcement found"/*, e*/);
         // Do nothing
     }
 }
