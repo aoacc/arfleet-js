@@ -28,7 +28,7 @@ NOTE: For testnet, only holders of [ArFleet Genesis Pass](https://ao-bazar.arwea
    ```
 2. Navigate to the backend directory and install dependencies:
    ```bash
-   cd arfleet/backend
+   cd arfleet-js/backend
    npm install
    ```
 3. Navigate to the frontend directory and install dependencies:
@@ -36,10 +36,13 @@ NOTE: For testnet, only holders of [ArFleet Genesis Pass](https://ao-bazar.arwea
    cd ../frontend
    npm install
    ```
-
+Go back to the project directory
+  ```bash
+   cd ..
+   ```
 ### Running the Application
 
-Go back to the root directory and run:
+Run:
 
 ```bash
 ./arfleet client
