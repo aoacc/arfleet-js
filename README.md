@@ -8,7 +8,7 @@
 
 ## Overview
 
-ArFleet is a protocol designed to facilitate the purchase of time-limited data storage from permissionless peers, eliminating the requirement of a third-party for enforcement.
+ArFleet is a protocol built on and for Arweave+ao designed to facilitate the purchase of time-limited data storage from permissionless peers, eliminating the requirement of a third-party for enforcement.
 
 ## Getting Started
 
