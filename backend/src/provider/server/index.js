@@ -8,7 +8,7 @@ const utils = require('../../utils');
 const nodepath = require('path');
 const fs = require('fs');
 const mime = require('mime-types');
-import {unbundleData} from "arbundles";
+const arbundles = require('arbundles');
 
 let state = {};
 
@@ -476,7 +476,7 @@ const startPublicServer = async() => {
                     const dataHeader = await PSPlacementChunk.getData(chunk_id);
                     const dataBundle = await exploreChunk(chunk_id, dataHeader, filename, req, res)
                     if (dataItemId!==''){
-                        const bundle = unbundleData(dataBundle);
+                        const bundle = arbundles.unbundleData(dataBundle);
                         if (!await bundle.verify()){
                             res.status(400).send('Invalid data bundle');
                             return;
