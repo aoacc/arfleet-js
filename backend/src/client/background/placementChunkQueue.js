@@ -21,6 +21,7 @@ let placementChunkQueue = new BackgroundQueue({
             return;
         }
 
+        console.log('Encrypting placement chunk: ', placementChunk.id);
         await placementChunk.encrypt();
 
         // Try to see if it's fully encrypted
