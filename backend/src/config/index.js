@@ -60,7 +60,7 @@ const defaultConfig = {
         },
         enable_db_logging: false
     },
-    chunkSize: 4096,
+    chunkSize: 512000,
     _chunkSize: 2048,
     chunkinfoPrologue: 'ARFLEET\x05\x06\xf5\xf6*INFO',
     directoryPrologue: 'ARFLEET\x05\x06\xf5\xf6*DIR',
