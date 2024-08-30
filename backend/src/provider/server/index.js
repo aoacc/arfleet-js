@@ -430,13 +430,39 @@ const startPublicServer = async() => {
                     res.send('Error');
                 }
             });
+            app.head('/explore/:chunk_id', async (req, res) => {
+                try {
+                    const chunk_id = req.params.chunk_id;
+                    const filename = req.query.filename; // Get the filename from the query parameter
+                    const clientIp = req.ip || req.socket.remoteAddress;
+                    console.log(`HEAD /explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
+
+                    const dataHeader = await PSPlacementChunk.getData(chunk_id);
+
+                    // Set dummy response headers
+                    res.setHeader('Content-Type', 'application/octet-stream'); // Set a default content type
+                    res.setHeader('Content-Length', dataHeader.original_size??0); // Set content length to 0 for the dummy response
+
+                    // If needed, adjust the headers according to the filename for a more realistic response
+                    if (filename) {
+                        const contentType = mime.lookup(filename) || 'application/octet-stream';
+                        res.setHeader('Content-Type', contentType);
+                    }
+
+                    res.end(); // End the response without fetching any data
+                } catch (e) {
+                    console.error('Error in /explore/:chunk_id (HEAD):', e);
+                    res.status(500).end();
+                }
+            });
+
             app.get('/explore/:chunk_id', async(req, res) => {
                 try {
                     const chunk_id = req.params.chunk_id;
                     const filename = req.query.filename; // Get the filename from the query parameter
                     const dataItemId = req.query.data_item_id;
                     const clientIp = req.ip || req.connection.remoteAddress;
-                    console.log(`GET /ranged_explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
+                    console.log(`GET /explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
 
                     const dataHeader = await PSPlacementChunk.getData(chunk_id);
                     let dataBundle = await exploreChunk(chunk_id, dataHeader, filename, req, res)
@@ -488,31 +514,6 @@ const startPublicServer = async() => {
                 } catch (e) {
                     console.error('Error in /explore/:chunk_id:', e);
                     res.status(500).send('Error: ' + e.message);
-                }
-            });
-            app.head('/explore/:chunk_id', async (req, res) => {
-                try {
-                    const chunk_id = req.params.chunk_id;
-                    const filename = req.query.filename; // Get the filename from the query parameter
-                    const clientIp = req.ip || req.socket.remoteAddress;
-                    console.log(`HEAD /explore/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
-
-                    const dataHeader = await PSPlacementChunk.getData(chunk_id);
-
-                    // Set dummy response headers
-                    res.setHeader('Content-Type', 'application/octet-stream'); // Set a default content type
-                    res.setHeader('Content-Length', dataHeader.original_size??0); // Set content length to 0 for the dummy response
-
-                    // If needed, adjust the headers according to the filename for a more realistic response
-                    if (filename) {
-                        const contentType = mime.lookup(filename) || 'application/octet-stream';
-                        res.setHeader('Content-Type', contentType);
-                    }
-
-                    res.end(); // End the response without fetching any data
-                } catch (e) {
-                    console.error('Error in /explore/:chunk_id (HEAD):', e);
-                    res.status(500).end();
                 }
             });
 
