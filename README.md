@@ -5,6 +5,9 @@
 
 [https://arfleet.io](https://arfleet.io)
 
+:::note
+More documentation for ArFleet is available at [docs.arfleet.io](https://docs.arfleet.io).
+:::
 
 ## Overview
 
