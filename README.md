@@ -64,6 +64,23 @@ When your client is running, you can use the `./arfleet client store <directory 
 
 Note: in the current version, the data is available publicly.
 
+## Updates
+
+1. To pull the latest updates from the main repo run:
+   ```bash
+   git pull origin master
+   ```
+2. Navigate to the backend directory and install dependencies:
+   ```bash
+   cd arfleet-js/backend
+   npm install
+   ```
+3. Navigate to the frontend directory and install dependencies:
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+
 ## Transfer Pass
 
 To transfer your pass to another address, you can use the `./arfleet (client or provider) transferpass <your_outside_address>` command. <-- instead of `(client or provider)` here, choose only one.
