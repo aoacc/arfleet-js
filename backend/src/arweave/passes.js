@@ -2,7 +2,7 @@ const config = require('../config');
 const { MINUTE } = require('../utils/constants');
 const axios = require('axios');
 const { getAoInstance } = require('./ao');
-
+const { color } = require('../utils/color');
 let passes = null;
 
 const checkPasses = async(firstTime = false, ourAddress = null) => {
@@ -24,22 +24,21 @@ const checkPasses = async(firstTime = false, ourAddress = null) => {
         );
 
         passes = passesFiltered;
-        // console.log({passes});
 
         if (firstTime) {
             console.log(Object.keys(passes).length.toString() + " ArFleet:Genesis passes found");
             if (ourAddress) {
                 if (hasPass(ourAddress)) {
-                    console.log("\x1b[32m✅ You have an ArFleet:Genesis pass! 🎉\x1b[0m");
+                    console.log(color("✅ You have an ArFleet:Genesis pass! 🎉", "green"));
                 } else {
                     console.log("");
-                    console.log("\x1b[31mWARNING: You don't have an ArFleet:Genesis pass to participate in the testnet! 😢\x1b[0m");
+                    console.log(color("WARNING: You don't have an ArFleet:Genesis pass to participate in the testnet! 😢", "red"));
                     console.log("");
-                    console.log("Providers/clients on testnet won't be able to connect to you without a valid pass.");
+                    console.log(color("Providers/clients on testnet won't be able to connect to you without a valid pass.", "red"));
                     console.log("");
-                    console.log("\x1b[31mArFleet:Genesis passes are this asset on Bazar: https://bazar.arweave.dev/#/asset/"+config.passes.address+"\x1b[0m");
+                    console.log(color("ArFleet:Genesis passes are this asset on Bazar: https://bazar.arweave.dev/#/asset/"+config.passes.address+"", "cyan"));
                     console.log("");
-                    console.log("Send the pass to your address here: " + ourAddress);
+                    console.log(color("Send the pass to your address here: " + ourAddress, "cyan"));
                 }
             }
         }
