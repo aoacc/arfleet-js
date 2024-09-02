@@ -64,6 +64,10 @@ When your client is running, you can use the `./arfleet client store <directory 
 
 Note: in the current version, the data is available publicly.
 
+## Transfer Pass
+
+To transfer your pass to another address, you can use the `./arfleet (client or provider) transferpass <your_outside_address>` command. <-- insert client or provider here
+
 ## Contributing
 
 Contributions are welcome! Feel free to open an issue or a pull request
