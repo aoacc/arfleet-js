@@ -66,7 +66,7 @@ Note: in the current version, the data is available publicly.
 
 ## Transfer Pass
 
-To transfer your pass to another address, you can use the `./arfleet (client or provider) transferpass <your_outside_address>` command. <-- insert client or provider here
+To transfer your pass to another address, you can use the `./arfleet (client or provider) transferpass <your_outside_address>` command. <-- instead of `(client or provider)` here, choose only one.
 
 ## Wallet Location
 
