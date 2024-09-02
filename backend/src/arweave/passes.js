@@ -36,9 +36,9 @@ const checkPasses = async(firstTime = false, ourAddress = null) => {
                     console.log("");
                     console.log(color("Providers/clients on testnet won't be able to connect to you without a valid pass.", "red"));
                     console.log("");
-                    console.log(color("ArFleet:Genesis passes are this asset on Bazar: https://bazar.arweave.dev/#/asset/"+config.passes.address+"", "cyan"));
+                    console.log(color("ArFleet:Genesis passes are this asset on Bazar: https://bazar.arweave.dev/#/asset/"+config.passes.address+"", "red"));
                     console.log("");
-                    console.log(color("Send the pass to your address here: " + ourAddress, "cyan"));
+                    console.log(color("Send the pass to your address here: " + ourAddress, "red"));
                 }
             }
         }
