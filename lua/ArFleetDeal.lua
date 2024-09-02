@@ -1,10 +1,13 @@
 -- ArFleet Deal Blueprint
+-- Version: Deal-0.0.2
 
 local json = require("json")
 
-StatusEnum = {Created = "Created", Activated = "Activated", Cancelled = "Cancelled"}
+StatusEnum = {Created = "Created", Activated = "Activated", Cancelled = "Cancelled", Expired = "Expired"}
 
 State = {
+    Version = "Deal-0.0.2",
+
     Status = StatusEnum.Created,
     MerkleRoot = "",
     Client = "",
@@ -47,6 +50,27 @@ function generate_random_binary_string(length)
     return random_string
 end
 
+function AdvanceNextVerification(currentTimestamp)
+    if State.Status ~= StatusEnum.Activated then
+        return
+    end
+
+    if currentTimestamp > 0 then
+        State.NextVerification = currentTimestamp + State.VerificationEveryPeriod
+        State.Challenge = ""
+
+        -- Check expiration
+        if State.NextVerification >= State.ExpiresAt then
+            State.Status = StatusEnum.Expired
+
+            -- Withdraw rewards + collateral
+            Send({ Target = State.Token, Action = "Transfer", Recipient = State.Provider, Quantity = State.ReceivedReward + State.RemainingCollateral })
+
+            return true
+        end
+    end
+end
+
 -- The Handle function must be defined before we use it
 function Handle(type, fn)
     Handlers.add(
@@ -80,7 +104,7 @@ Handle("Credit-Notice", function(msg, Data)
         return
     end
 
-    -- Ignore after it was already activated
+    -- Ignore after it was already activated or cancelled
     if State.Status ~= StatusEnum.Created then
         return
     end
@@ -97,8 +121,7 @@ Handle("Credit-Notice", function(msg, Data)
     end
 
     -- Check if both collateral and reward conditions are met to activate
-    if State.ReceivedCollateral >= State.RequiredCollateral and
-            State.ReceivedReward >= State.RequiredReward then
+    if State.ReceivedCollateral >= State.RequiredCollateral and State.ReceivedReward >= State.RequiredReward then
         State.Status = StatusEnum.Activated
         State.RemainingCollateral = State.ReceivedCollateral
         State.NextVerification = (msg.Timestamp // 1000) + State.VerificationEveryPeriod
@@ -119,13 +142,16 @@ Handle("Cancel", function(msg, Data)
 
     -- Send the funds back to the client
     if State.ReceivedReward > 0 then
-        -- todo
+        Send({ Target = State.Token, Action = "Transfer", Recipient = State.Client, Quantity = State.ReceivedReward })
     end
 
     -- Send the collateral back to the provider
     if State.ReceivedCollateral > 0 then
-        -- todo
+        Send({ Target = State.Token, Action = "Transfer", Recipient = State.Provider, Quantity = State.ReceivedCollateral })
     end
+
+    -- Set the status to cancelled
+    State.Status = StatusEnum.Cancelled
 end)
 
 function Slash(currentTimestamp)
@@ -135,7 +161,7 @@ function Slash(currentTimestamp)
     -- Iteratively slash half of the remaining collateral for each time it should be slashed
     local Slashed = 0
     for i = 1, SlashTimes do
-        local ThisSlash = State.RemainingCollateral / 2
+        local ThisSlash = math.floor(State.RemainingCollateral / 2)
         State.RemainingCollateral = State.RemainingCollateral - ThisSlash
         Slashed = Slashed + ThisSlash
     end
@@ -144,10 +170,7 @@ function Slash(currentTimestamp)
     State.SlashedTimes = State.SlashedTimes + SlashTimes
 
     -- Move the challenge if it's a time-based slash
-    if currentTimestamp > 0 then
-        State.NextVerification = currentTimestamp + State.VerificationEveryPeriod
-        State.Challenge = ""
-    end
+    AdvanceNextVerification(currentTimestamp)
 end
 
 
@@ -159,15 +182,14 @@ Handle("Slash", function(msg, Data)
         return
     end
 
-    -- todo: check for expiration
-
+    local currentTimestamp = (msg.Timestamp//1000)
+    
     -- Too early?
-    if (msg.Timestamp/1000) < State.NextVerification then
+    if currentTimestamp < State.NextVerification then
         return
     end
 
     -- Too late?
-    local currentTimestamp = (msg.Timestamp//1000)
     if currentTimestamp > State.NextVerification + State.VerificationResponsePeriod then
         Slash(currentTimestamp)
     end
@@ -185,13 +207,14 @@ Handle("GetChallenge", function(msg, Data)
         return "Error: Not activated"
     end
 
+    local currentTimestamp = (msg.Timestamp//1000)
+
     -- Too early?
-    if (msg.Timestamp/1000) < State.NextVerification then
+    if currentTimestamp < State.NextVerification then
         return "Error: Too early"
     end
 
     -- Too late?
-    local currentTimestamp = (msg.Timestamp//1000)
     if currentTimestamp > State.NextVerification + State.VerificationResponsePeriod then
         Slash(currentTimestamp)
         return "Error: Too late " .. State.NextVerification + State.VerificationResponsePeriod .. " // " .. currentTimestamp
@@ -218,13 +241,14 @@ Handle("SubmitChallenge", function(msg, Data)
         return "Error: Not activated"
     end
 
+    local currentTimestamp = (msg.Timestamp//1000)
+
     -- Too early?
-    if (msg.Timestamp//1000) < State.NextVerification then
+    if currentTimestamp < State.NextVerification then
         return "Error: Too early"
     end
 
     -- Too late?
-    local currentTimestamp = (msg.Timestamp//1000)
     if currentTimestamp > State.NextVerification + State.VerificationResponsePeriod then
         Slash(currentTimestamp)
         return "Error: Too late"
@@ -323,8 +347,7 @@ Handle("SubmitChallenge", function(msg, Data)
     end
 
     -- Challenge successfully passed!
-    State.NextVerification = currentTimestamp + State.VerificationEveryPeriod
-    State.Challenge = ""
+    AdvanceNextVerification(currentTimestamp)
 
     return "Success"
 end)
