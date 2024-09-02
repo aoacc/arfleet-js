@@ -8,6 +8,7 @@ const utils = require('../../utils');
 const nodepath = require('path');
 const fs = require('fs');
 const mime = require('mime-types');
+const { hasPass } = require('../../arweave/passes');
 
 let state = {};
 
@@ -111,6 +112,13 @@ const validateSignature = (req) => {
     return client_id;
 };
 
+const ensurePass = (client_id) => {
+    if (!hasPass(client_id)) {
+        console.error("Got request from client without pass, address: ", client_id);
+        throw new Error('Client does not have ArFleet:Genesis pass');
+    }
+}
+
 const startPublicServer = async() => {
     return new Promise((resolve, reject) => {
         try {
@@ -146,6 +154,7 @@ const startPublicServer = async() => {
                 console.log("calling /cmd/placement");
                 try {
                     const client_id = validateSignature(req);
+                    ensurePass(client_id);
 
                     // todo: validate here
                     console.log('Received placement: ', req.body);
@@ -193,6 +202,7 @@ const startPublicServer = async() => {
                 console.log("calling /cmd/accept");
                 try {
                     const client_id = validateSignature(req);
+                    ensurePass(client_id);
 
                     // todo: validate everything about the deal process here
 
@@ -281,6 +291,7 @@ const startPublicServer = async() => {
                 console.log("calling /cmd/transfer");
                 try {
                     const client_id = validateSignature(req);
+                    ensurePass(client_id);
 
                     const placement_id = req.body.placement_id;
                     const placement = await PSPlacement.findOneByOrFail('id', placement_id);
@@ -332,6 +343,7 @@ const startPublicServer = async() => {
                 console.log("calling /cmd/complete");
                 try {
                     const client_id = validateSignature(req);
+                    ensurePass(client_id);
 
                     const placement_id = req.body.placement_id;
                     const placement = await PSPlacement.findOrFail(placement_id);

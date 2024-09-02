@@ -1,4 +1,5 @@
 const marketplace = require('../../arweave/marketplace');
+const { hasPass } = require('../../arweave/passes');
 const config = require('../../config');
 const axios = require('axios');
 
@@ -35,7 +36,7 @@ const checkLocalAnnouncements = async() => {
                 console.log("No local announcement found");
             }
         } catch(e) {
-            console.log("No local announcement found", e);
+            console.log("No local announcement available: can't connect to", connectionString);
             // Do nothing
         }
     }
@@ -52,6 +53,12 @@ const startChecking = async() => {
 const getProvidersToConnect = () => {
     let result = [];
     for (const [provider, announcement] of Object.entries(announcements)) {
+        // check if has a pass
+        if (!hasPass(provider)) {
+            // console.log("Provider", provider, "has no pass");
+            continue;
+        }
+
         result.push({
             address: provider,
             connectionStrings: announcement["ConnectionStrings"],
@@ -65,6 +72,9 @@ const getProvidersToConnect = () => {
             // todo: if any of the values are missing or wrong, invalidate
         })
     }
+
+    console.log("Providers to connect:", result.length);
+
     return result;
 }
 

@@ -1,7 +1,9 @@
 const config = require('../config');
 const utils = require('../utils');
 const providerAnnouncements = require('./background/providerAnnouncements');
+const passes = require('../arweave/passes');
 const { getAoInstance } = require('../arweave/ao');
+const { color } = require('../utils/color');
 const { Assignment, Placement } = require('../db/models');
 
 let state = {};
@@ -15,10 +17,13 @@ class Client {
     async start() {
         this.address = await this.wallet.getAddress();
 
-        console.log("Datadir: ", utils.getDatadir());
-        console.log("Wallet address: ", this.address);
-
         this.ao = getAoInstance({ wallet: this.wallet });
+
+        console.log("Datadir: ", utils.getDatadir());
+        console.log(color("Wallet address: " + this.address, "cyan"));
+        console.log(color("Balance (Token "+config.defaultToken+"): " + await this.ao.getTokenBalance(config.defaultToken, config.defaultTokenDecimals, this.address) + " " + config.defaultTokenSymbol, "cyan"));
+
+        await passes.startChecking(this.address);
 
         providerAnnouncements.startChecking();
 
