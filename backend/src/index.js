@@ -1,6 +1,8 @@
 const { Command } = require('commander');
 const fs = require('fs');
 const utils = require('./utils');
+const readline = require('readline');
+const { checkPasses, hasPass } = require('./arweave/passes');
 
 (async() => {
     const program = new Command();
@@ -38,6 +40,13 @@ const utils = require('./utils');
             process.env.MODE = 'client';
             process.env.SUBMODE = 'migrate';
         });
+    clientCommand.command('transferpass <address>')
+        .description('transfer the pass to the given address')
+        .action((address) => {
+            process.env.MODE = 'client';
+            process.env.SUBMODE = 'transferpass';
+            process.env.TRANSFERPASS_ADDRESS = address;
+        });
 
     const providerCommand = program.command('provider');
     providerCommand
@@ -54,6 +63,13 @@ const utils = require('./utils');
         .action(() => {
             process.env.MODE = 'provider';
             process.env.SUBMODE = 'migrate';
+        });
+    providerCommand.command('transferpass <address>')
+        .description('transfer the pass to the given address')
+        .action((address) => {
+            process.env.MODE = 'provider';
+            process.env.SUBMODE = 'transferpass';
+            process.env.TRANSFERPASS_ADDRESS = address;
         });
 
     program.parse(process.argv);
@@ -103,6 +119,50 @@ const utils = require('./utils');
     // Init wallet
     const { initWallet } = require('./wallet');
     const wallet = await initWallet();
+
+    // Transfer pass mode
+    if (process.env.SUBMODE && process.env.SUBMODE === 'transferpass') {
+        try {
+            const { getAoInstance } = require('./arweave/ao');
+            const ao = getAoInstance({ wallet });
+
+            if (!process.env.TRANSFERPASS_ADDRESS || !process.env.TRANSFERPASS_ADDRESS.length) {
+                throw new Error("address is not given for transferpass");
+            }
+
+            await checkPasses(true);
+            const ourAddress = await wallet.getAddress();
+            const has = await hasPass(ourAddress);
+            if (!has) {
+                throw new Error("You don't have a pass to transfer");
+            }
+
+            console.log("This will transfer pass to", process.env.TRANSFERPASS_ADDRESS);
+            console.log("Please confirm by typing 'yes'");
+
+            const rl = readline.createInterface({
+                input: process.stdin,
+                output: process.stdout
+            });
+
+            rl.question('Confirm transfer: ', async (answer) => {
+                if (answer === 'yes') {
+                    const result = await ao.transferPass(process.env.TRANSFERPASS_ADDRESS);
+                    console.log("Transfer result:", result);
+                } else {
+                    console.log("Transfer cancelled.");
+                }
+                rl.close();
+                process.exit(0);
+            });
+
+            return;
+
+        } catch(e) {
+            console.error(e);
+            process.exit(1);
+        }
+    }
 
     // Start API
     const { startApi } = require('./api');

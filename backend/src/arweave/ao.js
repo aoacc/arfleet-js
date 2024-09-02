@@ -63,6 +63,7 @@ class AOClient {
             console.log({ res });
     
             const resdata = await this.getResult(process_id, res);
+            console.log(resdata);
 
             if (resdata["Messages"] && resdata["Messages"].length > 0 && resdata["Messages"][0].Data) {
                 const result = resdata["Messages"][0].Data;
@@ -186,6 +187,14 @@ class AOClient {
         } else {
             throw new Error("Invalid response from dryRun");
         }
+    }
+
+    async transferPass(address) {
+        const res = await this.sendAction(config.passes.address, "Transfer", "{}", {
+            "Quantity": "1",
+            "Recipient": address,
+        });
+        return res;
     }
 }
 

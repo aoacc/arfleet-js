@@ -65,6 +65,7 @@ const getPasses = () => {
 }
 
 module.exports = {
+    checkPasses,
     startChecking,
     getPasses,
     hasPass

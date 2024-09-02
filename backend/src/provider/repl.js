@@ -2,6 +2,7 @@ const fs = require('fs');
 const nodepath = require('path');
 const utils = require('../utils');
 const config = require('../config');
+const { getAoInstance } = require('../arweave/ao');
 
 const startProviderRepl = async (provider) => {
     const readline = require('readline');
