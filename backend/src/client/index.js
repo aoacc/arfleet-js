@@ -20,8 +20,8 @@ class Client {
         this.ao = getAoInstance({ wallet: this.wallet });
 
         console.log("Datadir: ", utils.getDatadir());
-        console.log(color("Wallet address: " + this.address, "cyan"));
-        console.log(color("Balance (Token "+config.defaultToken+"): " + await this.ao.getTokenBalance(config.defaultToken, config.defaultTokenDecimals, this.address) + " " + config.defaultTokenSymbol, "cyan"));
+        
+        await utils.outputWalletAddressAndBalance(this.ao, this.address, config.defaultToken, config.defaultTokenDecimals, config.defaultTokenSymbol);
 
         await passes.startChecking(this.address);
 

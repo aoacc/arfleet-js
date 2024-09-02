@@ -1,5 +1,7 @@
 const fs = require('fs');
 const nodepath = require('path');
+const utils = require('../utils');
+const config = require('../config');
 
 const startProviderRepl = async (provider) => {
     const readline = require('readline');
@@ -33,6 +35,17 @@ const startProviderRepl = async (provider) => {
                 const { announce } = require('./announce');
                 let connectionStrings = process.env.CONNECTION_STRINGS || line.split(' ')[1]
                 await announce(provider, connectionStrings);
+                break;
+            case 'balance':
+                await utils.outputWalletAddressAndBalance(provider.ao, provider.address, config.defaultToken, config.defaultTokenDecimals, config.defaultTokenSymbol);
+                break;
+            case 'help':
+                console.log('Commands:');
+                console.log('  announce <connection_strings> - Announce the provider to the given connection strings');
+                console.log('  balance - Show the balance of the provider');
+                console.log('  help - Show this help message');
+                console.log('  exit - Exit the REPL');
+                console.log('  quit - Exit the REPL');
                 break;
             case 'exit':
             case 'quit':
