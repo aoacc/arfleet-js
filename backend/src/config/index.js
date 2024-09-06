@@ -64,8 +64,8 @@ const defaultConfig = {
     },
 
     aoConfig: {
-        MU_URL: "https://mu21.ao-testnet.xyz",
-        CU_URL: "https://cu21.ao-testnet.xyz",
+        MU_URL: "https://mu.ao-testnet.xyz",
+        CU_URL: "https://cu.ao-testnet.xyz",
         // GATEWAY_URL: "https://arweave.net",
         GATEWAY_URL: "https://arweave-search.goldsky.com",
     },
