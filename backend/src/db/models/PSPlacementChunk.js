@@ -20,6 +20,7 @@ class PSPlacementChunk extends Model {
     static async getData(chunk_id) {
         try {
             const chunk = await PSPlacementChunk.findOneByOrFail('encrypted_chunk_id', chunk_id);
+            // console.log('Get data: chunk_id', chunk_id);
             const data = fs.readFileSync(PSPlacementChunk.getPath(chunk.id));
             res.send(data);
         } catch(e) {

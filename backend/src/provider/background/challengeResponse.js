@@ -64,6 +64,7 @@ const prepareChallengeResponse = async(placement, challenge) => {
     
     // reverse
     const chunk = await PSPlacementChunk.findOneBy('encrypted_chunk_id', leaf.value);
+    // console.log('Searching for chunk: ', leaf.value);
     if (!chunk) throw new Error('Chunk not found: '+leaf.value); // todo: handle better
 
     const chunk_path = PSPlacementChunk.getPath(chunk.id);

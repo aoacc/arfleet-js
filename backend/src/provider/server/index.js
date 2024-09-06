@@ -9,6 +9,8 @@ const nodepath = require('path');
 const fs = require('fs');
 const mime = require('mime-types');
 const { hasPass } = require('../../arweave/passes');
+const cors = require('cors');  // Add this import at the top of the file
+const { b64UrlToString } = require('../../utils/b64');
 
 let state = {};
 
@@ -114,7 +116,7 @@ const validateSignature = (req) => {
 
 const ensurePass = (client_id) => {
     if (!hasPass(client_id)) {
-        console.error("Got request from client without pass, address: ", client_id);
+        console.error("Got request from client without pass, address:", client_id);
         throw new Error('Client does not have ArFleet:Genesis pass');
     }
 }
@@ -125,6 +127,9 @@ const startPublicServer = async() => {
             const express = require('express');
             const bodyParser = require('body-parser');
             const app = express();
+
+            // Enable CORS for all routes
+            app.use(cors());
 
             // app.use(express.json());
             app.use(express.json({ limit: '10mb' }));
@@ -146,7 +151,7 @@ const startPublicServer = async() => {
                     res.send('pong');
                 } catch(e) {
                     console.log('Error: ', e);
-                    res.send('Error');
+                    res.status(500).send('Error');
                 }
             });
 
@@ -167,7 +172,7 @@ const startPublicServer = async() => {
                     console.log(provider.address);
                     if (!provider_id || provider_id !== provider.address) {
                         console.error('Error: Provider id mismatch');
-                        res.send('Error: Provider id mismatch');
+                        res.status(400).send('Error: Provider id mismatch');
                         return;
                     }
 
@@ -180,7 +185,7 @@ const startPublicServer = async() => {
                     // save
                     const existing = await PSPlacement.findOneBy('id', placement_id);
                     if (existing) {
-                        res.send('Error: Placement already exists');
+                        res.status(400).send('Error: Placement already exists');
                         return;
                     }
 
@@ -194,7 +199,7 @@ const startPublicServer = async() => {
                     res.send('OK');
                 } catch(e) {
                     console.log('Error: ', e);
-                    res.send('Error');
+                    res.status(500).send('Error');
                 }
             });
 
@@ -232,7 +237,7 @@ const startPublicServer = async() => {
                     const merkle_tree_hex = merkle_tree.map(c => c.toString('hex'));
                     const our_merkle_root = merkle_tree_hex[merkle_tree_hex.length-1];
                     if (our_merkle_root !== placement.merkle_root) {
-                        res.send('Error: Merkle root mismatch: ours[' + our_merkle_root + '] vs received[' + placement.merkle_root + ']');
+                        res.status(400).send('Error: Merkle root mismatch: ours[' + our_merkle_root + '] vs received[' + placement.merkle_root + ']');
                         return;
                     }
 
@@ -260,21 +265,24 @@ const startPublicServer = async() => {
                     const state = await getAoInstance().getState(placement.process_id);
                     console.log('Process state: ', state);
 
-                    if (!state) return res.send('Error: Process not found');
+                    if (!state) return res.status(400).send('Error: Process not found');
 
-                    if (state["Client"] !== client_id) return res.send('Error: Client mismatch');
+                    if (state["Client"] !== client_id) return res.status(400).send('Error: Client mismatch');
                     // todo: if (state["Provider"] !== provider.address) return res.send('Error: Provider mismatch');
-                    if (state["Status"] !== "Created") return res.send('Error: Status mismatch');
+                    if (state["Status"] !== "Created") return res.status(400).send('Error: Status mismatch');
 
                     placement.status = PS_PLACEMENT_STATUS.ACCEPTED;
                     await placement.save();
 
                     // Now create chunks
+                    // console.log('Creating chunks: ', chunks);
                     for (let pos = 0; pos < chunks.length; pos++) {
                         const chunk_id = chunks[pos];
+                        const chunk_id_hex = chunk_id.toString('hex');
+                        // console.log('Creating chunk: ', placement.id + '_' + pos, 'encrypted_chunk_id: ', chunk_id_hex, 'pos: ', pos);
                         const placement_chunk = await PSPlacementChunk.findByIdOrCreate(placement.id + '_' + pos, {
                             placement_id: placement.id,
-                            encrypted_chunk_id: chunk_id,
+                            encrypted_chunk_id: chunk_id_hex,
                             pos
                         });
                     }
@@ -283,7 +291,7 @@ const startPublicServer = async() => {
                     res.send('OK');
                 } catch(e) {
                     console.log('Error: ', e);
-                    res.send('Error');
+                    res.status(500).send('Error');
                 }
             });
 
@@ -308,7 +316,7 @@ const startPublicServer = async() => {
 
                     const chunk_data_hashed = utils.hashFnHex(chunk_data);
                     if (chunk_data_hashed !== hash) {
-                        res.send('Error: Chunk data hash mismatch: ours[' + chunk_data_hashed + '] vs received[' + hash + ']');
+                        res.status(400).send('Error: Chunk data hash mismatch: ours[' + chunk_data_hashed + '] vs received[' + hash + ']');
                         return;
                     }
 
@@ -322,22 +330,118 @@ const startPublicServer = async() => {
 
                     const placement_chunk = await PSPlacementChunk.findOneByOrFail('id', placement_id + '_' + pos);
                     if (placement_chunk.placement_id !== placement_id) {
-                        res.send('Error: Placement id mismatch');
+                        res.status(400).send('Error: Placement id mismatch');
                         return;
                     }
 
                     placement_chunk.is_received = true;
                     placement_chunk.encrypted_chunk_id = hash;
+                    console.log('Saving placement chunk: ', placement_chunk, 'encrypted_chunk_id: ', placement_chunk.encrypted_chunk_id);
                     placement_chunk.original_size = original_size;
                     await placement_chunk.save();
 
-                    console.log('Received chunk: ', req.body);
+                    // console.log('Received chunk: ', req.body);
                     res.send('OK');
                 } catch(e) {
                     console.log('Error: ', e);
-                    res.send('Error');
+                    res.status(500).send('Error');
                 }
             });
+
+            app.post('/cmd/upload', express.raw({ type: 'application/octet-stream', limit: '10mb' }), async (req, res) => {
+                const CHUNK_SIZE = 8192;
+                const ORIGINAL_SIZE = 8128;
+
+                console.log("calling /cmd/upload");
+                try {
+                    const client_id = validateSignature(req);
+                    ensurePass(client_id);
+                    
+                    const placement_id = req.headers['x-placement-id'];
+                    const placement = await PSPlacement.findOneByOrFail('id', placement_id);
+                    placement.validateOwnership(client_id);
+                    placement.validateStatus(PS_PLACEMENT_STATUS.CREATED);
+
+                    const pos = parseInt(req.headers['x-chunk-index'], 10);
+                    const chunkHash = req.headers['x-chunk-hash'];
+
+                    const rsaPublicKeyPemJSON = req.headers['x-rsa-public-key'];
+                    let rsaPublicKeyPem = b64UrlToString(rsaPublicKeyPemJSON);
+
+                    if (!placement.public_key) {
+                        placement.public_key = rsaPublicKeyPem;
+                        await placement.save();
+                    }
+
+                    const chunk_data = req.body;
+
+                    // console.log('Received chunk: ', req.body);
+
+                    if (!req.body || req.body.length === 0) {
+                        return res.status(400).send('No file data received');
+                    }
+            
+                    // Make sure the chunk is the correct size
+                    if (req.body.length !== CHUNK_SIZE) {
+                        return res.status(400).send('Chunk size does not match: ' + req.body.length + ' vs ' + CHUNK_SIZE);
+                    }
+
+                    // First: Make sure it hashes to the correct chunk hash
+                    const realChunkHash = utils.hashFnHex(chunk_data);
+                    if (chunkHash !== realChunkHash) {
+                        return res.status(400).send('Chunk hash does not match');
+                    }
+
+                    // todo: make sure it's part of the tree
+                    // todo: make sure it's the right position
+
+                    // save it
+                    const path = PSPlacementChunk.getPath(placement_id + '_' + pos);
+                    await utils.mkdirp(nodepath.dirname(path));
+                    fs.writeFileSync(path, chunk_data);
+
+                    // Now create chunks
+                    // for (let pos = 0; pos < chunks.length; pos++) {
+                    //     const chunk_id = chunks[pos];
+                    //     const placement_chunk = await PSPlacementChunk.findByIdOrCreate(placement.id + '_' + pos, {
+                    //         placement_id: placement.id,
+                    //         encrypted_chunk_id: chunk_id,
+                    //         pos
+                    //     });
+                    // }                    
+
+                    // const placement_chunk = await PSPlacementChunk.findOneByOrFail('id', placement_id + '_' + pos);
+
+                    // console.log({placement_id, pos, realChunkHash});
+
+                    console.log('PS Creating chunk: ', placement_id + '_' + pos, 'encrypted_chunk_id: ', realChunkHash, 'pos: ', pos);
+                    const placement_chunk = await PSPlacementChunk.findByIdOrCreate(placement_id + '_' + pos, {
+                        placement_id: placement.id,
+                        encrypted_chunk_id: realChunkHash,
+                        pos
+                    });
+
+                    if (placement_chunk.placement_id !== placement_id) {
+                        res.status(400).send('Error: Placement id mismatch');
+                        return;
+                    }
+
+                    placement_chunk.is_received = true;
+                    placement_chunk.encrypted_chunk_id = realChunkHash;
+                    placement_chunk.original_size = ORIGINAL_SIZE;
+                    placement_chunk.public_key = rsaPublicKeyPem;
+                    console.log('[Saving placement chunk]: ', placement_chunk, 'encrypted_chunk_id: ', placement_chunk.encrypted_chunk_id);
+                    await placement_chunk.save();
+
+                    /////
+
+                    // console.log('Received chunk: ', req.body);
+                    res.send('OK');
+                } catch(e) {
+                    console.log('Error: ', e);
+                    res.status(500).send('Error');
+                }
+            })
 
             app.post('/cmd/complete', async(req, res) => {
                 console.log("calling /cmd/complete");
@@ -360,6 +464,30 @@ const startPublicServer = async() => {
                     const public_key = req.body.public_key;
                     placement.public_key = public_key;
                     await placement.save();
+
+                    // // --- Check the chunks once again and make sure we have them ---
+                    // placement.merkle_root = req.body.merkle_root;
+                    // const chunksHex = req.body.chunks;
+                    // const chunks = chunksHex.map(c => Buffer.from(c, 'hex'));
+                    // const merkle_tree = utils.merkle(chunks, utils.hashFn);
+                    // const merkle_tree_hex = merkle_tree.map(c => c.toString('hex'));
+                    // const our_merkle_root = merkle_tree_hex[merkle_tree_hex.length-1];
+                    // if (our_merkle_root !== placement.merkle_root) {
+                    //     res.status(400).send('Error: Merkle root mismatch: ours[' + our_merkle_root + '] vs received[' + placement.merkle_root + ']');
+                    //     return;
+                    // }
+
+                    // todo: better place it in a file, not in db
+
+                    // console.log('placement:', placement);
+                    // console.log('chunksHex:', chunksHex);
+                    // console.log('chunks:', chunks);
+                    // console.log('merkle_tree:', merkle_tree);
+                    // console.log('merkle_tree_hex:', merkle_tree_hex);
+                    // console.log('our_merkle_root:', our_merkle_root);
+                    // console.log('received merkle_root:', placement.merkle_root);
+
+                    // placement.merkle_tree_full = utils.merkleFullBinToHex(utils.merkleFull(chunks, utils.hashFn));
 
                     // --- Send collateral and thus activate it ---
 
@@ -403,7 +531,7 @@ const startPublicServer = async() => {
                             await placement.save();
 
                             console.log('Error: ', e);
-                            res.send('Error');
+                            res.status(500).send('Error');
                         }
                     }
 
@@ -416,7 +544,7 @@ const startPublicServer = async() => {
 
                 } catch(e) {
                     console.log('Error: ', e);
-                    res.send('Error');
+                    res.status(500).send('Error');
                 }
             });
 
@@ -436,7 +564,24 @@ const startPublicServer = async() => {
                     // }
                 } catch(e) {
                     console.log('Error: ', e);
-                    res.send('Error');
+                    res.status(500).send('Error');
+                }
+            });
+
+            app.head('/download/:chunk_id', async (req, res) => {
+                try {
+                    const chunk_id = req.params.chunk_id;
+                    const filename = req.query.filename; // Get the filename from the query parameter
+                    const clientIp = req.ip || req.socket.remoteAddress;
+                    console.log(`HEAD /download/${chunk_id} requested from ${clientIp} with filename: ${filename}`);
+                    const data = await PSPlacementChunk.getData(chunk_id);
+
+                    res.setHeader('Content-Type', contentType);
+                    res.setHeader('Content-Length', Buffer.byteLength(data));
+                    res.end();
+                } catch (e) {
+                    console.error('Error in /download/:chunk_id (HEAD):', e);
+                    res.status(500).end();
                 }
             });
 

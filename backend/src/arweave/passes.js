@@ -23,7 +23,14 @@ const checkPasses = async(firstTime = false, ourAddress = null) => {
             Object.entries(passesDestringified).filter(([key, value]) => value > 0)
         );
 
-        passes = passesFiltered;
+        passesToSave = passesFiltered;
+
+        if (!passesToSave) {
+            console.error(color("WARNING: No passes returned from AO, not saving", "red"));
+            return;
+        }
+
+        passes = passesToSave;
 
         if (firstTime) {
             console.log(Object.keys(passes).length.toString() + " ArFleet:Genesis passes found");
@@ -50,6 +57,7 @@ const checkPasses = async(firstTime = false, ourAddress = null) => {
 }
 
 const hasPass = (address) => {
+    // console.log({passes})
     return passes && passes[address] && passes[address] > 0;
 }
 

@@ -25,6 +25,7 @@ let decryptChunksQueue = new BackgroundQueue({
         console.log('Decrypting placement chunk: ', placement_chunk_id);
 
         const placement_chunk = await PSPlacementChunk.findOrFail(placement_chunk_id);
+        // console.log('Placement chunk: ', placement_chunk);
 
         // console.log('Placement chunk: ', placement_chunk);
 
@@ -52,9 +53,13 @@ let decryptChunksQueue = new BackgroundQueue({
         }
 
         // update
+        // console.log('[Updating placement chunk]: ', placement_chunk);
         placement_chunk.is_decrypted = true;
         placement_chunk.original_chunk_id = utils.hashFnHex(fs.readFileSync(decrypted_chunk_path, null));
         await placement_chunk.save();
+
+        // console.log('Decrypted placement chunk: ', placement_chunk.id, '->', placement_chunk.original_chunk_id);
+        // console.log('[DecryptChunksQueue] Decrypted placement chunk: ', placement_chunk);
     }
 }, 'decryptChunksQueue');
 
