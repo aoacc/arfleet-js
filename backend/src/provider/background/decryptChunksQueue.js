@@ -22,7 +22,7 @@ let decryptChunksQueue = new BackgroundQueue({
         return ids;
     },
     processCandidate: async (placement_chunk_id) => {
-        console.log('Decrypting placement chunk: ', placement_chunk_id);
+        // console.log('Decrypting placement chunk: ', placement_chunk_id);
 
         const placement_chunk = await PSPlacementChunk.findOrFail(placement_chunk_id);
         // console.log('Placement chunk: ', placement_chunk);
@@ -38,9 +38,11 @@ let decryptChunksQueue = new BackgroundQueue({
         const placement = await PSPlacement.findOrFail(placement_chunk.placement_id);
         const public_key = placement.public_key;
         if (!public_key) {
-            console.log('No public key to decrypt placement chunk: ', placement_chunk.id);
+            // console.log('No public key to decrypt placement chunk: ', placement_chunk.id);
             return;
         }
+
+        console.log('Decrypting placement chunk: ', placement_chunk_id);
 
         // decrypt
         decryptFile(encrypted_chunk_path, decrypted_chunk_path, public_key);

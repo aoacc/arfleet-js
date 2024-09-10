@@ -67,7 +67,7 @@ const defaultConfig = {
         MU_URL: process.env.MU_URL || "https://mu.ao-testnet.xyz",
         CU_URL: process.env.CU_URL || "https://cu.ao-testnet.xyz",
         // GATEWAY_URL: "https://arweave.net",
-        GATEWAY_URL: "https://arweave-search.goldsky.com",
+        GATEWAY_URL: process.env.GATEWAY_URL || "https://arweave-search.goldsky.com",
     },
 
     rsa_encryption: {
