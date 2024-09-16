@@ -29,7 +29,7 @@ class AOClient {
                 throw e;
             } else {
                 console.log("Retrying...");
-                return getResult(process_id, message, attempt + 1);
+                return this.getResult(process_id, message, attempt + 1);
             }
         }
     }

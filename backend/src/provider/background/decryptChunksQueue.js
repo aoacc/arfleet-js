@@ -39,6 +39,7 @@ let decryptChunksQueue = new BackgroundQueue({
         const public_key = placement.public_key;
         if (!public_key) {
             // console.log('No public key to decrypt placement chunk: ', placement_chunk.id);
+            // todo: mark as decryption failed
             return;
         }
 
